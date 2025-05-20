@@ -1,13 +1,10 @@
 
-# SQL Executor (SQL実行)
+# SQL Executor
 
 SQLクエリを指定されたデータベース接続上で実行し、結果をデータテーブルとして出力します。
 
-```mermaid
-graph LR
-    A[データベース接続] --> B(SQL Executor);
-    B --> C[データテーブル];
-```
+![DB_flow](./imgs/DB_flow.png)
+
 
 ## 概要
 
@@ -36,17 +33,14 @@ SQL Executorウィジェットは、提供されたデータベース接続オ�
 
 ## 機能の説明
 
-OWSQLExecutorウィジェットは、主に3つの領域で構成されています。
+主に3つの領域で構成されています。
+![sqlexec_overview](./imgs/sqlexec_overview.png)
 
-`![SQL Executorウィジェットのレイアウト](img/SQLExecutor-Layout.png)`
-*(画像は実際のウィジェットのスクリーンショットに置き換えてください)*
 
 1.  **データベースコンテキスト (左ペイン)**:
     *   **クエリ (Queries) タブ**:
         *   **クエリ検索 (Search queries...)**: 保存されたクエリを名前でフィルタリングします。
         *   **保存されたクエリ (Saved Queries)**:
-            *   ディレクトリ (通常は `~/.allye_secrets/config_allye.yaml` 内の `SAVED_SQL_QUERIES` で指定されたパス) に保存されている `.sql` ファイルの一覧が表示されます。
-            *   各クエリ項目にはクエリ名と、クエリを「登録済みクエリ」として内部的にマークするための `+` ボタンが表示されます（`system_prompt.sql` は自動的に登録されます）。
             *   クエリ名をダブルクリックすると、そのクエリが中央のクエリエディタに読み込まれます。
             *   右クリックでコンテキストメニューが表示され、「名前の変更(Rename)」「削除(Delete)」が可能です。
         *   **新規クエリ (New Query) ボタン**: 新しい空のクエリ (`Untitled Query X`) を作成し、リストに追加します。
@@ -79,10 +73,9 @@ OWSQLExecutorウィジェットは、主に3つの領域で構成されていま
     *   `current_query_name`: 現在エディタで開いているクエリの名前。
     *   `query`: 現在エディタに入力されているクエリテキスト。
     *   `max_rows_display`: 結果テーブルに表示する最大行数。
-    *   `queries_directory`: 保存されたクエリが格納されるディレクトリのパス。これは `~/.allye_secrets/config_allye.yaml` ファイル内の `SAVED_SQL_QUERIES` キーで設定されます。
-    *   `registered_queries`: 内部的に「登録済み」としてマークされたクエリ名のリスト (`system_prompt.sql` が自動的に含まれます)。
 
 ## 使用例
+![DB_flow](./imgs/DB_flow.png)
 
 1.  **データベース接続の準備**:
     *   Orangeのキャンバスに「Database Connection」ウィジェット（または同等の接続を提供するウィジェット）を配置します。
@@ -109,28 +102,3 @@ OWSQLExecutorウィジェットは、主に3つの領域で構成されていま
 5.  **結果の活用**:
     *   SELECTクエリの結果は、ウィジェットの `Data` 出力からOrangeのデータテーブルとして出力されます。
     *   例えば、「Data Table」ウィジェットをSQL Executorの出力に接続することで、結果をOrange標準のテーブルビューアで確認したり、さらに他の分析ウィジェットに渡したりすることができます。
-
-    ```mermaid
-    graph TD
-        DBConn["Database Connection<br/>(DB設定)"] --> SQLExec["SQL Executor<br/>(クエリ: SELECT * FROM ...)"];
-        SQLExec --> DataTbl["Data Table<br/>(結果表示)"];
-    ```
-
-## 詳細なロジック
-
-*   **非同期クエリ実行**:
-    `SQLWorker` (QThreadのサブクラス) を使用して、データベースへのクエリ実行をバックグラウンドスレッドで行います。これにより、重いクエリの実行中にOrangeのUIがフリーズするのを防ぎます。`SQLWorker` は結果 (`resultReady`)、エラー (`errorOccurred`)、進捗 (`progressUpdate`)、完了 (`finished`) をシグナル経由でメインスレッドに通知します。
-*   **エラーハンドリング**:
-    データベースクエリの実行中に例外が発生した場合、`SQLWorker` は `errorOccurred` シグナルを発行します。メインウィジェットはこれを受け取り、ステータスラベルを更新し、結果テーブルの代わりにエラー表示エリアに詳細なエラーメッセージとトレースバックを表示します。
-*   **クエリの保存と読み込み**:
-    *   クエリはユーザーの指定したディレクトリ (設定ファイル `config_allye.yaml` の `SAVED_SQL_QUERIES` で定義) に `.sql` ファイルとして保存されます。ファイル名はクエリ名をスペースからアンダースコアに置換したものです (例: "My Query" -> `My_Query.sql`)。
-    *   ウィジェット初期化時および「Queries」タブの更新時に、このディレクトリから `.sql` ファイルをスキャンして「Saved Queries」リストを構築します。
-    *   `system_prompt.sql` という名前のファイルは特別扱いされ、自動的に「登録済みクエリ」リストに追加されます。このファイルが存在しない場合は、デフォルトの内容で自動生成されます。
-*   **設定ファイル (`config_allye.yaml`)**:
-    ウィジェットは起動時に `~/.allye_secrets/config_allye.yaml` ファイルを読み込みます。このファイルから `SAVED_SQL_QUERIES` の値を取得し、クエリを保存・読み込みするディレクトリとして使用します。
-*   **構文ハイライト**:
-    `SQLHighlighter` (QSyntaxHighlighterのサブクラス) を使用して、クエリエディタ内のSQL構文（キーワード、関数、文字列、コメント、数値）をリアルタイムで色分け表示します。
-*   **結果の表示**:
-    SELECTクエリの結果は `pandas.DataFrame`として取得され、`ResultTable` (QTableWidgetのサブクラス) に表示されます。表示される行数は `max_rows_display` 設定で制限されます。DataFrameは `Orange.data.pandas_compat.table_from_frame` を用いてOrangeのデータテーブル形式に変換され、ウィジェットの `Data` 出力ポートから送信されます。
-
----

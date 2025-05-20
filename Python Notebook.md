@@ -4,10 +4,12 @@ Allye内でJupyter Notebook環境を提供し、Pythonコードの実行とデ�
 
 Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウンドで起動されます。デフォルトのポート番号は `8887` ですが、Allyeの右上にある歯車アイコン (下図参照) からアクセスできる「User Settings」ダイアログ (下図参照) で変更可能です。
 
-<img src="toolbar_settings_icon.png" alt="User Settings Icon" width="50"/>
+![user_setting_icon](./imgs/user_setting_icon.png)
+
 *Allyeツールバーの設定アイコン*
 
-<img src="user_settings_dialog.png" alt="User Settings Dialog" width="400"/>
+![user_settings](./imgs/user_settings.png)
+
 *User Settingsダイアログ: Jupyter Portの設定*
 
 **入力 (Inputs)**
@@ -44,8 +46,9 @@ Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウ�
 
 *   **Jupyter Notebook環境**:
     *   ウィジェットのメインエリアにJupyter Notebookインターフェースが表示され、コードの記述、実行、Markdownセルでのドキュメンテーション作成が可能です。
-    *   ウィジェットアイコン: <img src="ow_notebook.pyの存在するディレクトリ/icons/notebook.svg" alt="Notebook Icon" width="20"/>
-    <img src="ow_notebook_screenshot.png" alt="Python Notebook Widget Screenshot" width="700"/>
+
+    ![notebook_overview](./imgs/notebook_overview.png)
+
     *Python Notebookウィジェットの全体像*
 *   **データ入出力**:
     *   **入力**: 上流のウィジェットから渡されたデータは、Notebook起動時に自動生成されるコードによってPandas DataFrame `df` に読み込まれます。
@@ -99,6 +102,8 @@ Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウ�
 
 **使用例**
 
+![notebook_flow](./imgs/notebook_flow.png)
+
 1.  **データのフィルタリングと新規列の追加**:
     *   `File` ウィジェットで `iris.csv` を読み込みます。
     *   `File` ウィジェットの出力を `Python Notebook` ウィジェットの `Data` 入力に接続します。
@@ -129,35 +134,6 @@ Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウ�
 
 **詳細なロジック**
 
-*   **初期化 (`__init__`)**:
-    1.  `config_allye.yaml` からAPIキー、Jupyterサーバーのホスト・ポート、各種パス設定（プロンプトファイル、Notebook保存場所など）を読み込みます。
-    2.  ウィジェットごとにユニークな `widget_id` を生成します。これにより、Notebookファイル名 (`notebook_<widget_id>.ipynb`)、入力データ用Pickleファイル名 (`in_data_<widget_id>.pkl`)、出力データ用Pickleファイル名 (`out_data_<widget_id>.pkl`)、シグナルファイル名 (`signal_<widget_id>_complete.txt`) が一意に決まります。
-    3.  `_create_notebook()`: 指定されたパスにNotebookファイルが存在しない場合は、`NOTEBOOK_TEMPLATE` を元に新規作成します。存在する場合は、データ入出力に関わるコードセル（`read_from_shared_memory` や `store_output_df` を含むセル）を最新のパス情報で更新します。
-    4.  Jupyter NotebookのURL (例: `http://localhost:8887/notebooks/notebook_<widget_id>.ipynb`) を構築し、`QWebEngineView` で表示します。
-    5.  Notebook Assistant用のチャットUI (`setup_chat_ui`) と `GeminiAPIWorker` (`setup_api_worker`) を初期化します。APIワーカーは別スレッドで動作し、LLMとの非同期通信を処理します。
-*   **データ入力 (`set_data`)**:
-    1.  上流ウィジェットから `Orange.data.Table` 形式のデータを受け取ります。
-    2.  `_write_data_to_shared_memory()`:
-        *   Orange TableをPandas DataFrameに変換します (`table_to_frame`)。
-        *   DataFrameをArrowテーブル経由でシリアライズし、共有メモリ (`input_shm_name`) に書き込みます。
-        *   フォールバックとして、DataFrameをPickleファイル (`in_data_<widget_id>.pkl`) にも保存します。これは、共有メモリでのデータ受け渡しが何らかの理由で失敗した場合にNotebook側で利用されます。
-    3.  `_create_notebook()`: Notebookファイル内のデータ読み込みコード（共有メモリ名、サイズ、Pickleファイルパスなど）を最新の情報で更新します。
-    4.  `_reload_notebook()`: `QWebEngineView` でNotebookをリロードし、変更を反映します。
-*   **Notebookからのデータ出力と送信 (`send_data_to_next_widget`, `_check_completion_signal`, `send_data`)**:
-    1.  **Notebook側**: ユーザーがNotebook内で `send_data_to_next_widget(output_df)` を実行すると、`widget_data_handler.store_output_df` (Allye内部ヘルパー) が呼び出されます。
-        *   この関数は、引数で渡されたDataFrame (`output_df`) を指定のPickleファイル (`out_data_<widget_id>.pkl`) に保存します。
-        *   保存後、シグナルファイル (`signal_<widget_id>_complete.txt`) に現在のタイムスタンプを書き込みます。
-    2.  **ウィジェット側**:
-        *   `_check_completion_signal()`: `QTimer` によって定期的にシグナルファイルの存在をチェックします。
-        *   シグナルファイルが見つかると、ファイルからタイムスタンプを読み取り、ファイルを削除します。その後、`send_data()` を呼び出します。
-        *   `send_data()`: `out_data_<widget_id>.pkl` からDataFrameを読み込み (`pd.read_pickle`)、`my_table_from_frame` (カスタム関数) を使って `Orange.data.Table` に変換し、`Outputs.notebook_data` チャネルから下流のウィジェットへ送信します。
-*   **Notebook Assistantの対話処理**:
-    1.  `on_send_message()`: ユーザーがメッセージを送信するとトリガーされます。
-    2.  入力テキストを取得し、チャットエリアに表示します。
-    3.  `Action Settings` の状態に応じて、データ構造情報 (`generate_data_table_prompt` でMarkdown形式のテーブルを生成) やサンプルデータ (`table_to_frame` でDataFrameに変換後、`.head().to_markdown()` でMarkdown形式に変換) を準備します。
-    4.  `GeminiAPIWorker.call_chat_api()` を別スレッドで呼び出します。この際、ユーザーテキスト、各種データ情報、システムプロンプト (設定ファイルから読み込まれた `NOTEBOOK_PROMPT_TEXT_PATH` の内容) を渡します。
-    5.  `GeminiAPIWorker` はGemini APIと通信し、応答を取得します。
-    6.  応答 (`handle_api_response`) またはエラー (`handle_api_error`) がメインスレッドにシグナルで返され、チャットエリアに表示されます。
 *   **Jupyter Notebookサーバー**:
     *   Allyeアプリケーションの起動プロセスの一部として、Pythonの `subprocess` モジュールなどを利用してJupyter Notebookサーバーが起動されると想定されます。設定ファイル (`config_allye.yaml`) の `jupyter: port` および `jupyter: host` がこの起動コマンドに使用されます。
     *   ウィジェットは、この外部で起動されているJupyterサーバーの特定のNotebookページを `QWebEngineView` で表示します。

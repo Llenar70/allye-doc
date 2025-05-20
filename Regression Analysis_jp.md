@@ -2,9 +2,6 @@
 
 インタラクティブな線形回帰分析を実行し、その結果を視覚的に評価します。
 
-| アイコン                                      |
-| :-------------------------------------------- |
-| ![](./icons/interactive_glm.svg) (プレースホルダ) |
 
 ## 入力
 
@@ -49,11 +46,16 @@
 
 Regression Analysisウィジェットは、ユーザーがインタラクティブに説明変数やモデルのパラメータを選択・変更し、線形回帰モデルの構築、評価、結果の可視化を行うためのツールです。
 
+![RA_overview](./imgs/RA_overview.png)
+
+
 ### コントロールエリア (左パネル)
 
 コントロールエリアでは、分析に使用するデータとモデルのパラメータを設定します。
 
-<img src="https://raw.githubusercontent.com/biolab/orange3-interaction-prototypes/master/interactive_regression_screenshots/main_interface_1.png" alt="コントロールエリアのスクリーンショット" width="300"/>
+![RA_data](./imgs/RA_data.png)
+![RA_model_type](./imgs/RA_model_type.png)
+
 
 1.  **Data Variables**:
     *   **Features**: モデルの説明変数として使用する変数をリストから選択します。リスト内の変数はドラッグ＆ドロップで「Target Variables」や「Meta Variables」に移動できます。
@@ -77,8 +79,11 @@ Regression Analysisウィジェットは、ユーザーがインタラクティ�
 
 メインエリアには、学習済みモデルの評価結果や、係数・残差に関する詳細な分析情報が視覚的に表示されます。このエリアはスクロール可能です。
 
-<img src="https://raw.githubusercontent.com/biolab/orange3-interaction-prototypes/master/interactive_regression_screenshots/main_interface_1.png" alt="メインエリア上部のスクリーンショット" width="700"/>
-<img src="https://raw.githubusercontent.com/biolab/orange3-interaction-prototypes/master/interactive_regression_screenshots/main_interface_2.png" alt="メインエリア下部のスクリーンショット" width="700"/>
+![RA_metric](./imgs/RA_metric.png)
+![RA_viz1](./imgs/RA_viz1.png)
+![RA_viz2](./imgs/RA_viz2.png)
+
+
 
 1.  **Model Performance**:
     *   モデルの性能を評価するための主要な指標が表示されます。
@@ -110,6 +115,9 @@ Regression Analysisウィジェットは、ユーザーがインタラクティ�
 
 ## 使用例
 
+![RA_flow](./imgs/RA_flow.png)
+
+
 以下は、Allyeに標準で含まれる `housing` データセットを用いて線形回帰分析を行う基本的なワークフローです。
 
 1.  ワークフローに **File** ウィジェットを配置し、`housing.tab` (または他の適切なデータセット) を読み込みます。
@@ -122,13 +130,6 @@ Regression Analysisウィジェットは、ユーザーがインタラクティ�
 8.  同様に、`Predictions` 出力を **Data Table** ウィジェットに接続すると、各データポイントの実測値と予測値、残差などを確認できます。
 9.  `Model` 出力を **Predictions** ウィジェットに接続し、さらに別のデータセットを入力することで、学習済みモデルを用いた予測を行うことも可能です。
 
-```mermaid
-graph LR
-    A[File] --> B(Regression Analysis);
-    B -- Coefficients --> C1(Data Table);
-    B -- Predictions --> C2(Data Table);
-    B -- Model --> D(Predictions Widget);
-```
 
 ## 詳細なロジック
 
@@ -166,7 +167,7 @@ Regression Analysisウィジェットは、入力データに対して以下の�
 
 ### プロット
 
-ウィジェット内に表示される全てのグラフは `pyqtgraph` ライブラリを使用して描画されています (`plotting.py`で定義)。
+ウィジェット内に表示される全てのグラフは `pyqtgraph` ライブラリを使用して描画されています å。
 
 *   **Predicted vs Actual Values**: 実測値と予測値の散布図。
 *   **Coefficient Visualization**: 各説明変数の係数（切片を除く）のバープロット。
