@@ -1,7 +1,5 @@
 # Binary Analysis
 
-`(アイコン: icons/interactive_classification.svg)`
-
 ロジスティック回帰を用いた二項分類分析を行うウィジェットです。対話的に特徴量やモデルのパラメータを設定し、モデルの性能評価、係数の可視化、ROC曲線の表示などを行うことができます。
 
 ## 入力 (Inputs)
@@ -42,7 +40,16 @@
 
 このウィジェットは、コントロールエリア（左パネル）でモデルの設定を行い、「適用」ボタンを押すことでメインエリア（右パネル）に分析結果を表示します。
 
+![ Binary Analysis ウィジェット全体像](./imgs/BinaryAnalysis_overview.png)
+*図1: Binary Analysisウィジェットの全体像。左に設定エリア、右に分析結果が表示される。*
+
+
+
 ### コントロールエリア (左パネル)
+
+
+![ Binary Analysis controlArea](./imgs/BinaryAnalysis_controlArea_DataVariables.png)
+![ Binary Analysis controlArea](./imgs/BinaryAnalysis_controlArea_Model.png)
 
 1.  **データ変数 (Data Variables)**
     *   **特徴量 (Features)**: モデルの学習に使用する説明変数をリストから選択（ドラッグ＆ドロップ可能）。
@@ -74,6 +81,10 @@
 ### メインエリア (右パネル)
 
 メインエリアはスクロール可能で、以下の分析結果が表示されます。
+
+![ Binary Analysis controlArea](./imgs/BinaryAnalysis_mainArea_metric.png)
+![ Binary Analysis controlArea](./imgs/BinaryAnalysis_mainArea_viz.png)
+
 
 1.  **モデル性能 (Model Performance)**
     *   学習データに対するモデルの主要な評価指標が表示されます。
@@ -118,7 +129,7 @@
 
 以下の例では、ローンデータセットを使用して `Binary Analysis` ウィジェットの基本的な使用法を示します。
 
-![Binary Analysis ウィジェットの使用例](overall_widget_view.png)
+![Binary Analysis ウィジェットの使用例](./imgs/BinaryAnalysis_flow.png)
 
 1.  **データロード**: まず、`File` ウィジェットを使用して分析したいデータセット（例: ローン審査データ）をAllyeに読み込みます。このデータには、ローンの申請額 (`loan_amnt`)、期間 (`term`)、金利 (`int_rate`)、ローングレード (`grade`) などの特徴量と、ローンの結果 (`loan_status`) を示す目的変数が含まれているとします。
 
@@ -147,12 +158,6 @@
     *   `Binary Analysis` ウィジェットの **Predictions** 出力を `Data Table` ウィジェットに接続すると、元のデータに予測クラスと各クラスへの所属確率が付加された結果を確認できます。
     *   **Coefficients** 出力を別の `Data Table` に接続すると、係数の詳細（VIF値を含む）をより詳しく分析できます。
 
-```mermaid
-graph LR
-    A[File (ローンデータ)] -- Data --> B(Binary Analysis)
-    B -- Predictions --> C[Data Table (予測結果)]
-    B -- Coefficients --> D[Data Table (係数詳細)]
-```
 
 ## 詳細なロジック
 

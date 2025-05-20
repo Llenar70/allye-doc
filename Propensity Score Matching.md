@@ -2,8 +2,6 @@
 
 傾向スコアマッチング（Propensity Score Matching, PSM）は、観察研究において処置（介入）の因果効果を推定するために用いられる統計的手法です。処置群と対照群の間で共変量（背景因子）の分布を揃えることで、より信頼性の高い効果推定を目指します。このウィジェットは、傾向スコアの計算、様々な方法によるマッチング、そしてマッチング前後の共変量のバランス評価機能を提供します。
 
-**アイコン:** `propensity_score.svg`
-
 ## 入力 (Inputs)
 
 *   **Data (データ)**:
@@ -61,11 +59,16 @@
 
 ## 機能の説明
 
+![psm overview](./imgs/psm_overview.png)
+
+
 ### コントロールエリア (左パネル)
 
 コントロールパネルでは、データ変数の割り当て、傾向スコアモデルの設定、マッチング方法のパラメータ調整を行います。
 
-`(コントロールパネルのスクリーンショット: ow_propensity_score_matching_control_panel.png を参照)`
+![psm_data_variables](./imgs/psm_data_variables.png)
+![psm_model](./imgs/psm_model.png)
+
 
 *   **Data Variables (データ変数)**
     *   **Treatment Variable (処置変数)**:
@@ -100,7 +103,8 @@
 
 メインエリアには、実行後のモデル診断結果、マッチングのプレビュー、共変量のバランス評価が表示されます。
 
-`(メインエリアのスクリーンショット: ow_propensity_score_matching_main_area.png を参照)`
+![psm_viz1](./imgs/psm_viz1.png)
+![psm_viz2](./imgs/psm_viz2.png)
 
 *   **Model Diagnostics (モデル診断)**
     *   **AUC, Accuracy, Log Loss**: 構築された傾向スコアモデルの性能指標。AUCはモデルの識別能力、Accuracyは正分類率、Log Lossは予測の対数損失を示します。
@@ -135,6 +139,8 @@
 ## 使用例
 
 以下は、ファイルからデータを読み込み、傾向スコアマッチングを行い、その結果を評価する基本的なワークフローです。
+![psm_flow](./imgs/psm_flow.png)
+
 
 1.  **File (ファイル)** ウィジェットで分析対象のデータセット (例: `titanic` や `heart_disease`) を読み込みます。
 2.  **File** ウィジェットの出力を **Propensity Score Matching** ウィジェットの `Data` 入力に接続します。
@@ -149,18 +155,12 @@
     *   `Matching Preview` でサンプルサイズの変化と傾向スコア分布の改善を確認します。
     *   `Balance Evaluation` で共変量のバランスが改善されたか（SMDが小さくなったか）を確認します。
 5.  **Propensity Score Matching** ウィジェットの出力を他のウィジェットに接続して、さらに分析を進めます。
-    *   `Matched Data` を **Data Table (データテーブル)** ウィジェットに接続して、マッチング後のデータを確認したり、**Scatter Plot (散布図)** や **Box Plot (箱ひげ図)** などで結果変数と処置群の関係を探索したりします。
+    *   `Matched Data` を **AB test** ウィジェットに接続して、マッチング後のliftを確認したり、**Scatter Plot (散布図)** や **Box Plot (箱ひげ図)** などで結果変数と処置群の関係を探索したりします。
+
+    ![psm_flpsm_flow2ow](./imgs/psm_flow2.png)
+
     *   `Propensity Scores` を **Distribution (分布)** ウィジェットに接続して、傾向スコアの詳細な分布を確認します。
     *   `Balance Report` を **Data Table** ウィジェットに接続して、SMDの値を詳細に確認します。
-
-```mermaid
-graph LR
-    A[File] --> B(Propensity Score Matching);
-    B -- Matched Data --> C[Data Table];
-    B -- Matched Data --> D[Scatter Plot];
-    B -- Propensity Scores --> E[Distribution];
-    B -- Balance Report --> F[Data Table];
-```
 
 ## 詳細なロジック
 

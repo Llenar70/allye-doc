@@ -24,21 +24,21 @@ AB Testウィジェットは、A/Bテスト（または多変量テスト）の�
         (上記テーブルで `converted` は2値の質的変数、`revenue` は量的変数、`experiment_group` が処置変数です。)
 
 ## 出力
-*   **Selected Data (選択されたデータ)**: `Orange.data.Table`
-    *   現在、このウィジェットからアクティブにデータが出力される機能はありません。将来的な機能拡張のために予約されています。
+*   このウィジェットからアクティブにデータが出力される機能はありません。将来的な機能拡張のために予約されています。
 
 ## 機能の説明
 
 AB Testウィジェットのインターフェースは、主にコントロールエリア（左側）とメインエリア（右側）に分かれています。
 
-![AB Test ウィジェット全体像](https://raw.githubusercontent.com/orange3-bioinformatics/orange-widget-abtest/main/docs/images/abtest_widget_overview.png)
+![AB Test ウィジェット全体像](./imgs/AB_test_overview.png)
 *図1: AB Testウィジェットの全体像。左に設定エリア、右に分析結果が表示される。*
 
 ### 1. コントロールエリア
 
 コントロールエリアでは、A/Bテスト分析のための各種設定を行います。
 
-![コントロールエリア](https://raw.githubusercontent.com/orange3-bioinformatics/orange-widget-abtest/main/docs/images/abtest_control_area.png)
+![コントロールエリア](./imgs/AB_test_controlArea.png)
+
 *図2: コントロールエリアの各設定項目。*
 
 *   **Data Settings (データ設定)**
@@ -71,7 +71,7 @@ AB Testウィジェットのインターフェースは、主にコントロー�
 
 メインエリアには、選択された各目的変数に対するA/Bテストの分析結果が表示されます。
 
-![分析結果エリア](https://raw.githubusercontent.com/orange3-bioinformatics/orange-widget-abtest/main/docs/images/abtest_results_area.png)
+![分析結果エリア](./imgs/AB_test_mainArea.png)
 *図3: 分析結果の表示例。目的変数 `int_rate` と `loan_status` の結果が示されている。*
 
 各目的変数ごとに、以下の情報が表とグラフで表示されます。
@@ -106,10 +106,8 @@ AB Testウィジェットのインターフェースは、主にコントロー�
 2.  **AB Test ウィジェット** をワークフローに追加します。
 3.  File ウィジェットの出力端子を AB Test ウィジェットの入力端子 `Data` に接続します。
 
-```mermaid
-graph LR
-    A[File] --> B(AB Test);
-```
+![分析flow](./imgs/AB_test_flow.png)
+
 *図4: FileウィジェットからAB Testウィジェットへの基本的な接続。*
 
 AB Testウィジェットのウィンドウが開いたら、以下の手順で設定を行います（図1参照）。

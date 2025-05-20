@@ -3,15 +3,6 @@
 ## 概要
 DB Connectorウィジェットは、様々な種類のデータベースへの接続を確立し、その接続情報を管理するためのインターフェースを提供します。SQLAlchemyライブラリを利用して、PostgreSQL, MySQL, SQL Server, Redshift, BigQueryといった主要なデータベースに対応しています。保存された接続情報を簡単に再利用したり、新しい接続を素早く設定したりすることができます。
 
-## アイコン
-`icons/db_connector.png` (ウィジェットのアイコンファイルパス)
-
-## カテゴリ
-Data
-
-## 優先度
-10
-
 ## 入力
 このウィジェットには入力データはありません。
 
@@ -24,6 +15,10 @@ Data
 
 ## 機能の説明
 DB Connectorウィジェットは、ユーザーがGUIを通じてデータベース接続を容易に設定・管理できるように設計されています。
+
+![ DB connector ウィジェット全体像](./imgs/DB_overview.png)
+*図1: Binary Analysisウィジェットの全体像。左に設定エリア、右に分析結果が表示される。*
+
 
 主な機能は以下の通りです:
 *   **多様なデータベースへの接続**: PostgreSQL, MySQL, SQL Server, Redshift, Google BigQueryといった複数のデータベースシステムに対応しています。
@@ -45,11 +40,6 @@ DB Connectorウィジェットは、ユーザーがGUIを通じてデータベ�
 ## UIコンポーネントの説明
 
 DB Connectorウィジェットの画面は、大きく分けてタイトルバー、左ペイン（保存された接続）、右ペイン（接続設定）で構成されています。
-
-**(ここにウィジェットのスクリーンショットを挿入)**
-```
-[Image of the DB Connector widget UI, similar to the provided original image]
-```
 
 ### 1. タイトルバー
 *   ウィジェットの上部にあるオレンジ色のバーで、「DB Connector」というウィジェット名が表示されます。
@@ -100,6 +90,8 @@ DB Connectorウィジェットの画面は、大きく分けてタイトルバ�
 *   **エラーメッセージ表示エリア**: `Connect` や `Save / Update` 時にエラーが発生した場合、その詳細がこのエリアに赤字で表示されます。
 
 ## 使用例
+
+![DB connector ウィジェットの使用例](./imgs/DB_flow.png)
 
 ### 例1: 新しいPostgreSQLデータベース接続を作成し、接続する
 1.  DB Connectorウィジェットを開きます。

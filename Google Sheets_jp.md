@@ -34,7 +34,7 @@ Google Cloud SDKのインストールについては、[公式ドキュメント
 
 このウィジェットは、Googleアカウントの認証、スプレッドシートへの接続・作成、データの同期設定を行うためのUIを提供します。
 
-![](./ow_google_spreadsheet_0.png)
+![Google Sheets overview](./imgs/gseets_overview.png)
 
 1.  **Google Spreadsheet Connector (ヘッダー)**
     *   ウィジェットのタイトルが表示されます。オレンジ色の背景です。
