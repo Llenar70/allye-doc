@@ -1,173 +1,165 @@
-# Time Series Plot (時系列プロット)
+# Time Series Plot
 
-時系列データを可視化し、トレンド、季節性、予測などの分析を行うウィジェットです。
+A widget for visualizing time series data and performing analyses such as trends, seasonality, and forecasting.
 
-## 入力 (Inputs)
+## Inputs
 
--   `Data`: 時系列データを含むOrangeのTableオブジェクト。
-    -   **仕様**:
-        -   少なくとも1つの時間変数が必要です。時間変数はOrangeの `TimeVariable` 型が推奨されますが、 `ContinuousVariable` (数値型、内部的にタイムスタンプとして扱われる想定) や `StringVariable` (文字列型で `%Y-%m-%d` や `%Y-%m-%d %H:%M:%S` のような一般的な日付・日時フォーマット) も時間として解釈しようと試みます。
-        -   少なくとも1つの数値変数 (`ContinuousVariable`) が値として必要です。
-    -   **入力データ例**:
-        以下は、日別の売上と在庫データを含むテーブルの例です。
+-   `Data`: An Orange Table object containing time series data.
+    -   **Specifications**:
+        -   Requires at least one time variable. Orange's `TimeVariable` type is recommended, but `ContinuousVariable` (numerical, assumed internally as a timestamp) or `StringVariable` (string type with common date/datetime formats like `%Y-%m-%d` or `%Y-%m-%d %H:%M:%S`) will also be attempted to be interpreted as time.
+        -   Requires at least one numerical variable (`ContinuousVariable`) as values.
+    -   **Example Input Data**:
+        The following is an example of a table containing daily sales and inventory data.
 
-        | 日付 (TimeVariable) | 売上 (ContinuousVariable) | 在庫 (ContinuousVariable) |
-        | :------------------ | :------------------------ | :------------------------ |
-        | 2023-01-01          | 120.5                     | 300                       |
-        | 2023-01-02          | 122.3                     | 295                       |
-        | 2023-01-03          | 118.0                     | 310                       |
-        | ...                 | ...                       | ...                       |
+        | Date (TimeVariable) | Sales (ContinuousVariable) | Inventory (ContinuousVariable) |
+        | :------------------ | :------------------------- | :----------------------------- |
+        | 2023-01-01          | 120.5                      | 300                            |
+        | 2023-01-02          | 122.3                      | 295                            |
+        | 2023-01-03          | 118.0                      | 310                            |
+        | ...                 | ...                        | ...                            |
 
-## 出力 (Outputs)
+## Outputs
 
--   `Selected Data`: グラフ上でドラッグ操作により選択されたデータポイント。選択された範囲のデータがOrangeのTableオブジェクトとして出力されます。
--   `Forecast Data`: Prophetによる予測結果を含むTableオブジェクト。元のデータ列に加えて、各予測対象変数に対して以下の列が追加されます (存在する場合)。また、予測時点のタイムスタンプと可読な日時も含まれます。
-    -   `time`: 元のデータと予測データのタイムスタンプ (ミリ秒単位)。
-    -   `time_readable`: `time` 列を人間が読める形式の日時 (`YYYY-MM-DD HH:MM:SS`) に変換したもの。
-    -   `[元の変数名]`: 元の時系列データの値。
-    -   `[元の変数名]_forecast`: Prophetによる予測値 (yhat)。
-    -   `[元の変数名]_forecast_lower`: 予測値の信頼区間の下限値 (yhat_lower)。
-    -   `[元の変数名]_forecast_upper`: 予測値の信頼区間の上限値 (yhat_upper)。
+-   `Selected Data`: Data points selected by a drag operation on the graph. The data within the selected range is outputted as an Orange Table object.
+-   `Forecast Data`: A Table object containing the forecast results from Prophet. In addition to the original data columns, the following columns are added for each forecasted target variable (if they exist). It also includes the timestamp and a readable datetime for the forecast points.
+    -   `time`: Timestamp of the original and forecast data (in milliseconds).
+    -   `time_readable`: The `time` column converted to a human-readable datetime format (`YYYY-MM-DD HH:MM:SS`).
+    -   `[Original Variable Name]`: Values of the original time series data.
+    -   `[Original Variable Name]_forecast`: Forecasted value by Prophet (yhat).
+    -   `[Original Variable Name]_forecast_lower`: Lower bound of the confidence interval for the forecast value (yhat_lower).
+    -   `[Original Variable Name]_forecast_upper`: Upper bound of the confidence interval for the forecast value (yhat_upper).
 
-## 機能の説明
+## Feature Description
 
-Time Series Plotウィジェットは、コントロールエリアとグラフ表示エリアの2つの主要部分で構成されます。
+The Time Series Plot widget consists of two main parts: the control area and the graph display area.
 
-![sqlexec_overview](./imgs/ts_overview.png)
+![ts_overview](./imgs/ts_overview.png)
 
+### Control Area
 
-
-### コントロールエリア
-
-コントロールエリアでは、データの指定、表示方法、分析ツールの設定を行います。
+In the control area, you specify data, display methods, and analysis tool settings.
 
 ![ts_ctrl1](./imgs/ts_ctrl1.png)
 ![ts_ctrl2](./imgs/ts_ctrl2.png)
 ![ts_ctrl3](./imgs/ts_ctrl3.png)
 
-#### 1. データ設定 (Data Settings)
+#### 1. Data Settings
 
--   **時間カラム (Time Column)**: プロットの時間軸として使用する列を選択します。ドロップダウンリストからデータセット内の適切な時間変数を選択してください。
--   **値カラム (Value Column)**: プロットする数値データの列を選択します。リストから1つまたは複数の数値変数を選択できます（複数選択可）。
+-   **Time Column**: Select the column to be used as the time axis for the plot. Choose the appropriate time variable from your dataset from the dropdown list.
+-   **Value Column(s)**: Select the numerical data column(s) to plot. You can select one or more numerical variables from the list (multiple selections allowed).
 
-#### 2. 表示設定 (Display Settings)
+#### 2. Display Settings
 
--   **グラフタイプ (Graph Type)**:
-    -   `折れ線グラフ (Line Chart)`: 時系列データを線で結んで表示します（デフォルト）。
-    -   `散布図 (Scatter Plot)`: 時系列データを個々の点として表示します。
--   **集計期間 (Aggregation Period)**: データの集計単位を選択します。
-    -   選択肢: `秒 (Second)`, `分 (Minute)`, `時 (Hour)`, `日次 (Daily)` (デフォルト), `週次 (Weekly)`, `月次 (Monthly)`, `四半期 (Quarterly)`, `年次 (Yearly)`。
-    -   データは選択された期間ごとに平均値で集計されて表示されます。
--   **ツールチップとグリッド線を表示 (Show Tooltips and Grid Lines)**:
-    -   チェックを入れると、グラフ上のデータポイントにマウスオーバーした際に詳細情報（日付、値など）が表示され、グラフにグリッド線が表示されます（デフォルトでオン）。
--   **スクロールでズーム (Zoom with Scroll)**:
-    -   チェックを入れると、グラフ上でマウスホイールを操作することでズームイン・ズームアウトが可能になります（デフォルトでオフ）。
--   **選択を有効化 (Enable Selection)**:
-    -   チェックを入れると、グラフ上でマウスをドラッグしてデータ範囲を選択し、そのデータを `Selected Data` 出力から送信できます（デフォルトでオン）。
--   **グラフスタイル (Graph Style)**:
-    -   **線の太さ (Line Width)**: 折れ線グラフの線の太さをスライダーで調整します（1〜10、デフォルト2）。
-    -   **ポイントサイズ (Point Size)**: 散布図の点の大きさをスライダーで調整します（2〜20、デフォルト8）。
+-   **Graph Type**:
+    -   `Line Chart`: Displays time series data connected by lines (default).
+    -   `Scatter Plot`: Displays time series data as individual points.
+-   **Aggregation Period**: Select the aggregation unit for the data.
+    -   Options: `Second`, `Minute`, `Hour`, `Daily` (default), `Weekly`, `Monthly`, `Quarterly`, `Yearly`.
+    -   Data is aggregated by the average value for the selected period and displayed.
+-   **Show Tooltips and Grid Lines**:
+    -   If checked, detailed information (date, value, etc.) is displayed when hovering over data points on the graph, and grid lines are shown on the graph (on by default).
+-   **Zoom with Scroll**:
+    -   If checked, allows zooming in and out by operating the mouse wheel on the graph (off by default).
+-   **Enable Selection**:
+    -   If checked, allows selecting a data range by dragging the mouse on the graph and sending that data through the `Selected Data` output (on by default).
+-   **Graph Style**:
+    -   **Line Width**: Adjust the line width for line charts using a slider (1-10, default 2).
+    -   **Point Size**: Adjust the point size for scatter plots using a slider (2-20, default 8).
 
+#### 3. Analysis Tools
 
+-   **Show Trendline**:
+    -   If checked, a trendline based on linear regression is displayed as a dashed line for each selected value column.
+-   **Moving Average**:
+    -   If checked, a moving average line is displayed.
+    -   **Window Size**: Specify the period (window) for calculating the moving average numerically (2-30, default 7).
+    -   **Unit**: The unit for the window size (e.g., `days`) is displayed in conjunction with the "Aggregation Period".
+-   **Seasonality Decomposition**:
+    -   If checked, decomposes the time series data into trend, seasonality, and residual components, and displays each as a separate graph below the main plot.
+    -   **Period**: Specify the period of seasonality numerically (2-365, default 7). For example, for daily data with weekly seasonality, specify 7. The unit is the number of steps of the "Aggregation Period".
+-   **Prophet Forecasting**: Performs time series forecasting using the Prophet library developed by Facebook.
+    -   If checked, forecast-related settings become active.
+    -   **Training period**:
+        -   `Auto (use all data)`: Uses the entire period of the input data for model training (default).
+        -   `Custom`: Specify the start and end dates for the data used for training using sliders.
+    -   **Forecast horizon (steps)**: Specify how many steps ahead to forecast numerically (1-1825 (equivalent to 5 years), default 30). The unit of steps will be what is selected in "Aggregation Period" (e.g., 30 days ahead if aggregation period is daily, 30 weeks ahead if weekly).
+    -   **Show confidence interval**:
+        -   If checked, the confidence interval for the forecast values is displayed on the graph (on by default).
+        -   Select the confidence level from the dropdown list (`80%`, `90%`, `95%` (default), `99%`).
+    -   **Show changepoints**:
+        -   If checked, changepoints in the trend detected by Prophet are displayed on the graph (on by default).
+        -   **Prior scale**: Adjusts the sensitivity of changepoint detection (0.001-0.5, default 0.05). Larger values make it easier to detect more changepoints.
+    -   **Seasonality Details**:
+        -   **Yearly Seasonality**: Whether to consider yearly seasonality (`True`, `False`, `Auto` (default)). `False` or `Auto` may be recommended for data in hour/minute/second units.
+        -   **Weekly Seasonality**: Whether to consider weekly seasonality (`True`, `False`, `Auto` (default)). `False` or `Auto` may be appropriate for very short-term data (e.g., second-level data over a few hours).
+        -   **Daily Seasonality**: Whether to consider daily seasonality (`True`, `False`, `Auto` (default)). Relevant for data spanning multiple days, especially hour/minute unit data.
+    -   **Custom Seasonalities**:
+        -   Add custom seasonality patterns with the `Add Custom Seasonality` button.
+            -   **Name**: Name of the seasonality (e.g., `monthly`).
+            -   **Period**: Period of the seasonality (number of steps). Unit depends on "Aggregation Period".
+            -   **Fourier Order**: Order of the Fourier series for modeling seasonality.
+            -   **Prior Scale**: Scale of the prior distribution for seasonality strength (default 10.0).
+            -   **Mode**: Type of seasonality (`additive` (default) or `multiplicative`).
+    -   **Outliers and Growth Model**:
+        -   **Enable Outlier Capping (Logistic Growth only)**: When using logistic growth model, enables outlier handling by capping values exceeding the specified Cap/Floor (off by default).
+        -   **Growth Model**: Select the growth model for the trend (`linear` (default) or `logistic`).
+        -   **Cap (Upper limit for logistic growth)**: Upper limit for logistic growth model. Active if `Enable Outlier Capping` is on and `Growth Model` is `logistic`.
+        -   **Floor (Lower limit for logistic growth, optional)**: Lower limit for logistic growth model. Active if `Enable Outlier Capping` is on and `Growth Model` is `logistic`.
+    -   **Run Forecast**:
+        -   Trains the forecast model based on the above settings and displays the forecast results on the graph and sends them from the `Forecast Data` output.
 
-#### 3. 分析ツール (Analysis Tools)
+### Graph Display Area
 
--   **トレンドライン表示 (Show Trendline)**:
-    -   チェックを入れると、選択された各値カラムに対して線形回帰によるトレンドラインが破線で表示されます。
--   **移動平均 (Moving Average)**:
-    -   チェックを入れると、移動平均線が表示されます。
-    -   **ウィンドウサイズ**: 移動平均を計算する期間（ウィンドウ）を数値で指定します（2〜30、デフォルト7）。
-    -   **単位**: ウィンドウサイズの単位（例: `days`）は「集計期間」に連動して表示されます。
--   **季節性分解 (Seasonality Decomposition)**:
-    -   チェックを入れると、時系列データをトレンド成分、季節性成分、残差成分に分解し、それぞれを個別のグラフとしてメインプロットの下に表示します。
-    -   **周期 (period)**: 季節性の周期を数値で指定します（2〜365、デフォルト7）。例えば、日次データで週周期を見る場合は7を指定します。単位は「集計期間」のステップ数です。
--   **Prophet予測 (Prophet Forecasting)**: Facebookが開発したProphetライブラリを用いて時系列予測を行います。
-    -   チェックを入れると、予測関連の設定項目が有効になります。
-    -   **トレーニング期間 (Training period)**:
-        -   `Auto (use all data)`: 入力データの全期間をモデルの学習に使用します（デフォルト）。
-        -   `Custom`: スライダーで学習に使用するデータの開始日と終了日を指定します。
-    -   **予測期間 (Forecast horizon (steps))**: 何ステップ先まで予測するかを数値で指定します（1〜1825 (5年分相当)、デフォルト30）。ステップの単位は「集計期間」で選択したものになります（例: 集計期間が日次なら30日先、週次なら30週先）。
-    -   **信頼区間表示 (Show confidence interval)**:
-        -   チェックを入れると、予測値の信頼区間がグラフ上に表示されます（デフォルトでオン）。
-        -   ドロップダウンリストから信頼度を選択します (`80%`, `90%`, `95%` (デフォルト), `99%`)。
-    -   **変化点表示 (Show changepoints)**:
-        -   チェックを入れると、Prophetが検出したトレンドの変化点がグラフ上に表示されます（デフォルトでオン）。
-        -   **Prior scale**: 変化点の検出感度を調整します（0.001〜0.5、デフォルト0.05）。値が大きいほど多くの変化点を検出しやすくなります。
-    -   **季節性の詳細設定 (Seasonality Details)**:
-        -   **Yearly Seasonality**: 年次の季節性を考慮するかどうか (`True`, `False`, `Auto` (デフォルト))。時間/分/秒単位のデータでは `False` または `Auto` が推奨されることがあります。
-        -   **Weekly Seasonality**: 週次の季節性を考慮するかどうか (`True`, `False`, `Auto` (デフォルト))。非常に短期（例: 数時間の秒単位データ）のデータでは `False` または `Auto` が適切な場合があります。
-        -   **Daily Seasonality**: 日次の季節性を考慮するかどうか (`True`, `False`, `Auto` (デフォルト))。複数日にわたるデータ、特に時間/分単位のデータで関連します。
-    -   **カスタム季節性 (Custom Seasonalities)**:
-        -   `Add Custom Seasonality` ボタンで独自の季節性パターンを追加できます。
-            -   **Name**: 季節性の名前（例: `monthly`）。
-            -   **Period**: 季節性の周期（ステップ数）。単位は「集計期間」に依存します。
-            -   **Fourier Order**: 季節性をモデル化するためのフーリエ級数の次数。
-            -   **Prior Scale**: 季節性の強さの事前分布のスケール（デフォルト10.0）。
-            -   **Mode**: 季節性の種類 (`additive` (デフォルト) または `multiplicative`)。
-    -   **外れ値と成長モデル (Outliers and Growth Model)**:
-        -   **Enable Outlier Capping (Logistic Growth only)**: ロジスティック成長モデル使用時に、指定した上限(Cap)・下限(Floor)を超える値を丸める外れ値処理を有効にします（デフォルトでオフ）。
-        -   **Growth Model**: トレンドの成長モデルを選択します (`linear` (デフォルト) または `logistic`)。
-        -   **Cap (Upper limit for logistic growth)**: ロジスティック成長モデルの上限値。`Enable Outlier Capping`がオンかつ`Growth Model`が`logistic`の場合に有効。
-        -   **Floor (Lower limit for logistic growth, optional)**: ロジスティック成長モデルの下限値。`Enable Outlier Capping`がオンかつ`Growth Model`が`logistic`の場合に有効。
-    -   **予測実行 (Run Forecast)**:
-        -   上記の設定に基づいて予測モデルを学習し、予測結果をグラフに表示および `Forecast Data` 出力から送信します。
-
-### グラフ表示エリア
-
-
-
-
--   **メインプロット**:
-    -   選択された時系列データ、トレンドライン、移動平均線、Prophetによる予測結果などが表示されます。
-    -   複数の値カラムを選択した場合、異なる色でプロットされます。
-    -   凡例が右上に表示され、各系列の識別が可能です。
--   **季節性分解プロット** (「季節性分解」が有効な場合のみ表示):
-    -   メインプロットの下に、トレンド (Trend)、季節性 (Seasonality)、残差 (Residual) の各成分が個別のグラフで表示されます。
-    -   これにより、データの構造を詳細に把握できます。
+-   **Main Plot**:
+    -   Displays selected time series data, trendlines, moving average lines, Prophet forecast results, etc.
+    -   If multiple value columns are selected, they are plotted in different colors.
+    -   A legend is displayed in the upper right, allowing identification of each series.
+-   **Seasonality Decomposition Plots** (displayed only if "Seasonality Decomposition" is enabled):
+    -   Below the main plot, trend, seasonality, and residual components are displayed as individual graphs.
+    -   This allows for a detailed understanding of the data's structure.
 
     ![ts_decom](./imgs/ts_decom.png)
 
--   **ツールチップ**:
-    -   「ツールチップとグリッド線を表示」が有効な場合、グラフ上のデータポイントにマウスカーソルを合わせると、そのポイントの日付（または時間）と値、表示されている場合は移動平均値や予測値などが表示されます。同時に、マウス位置に追従する赤い縦の点線が表示されます。
--   **インタラクション**:
-    -   ズーム: 「スクロールでズーム」が有効な場合、マウスホイールでズーム操作ができます。無効な場合は、グラフ右クリックメニューからズーム操作を行います。
-    -   パン: マウスの左ボタンドラッグでグラフを移動できます（「選択を有効化」が無効な場合、または選択モードでない場合）。
-    -   データ選択: 「選択を有効化」が有効な場合、マウスの左ボタンドラッグで矩形範囲を選択し、範囲内のデータポイントを `Selected Data` として出力できます。選択されたポイントはグラフ上でハイライトされます。
+-   **Tooltips**:
+    -   If "Show Tooltips and Grid Lines" is enabled, hovering the mouse cursor over a data point on the graph displays the date (or time) and value of that point, as well as moving average or forecast values if displayed. Simultaneously, a red vertical dashed line following the mouse position is shown.
+-   **Interactions**:
+    -   Zoom: If "Zoom with Scroll" is enabled, mouse wheel can be used for zooming. If disabled, zoom operations are done via the graph's right-click menu.
+    -   Pan: The graph can be moved by dragging with the left mouse button (if "Enable Selection" is disabled or not in selection mode).
+    -   Data Selection: If "Enable Selection" is enabled, a rectangular range can be selected by dragging with the left mouse button, and data points within the range can be outputted as `Selected Data`. Selected points are highlighted on the graph.
 
-## 使用例
+## Usage Example
 
 ![ts_flow](./imgs/ts_flow.png)
 
-1.  **基本的な時系列データの可視化**:
-    -   `File` ウィジェットで時系列データ (例: `air_quality.csv`) を読み込みます。
-    -   `File` ウィジェットの出力を `Time Series Plot` ウィジェットの `Data` 入力に接続します。
-    -   `Time Series Plot` ウィジェットを開き、「データ設定」で適切な「時間カラム」と1つ以上の「値カラム」を選択します。
-    -   「表示設定」で「グラフタイプ」や「集計期間」を調整してデータを表示します。
+1.  **Basic Time Series Data Visualization**:
+    -   Load time series data (e.g., `air_quality.csv`) using the `File` widget.
+    -   Connect the output of the `File` widget to the `Data` input of the `Time Series Plot` widget.
+    -   Open the `Time Series Plot` widget and select the appropriate "Time Column" and one or more "Value Column(s)" in "Data Settings".
+    -   Adjust "Graph Type" or "Aggregation Period" in "Display Settings" to view the data.
 
-2.  **季節性の分析**:
-    -   上記1の状態で、「分析ツール」の「季節性分解」にチェックを入れます。
-    -   データの特性に合わせて「周期」を設定します (例: 日次データで週周期なら7、月次データで年周期なら12)。
-    -   メインプロットの下にトレンド、季節性、残差のグラフが表示され、データの周期的変動を確認できます。
-        (画像参照: `../../_images/TimeSeriesPlot-Seasonality.png` - 季節性分解表示のイメージ)
+2.  **Seasonality Analysis**:
+    -   With the setup from step 1, check "Seasonality Decomposition" in "Analysis Tools".
+    -   Set the "Period" according to the data's characteristics (e.g., 7 for daily data with weekly seasonality, 12 for monthly data with yearly seasonality).
+    -   Graphs for trend, seasonality, and residuals will be displayed below the main plot, allowing you to examine periodic variations in the data.
+        (Image reference: `../../_images/TimeSeriesPlot-Seasonality.png` - Image of seasonality decomposition display)
 
-3.  **将来予測**:
-    -   上記1の状態で、「分析ツール」の「Prophet予測」にチェックを入れます。
-    -   「予測期間」や「信頼区間」などのパラメータを設定します。詳細設定で季節性のパターンや成長モデルも調整できます。
-    -   「予測実行」ボタンをクリックすると、学習データに基づいて未来の予測値がグラフに描画され、予測結果が `Forecast Data` ポートから出力されます。
-    -   この `Forecast Data` を別の `Data Table` ウィジェットに接続して、具体的な数値を確認することもできます。
+3.  **Future Forecasting**:
+    -   With the setup from step 1, check "Prophet Forecasting" in "Analysis Tools".
+    -   Set parameters such as "Forecast horizon" and "confidence interval". Seasonality patterns and growth models can also be adjusted in advanced settings.
+    -   Click the "Run Forecast" button. Future forecast values based on the training data will be drawn on the graph, and the forecast results will be outputted from the `Forecast Data` port.
+    -   This `Forecast Data` can also be connected to another `Data Table` widget to view specific numerical values.
 
+## Detailed Logic
 
-## 詳細なロジック
-
--   **データ処理**:
-    -   入力されたOrange Tableから、指定された時間変数と値変数を抽出します (`extract_time_series_data`)。時間変数は内部的にミリ秒単位のタイムスタンプとして扱われます。
-    -   選択された「集計期間」に基づき、データを集計します (`aggregate_time_series_data`)。集計処理にはpandasライブラリが内部で使用されます。
--   **季節性分解**:
-    -   `statsmodels.tsa.seasonal.seasonal_decompose` 関数を利用して、時系列データをトレンド、季節性、残差に加法的に分解します (`decompose_time_series`)。
--   **Prophet予測**:
-    -   Facebookの `prophet` ライブラリを使用して時系列予測モデルを構築し、予測を行います (`run_prophet_forecast`)。ユーザーが設定したトレーニング期間、予測期間、信頼区間、変化点感度、季節性の詳細、成長モデル、カスタム季節性などのパラメータがモデルに渡されます。
--   **グラフ描画**:
-    -   グラフの描画には `pyqtgraph` ライブラリが使用されています。
-    -   時間軸には `DateAxisItem` を使用し、日付や時刻を適切に表示します。
-    -   ツールチップ、凡例、選択矩形などのインタラクティブな要素も `pyqtgraph` の機能を用いて実装されています。
-    -   季節性分解の結果は、メインプロットの下に動的に追加される複数のサブプロットとして表示されます。
+-   **Data Processing**:
+    -   Extracts the specified time and value variables from the input Orange Table (`extract_time_series_data`). The time variable is internally treated as a timestamp in milliseconds.
+    -   Aggregates the data based on the selected "Aggregation Period" (`aggregate_time_series_data`). The pandas library is used internally for aggregation.
+-   **Seasonality Decomposition**:
+    -   Uses the `statsmodels.tsa.seasonal.seasonal_decompose` function to additively decompose the time series data into trend, seasonality, and residuals (`decompose_time_series`).
+-   **Prophet Forecasting**:
+    -   Uses Facebook's `prophet` library to build a time series forecasting model and make predictions (`run_prophet_forecast`). Parameters set by the user, such as training period, forecast horizon, confidence interval, changepoint sensitivity, seasonality details, growth model, and custom seasonalities, are passed to the model.
+-   **Graph Drawing**:
+    -   The `pyqtgraph` library is used for drawing graphs.
+    -   A `DateAxisItem` is used for the time axis to display dates and times appropriately.
+    -   Interactive elements such as tooltips, legends, and selection rectangles are also implemented using `pyqtgraph` features.
+    -   The results of seasonality decomposition are displayed as multiple subplots dynamically added below the main plot.

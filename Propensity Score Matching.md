@@ -1,200 +1,197 @@
-# 傾向スコアマッチング (Propensity Score Matching)
+# Propensity Score Matching
 
-傾向スコアマッチング（Propensity Score Matching, PSM）は、観察研究において処置（介入）の因果効果を推定するために用いられる統計的手法です。処置群と対照群の間で共変量（背景因子）の分布を揃えることで、より信頼性の高い効果推定を目指します。このウィジェットは、傾向スコアの計算、様々な方法によるマッチング、そしてマッチング前後の共変量のバランス評価機能を提供します。
+Propensity Score Matching (PSM) is a statistical method used in observational studies to estimate the causal effect of a treatment (intervention). It aims for a more reliable effect estimation by balancing the distribution of covariates (background factors) between the treatment group and the control group. This widget provides functionality for calculating propensity scores, performing matching using various methods, and evaluating covariate balance before and after matching.
 
-## 入力 (Inputs)
+## Inputs
 
-*   **Data (データ)**:
-    *   データ型: `Orange.data.Table`
-    *   説明: 分析対象のデータセット。処置変数、共変量、そして任意で結果変数やメタデータを含む必要があります。
+*   **Data**:
+    *   Data type: `Orange.data.Table`
+    *   Description: The dataset for analysis. It must contain a treatment variable, covariates, and optionally, an outcome variable and metadata.
 
-### 入力データの仕様
+### Input Data Specifications
 
-入力データには以下の情報が含まれていることが期待されます。
+The input data is expected to contain the following information:
 
-*   **処置変数 (Treatment Variable)**:
-    *   どの個体が処置を受けたか（処置群）、受けなかったか（対照群）を示す変数。
-    *   **必ず二値（2つのカテゴリを持つ）の離散変数（Categorical Variable）である必要があります。** 例えば、「薬Aを投与」「プラセボを投与」や、「プログラム参加」「不参加」など。ウィジェット内で、どちらの値を対照群とするか選択します。
-*   **共変量 (Covariates)**:
-    *   処置の割り当てと結果の両方に影響を与える可能性のある変数。年齢、性別、病気の重症度など。
-    *   数値（Continuous）または離散（Categorical）変数を使用できます。カテゴリカル変数は、傾向スコアモデル構築の際に内部的にダミー変数化されます。
-*   **結果変数 (Outcome Variable) (任意)**:
-    *   処置の効果を評価したい変数。症状の改善度、テストのスコアなど。
-    *   このウィジェット自体は結果変数を用いた効果量の直接推定は行いませんが、マッチング後のデータでユーザーが分析するために指定できます。数値または離散変数。
-*   **メタ変数 (Meta Variables) (任意)**:
-    *   分析には直接使用しないが、データに保持しておきたい識別子や追加情報。患者IDなど。
+*   **Treatment Variable**:
+    *   A variable indicating which individuals received the treatment (treatment group) and which did not (control group).
+    *   **Must be a binary (having two categories) discrete variable (Categorical Variable).** For example, "Administered Drug A" vs. "Administered Placebo", or "Program Participant" vs. "Non-participant". The user selects which value represents the control group within the widget.
+*   **Covariates**:
+    *   Variables that may affect both treatment assignment and the outcome. Examples include age, gender, disease severity, etc.
+    *   Can be numerical (Continuous) or discrete (Categorical) variables. Categorical variables are internally converted to dummy variables during propensity score model construction.
+*   **Outcome Variable (Optional)**:
+    *   The variable on which the effect of the treatment is to be evaluated. Examples include symptom improvement, test scores, etc.
+    *   This widget itself does not directly estimate the effect size using the outcome variable, but it can be specified for users to analyze in the matched data. Can be numerical or discrete.
+*   **Meta Variables (Optional)**:
+    *   Identifiers or additional information not directly used in the analysis but to be retained in the data. Examples include patient ID.
 
-### 入力データ例
+### Example Input Data
 
-以下は、心疾患リスク分析のデータセットを想定した例です。
+The following is an example assuming a dataset for heart disease risk analysis.
 
-| 患者ID (Meta) | 年齢 (Covariate) | 性別 (Covariate) | 喫煙歴 (Covariate) | 運動習慣 (Treatment) | 心疾患リスクスコア (Outcome) |
-| :------------ | :------------- | :------------- | :--------------- | :------------------- | :------------------------- |
-| P001          | 55             | 男性           | あり             | あり (1)             | 0.8                        |
-| P002          | 62             | 女性           | なし             | なし (0)             | 0.5                        |
-| P003          | 48             | 男性           | あり             | なし (0)             | 0.7                        |
-| ...           | ...            | ...            | ...              | ...                  | ...                        |
+| Patient ID (Meta) | Age (Covariate) | Gender (Covariate) | Smoking History (Covariate) | Exercise Habit (Treatment) | Heart Disease Risk Score (Outcome) |
+| :---------------- | :-------------- | :----------------- | :-------------------------- | :------------------------- | :------------------------------- |
+| P001              | 55              | Male               | Yes                         | Yes (1)                    | 0.8                              |
+| P002              | 62              | Female             | No                          | No (0)                     | 0.5                              |
+| P003              | 48              | Male               | Yes                         | No (0)                     | 0.7                              |
+| ...               | ...             | ...                | ...                         | ...                        | ...                              |
 
-この例では、「運動習慣」が処置変数（"なし" が対照群、"あり" が処置群）、「年齢」「性別」「喫煙歴」が共変量、「心疾患リスクスコア」が結果変数、「患者ID」がメタ変数となります。
+In this example, "Exercise Habit" is the treatment variable ("No" is the control group, "Yes" is the treatment group), "Age", "Gender", and "Smoking History" are covariates, "Heart Disease Risk Score" is the outcome variable, and "Patient ID" is a meta variable.
 
-## 出力 (Outputs)
+## Outputs
 
-*   **Matched Data (マッチング済みデータ)**:
-    *   データ型: `Orange.data.Table`
-    *   説明: 傾向スコアマッチングによって選択された処置群と対照群のサンプルのみを含むデータセット。元の変数構造（共変量、結果変数、メタ変数）は維持されます。このデータを用いて、次のステップで処置効果の推定などを行います。
-*   **Propensity Scores (傾向スコア)**:
-    *   データ型: `Orange.data.Table`
-    *   説明: 元のデータセットの各サンプルに対する計算された傾向スコア。通常、以下のメタ情報を含みます。
-        *   `Group`: "Treated" (処置群) または "Control" (対照群)
-        *   `Propensity Score`: 各サンプルの傾向スコア（0から1の数値）
-    *   この出力は、傾向スコアの分布確認や共通サポート領域の評価などに利用できます。
-*   **Balance Report (バランスレポート)**:
-    *   データ型: `Orange.data.Table`
-    *   説明: 各共変量について、マッチング前後のバランスを評価する指標。通常、以下の情報を含みます。
-        *   `Variable` (メタ): 共変量名
-        *   `SMD Before`: マッチング前の標準化平均差 (Standardized Mean Difference)
-        *   `SMD After`: マッチング後の標準化平均差
-        *   `Improvement %`: バランスの改善率
-    *   この出力は、マッチングによって共変量のバランスがどの程度改善されたかを定量的に確認するのに役立ちます。SMDの絶対値が0.1以下になることが、一般的に良好なバランスの一つの目安とされます。
+*   **Matched Data**:
+    *   Data type: `Orange.data.Table`
+    *   Description: A dataset containing only the samples from the treatment and control groups selected by propensity score matching. The original variable structure (covariates, outcome variable, meta variables) is maintained. This data can be used in subsequent steps for estimating treatment effects, etc.
+*   **Propensity Scores**:
+    *   Data type: `Orange.data.Table`
+    *   Description: The calculated propensity score for each sample in the original dataset. Typically includes the following meta information:
+        *   `Group`: "Treated" or "Control"
+        *   `Propensity Score`: The propensity score for each sample (a numerical value between 0 and 1)
+    *   This output can be used to check the distribution of propensity scores or evaluate the common support region.
+*   **Balance Report**:
+    *   Data type: `Orange.data.Table`
+    *   Description: Metrics evaluating the balance of each covariate before and after matching. Typically includes the following information:
+        *   `Variable` (Meta): Covariate name
+        *   `SMD Before`: Standardized Mean Difference before matching
+        *   `SMD After`: Standardized Mean Difference after matching
+        *   `Improvement %`: Percentage improvement in balance
+    *   This output helps to quantitatively assess how much the balance of covariates has improved due to matching. An absolute SMD value of 0.1 or less is generally considered a good benchmark for balance.
 
-## 機能の説明
+## Feature Description
 
 ![psm overview](./imgs/psm_overview.png)
 
+### Control Area (Left Panel)
 
-### コントロールエリア (左パネル)
-
-コントロールパネルでは、データ変数の割り当て、傾向スコアモデルの設定、マッチング方法のパラメータ調整を行います。
+The control panel allows for assigning data variables, setting up the propensity score model, and adjusting matching method parameters.
 
 ![psm_data_variables](./imgs/psm_data_variables.png)
 ![psm_model](./imgs/psm_model.png)
 
+*   **Data Variables**
+    *   **Treatment Variable**:
+        *   **Select binary treatment variable**: Select the column to be used as the treatment variable from the input data. Only binary discrete variables are listed.
+        *   **Select control group value (encoded as 0)**: Select the value within the treatment variable that represents the control group (treated as 0 in the propensity score model's target variable).
+    *   **Outcome Variable**:
+        *   **Select outcome variable**: Select the column to be used as the outcome variable. This widget does not directly estimate effects, but it will be included in the matched data.
+    *   **Covariates**:
+        *   Select covariates to be used for propensity score calculation from the list and assign them via drag & drop.
+    *   **Meta Variables**:
+        *   Select variables not used in the analysis but to be kept in the data from the list.
+*   **PSM Model Settings**
+    *   **Model Type**: Select the model for calculating propensity scores. Currently, only "Logistic Regression" is supported.
+    *   **Regularization**: Select the type of regularization to apply to the logistic regression model.
+        *   `None`: No regularization
+        *   `L1 (Lasso)`: L1 regularization. Tends to shrink coefficients of unnecessary covariates towards zero.
+        *   `L2 (Ridge)`: L2 regularization. Suppresses the magnitude of coefficients.
+        *   `Elastic Net`: A combination of L1 and L2.
+    *   **Regularization Strength (α)**: Adjusts the strength of regularization (from 0.001 to 1.000). Smaller values mean weaker regularization, larger values mean stronger. Active when a regularization type other than "None" is selected.
+*   **Matching Settings**
+    *   **Matching Method**:
+        *   `Nearest Neighbor`: For each treated sample, matches the control sample(s) with the closest propensity score.
+        *   `Caliper`: In addition to nearest neighbor, only matches samples whose propensity score difference is within a certain range (caliper value).
+    *   **Matching Ratio**: Select the number of control samples to match to one treated sample (`1:1`, `1:2`, `1:3`).
+    *   **Caliper Value**: The maximum allowable difference in propensity scores when Caliper matching is selected. Typically, about 0.2 times the standard deviation of the propensity scores is recommended.
+    *   **With Replacement**: If checked, allows the same control sample to be matched with multiple treated samples (sampling with replacement). Useful when the number of control samples is small, but can lead to information duplication. For Nearest Neighbor, it's always treated as with replacement.
+    *   **Random Seed**: Random seed to ensure reproducibility of the matching process.
+*   **Execute (Button)**
+    *   Executes propensity score matching based on the configured parameters.
 
-*   **Data Variables (データ変数)**
-    *   **Treatment Variable (処置変数)**:
-        *   **Select binary treatment variable (二値の処置変数を選択)**: 入力データから処置変数として使用する列を選択します。二値の離散変数のみがリストされます。
-        *   **Select control group value (encoded as 0) (対照群の値を選択 (0としてエンコード))**: 処置変数内で対照群（傾向スコアモデルの目的変数において0として扱われる値）となる値を選択します。
-    *   **Outcome Variable (結果変数)**:
-        *   **Select outcome variable (結果変数を選択)**: 結果変数として使用する列を選択します。このウィジェットでは直接効果推定は行いませんが、マッチング後のデータに含まれます。
-    *   **Covariates (共変量)**:
-        *   傾向スコアの計算に使用する共変量をリストから選択し、ドラッグ＆ドロップで割り当てます。
-    *   **Meta Variables (メタ変数)**:
-        *   分析には使用しないがデータに残しておきたい変数をリストから選択します。
-*   **PSM Model Settings (PSMモデル設定)**
-    *   **Model Type (モデルタイプ)**: 傾向スコアを計算するためのモデルを選択します。現在は「Logistic Regression (ロジスティック回帰)」のみサポートされています。
-    *   **Regularization (正則化)**: ロジスティック回帰モデルに適用する正則化の種類を選択します。
-        *   `None`: 正則化なし
-        *   `L1 (Lasso)`: L1正則化。不要な共変量の係数を0に近づける効果があります。
-        *   `L2 (Ridge)`: L2正則化。係数の大きさを抑制します。
-        *   `Elastic Net`: L1とL2の組み合わせ。
-    *   **Regularization Strength (α) (正則化強度)**: 正則化の強さを調整します (0.001から1.000)。値が小さいほど正則化は弱く、大きいほど強くなります。「None」以外を選択した場合に有効です。
-*   **Matching Settings (マッチング設定)**
-    *   **Matching Method (マッチング方法)**:
-        *   `Nearest Neighbor (最近傍法)`: 各処置群サンプルに対し、傾向スコアが最も近い対照群サンプルをマッチングします。
-        *   `Caliper (カリパー法)`: 最近傍法に加え、傾向スコアの差が一定の範囲（カリパー値）内にあるサンプルのみをマッチング対象とします。
-    *   **Matching Ratio (マッチング比率)**: 処置群サンプル1つに対してマッチングする対照群サンプルの数を選択します (`1:1`, `1:2`, `1:3`)。
-    *   **Caliper Value (カリパー値)**: カリパー法を選択した場合の、許容する傾向スコアの最大差。通常、傾向スコアの標準偏差の0.2倍程度が推奨されます。
-    *   **With Replacement (復元抽出)**: チェックを入れると、同じ対照群サンプルが複数の処置群サンプルとマッチングされることを許可します（復元抽出）。対照群のサンプル数が少ない場合に有効ですが、情報の重複が生じる可能性があります。最近傍法の場合は常に復元ありとして扱われます。
-    *   **Random Seed (乱数シード)**: マッチングプロセスの再現性を確保するための乱数シード。
-*   **Execute (実行ボタン)**
-    *   設定したパラメータに基づいて傾向スコアマッチングを実行します。
+### Main Area (Right Panel)
 
-### メインエリア (右パネル)
-
-メインエリアには、実行後のモデル診断結果、マッチングのプレビュー、共変量のバランス評価が表示されます。
+The main area displays model diagnostic results, a matching preview, and covariate balance evaluation after execution.
 
 ![psm_viz1](./imgs/psm_viz1.png)
 ![psm_viz2](./imgs/psm_viz2.png)
 
-*   **Model Diagnostics (モデル診断)**
-    *   **AUC, Accuracy, Log Loss**: 構築された傾向スコアモデルの性能指標。AUCはモデルの識別能力、Accuracyは正分類率、Log Lossは予測の対数損失を示します。
-    *   **Variable Importance (変数重要度)**:
-        *   `Variable`: 共変量名。
-        *   `Coefficient`: ロジスティック回帰モデルにおける各共変量の係数。
-        *   `Odds Ratio`: 各共変量のオッズ比。係数を指数変換したもの。
-        *   `Importance`: 係数の絶対値に基づく相対的な重要度。
-*   **Matching Preview (マッチングプレビュー)**
-    *   **Sample Sizes (サンプルサイズ)**: マッチング前後の処置群と対照群のサンプル数を表示します。
-        *   `Group`: Treated (処置群), Control (対照群)
-        *   `Before`: マッチング前のサンプル数
-        *   `After`: マッチング後のサンプル数
-    *   **Propensity Score Distribution (傾向スコア分布)**: マッチング前後の処置群と対照群の傾向スコアの分布をカーネル密度推定プロットで表示します。理想的には、マッチング後に両群の分布が近くなることが望ましいです。
-        *   橙線/エリア: 処置群 (マッチング前)
-        *   青線/エリア: 対照群 (マッチング前)
-        *   橙点線: 処置群 (マッチング後)
-        *   青点線: 対照群 (マッチング後)
-*   **Balance Evaluation (バランス評価)**
-    *   **Covariate Balance (Standardized Mean Differences) (共変量バランス: 標準化平均差)**:
-        *   各共変量について、マッチング前後の標準化平均差 (SMD) をプロットで表示します。SMDは、処置群と対照群の平均値の差を、両群の標準偏差のプール値で割ったものです。絶対値が0.1以内であれば、一般的にバランスが取れていると見なされます。
-        *   橙色の点: マッチング前のSMD
-        *   青色の点: マッチング後のSMD
-        *   縦の破線 (黒): SMD=0 の基準線
-        *   縦の点線 (赤): SMD=±0.1 の許容範囲の目安
-    *   **Balance Metrics (バランス指標)**: 各共変量のSMDと改善率を表形式で表示します。
-        *   `Variable`: 共変量名
-        *   `SMD Before`: マッチング前のSMD
-        *   `SMD After`: マッチング後のSMD (背景色が緑ならSMD絶対値0.1以下、赤なら0.1より大きい)
-        *   `Improvement %`: SMDの絶対値がマッチングによって何パーセント減少したかを示します。
+*   **Model Diagnostics**
+    *   **AUC, Accuracy, Log Loss**: Performance metrics of the constructed propensity score model. AUC indicates the model's discriminative ability, Accuracy is the correct classification rate, and Log Loss shows the logarithmic loss of predictions.
+    *   **Variable Importance**:
+        *   `Variable`: Covariate name.
+        *   `Coefficient`: Coefficient of each covariate in the logistic regression model.
+        *   `Odds Ratio`: Odds ratio for each covariate, which is the exponentiated coefficient.
+        *   `Importance`: Relative importance based on the absolute value of the coefficient.
+*   **Matching Preview**
+    *   **Sample Sizes**: Displays the sample sizes of the treatment and control groups before and after matching.
+        *   `Group`: Treated, Control
+        *   `Before`: Sample size before matching
+        *   `After`: Sample size after matching
+    *   **Propensity Score Distribution**: Displays the distribution of propensity scores for the treatment and control groups before and after matching using kernel density estimate plots. Ideally, the distributions of both groups should become closer after matching.
+        *   Orange line/area: Treatment group (before matching)
+        *   Blue line/area: Control group (before matching)
+        *   Orange dotted line: Treatment group (after matching)
+        *   Blue dotted line: Control group (after matching)
+*   **Balance Evaluation**
+    *   **Covariate Balance (Standardized Mean Differences)**:
+        *   Displays the Standardized Mean Difference (SMD) for each covariate before and after matching in a plot. SMD is the difference in means between the treatment and control groups, divided by the pooled standard deviation of both groups. An absolute value within 0.1 is generally considered well-balanced.
+        *   Orange dot: SMD before matching
+        *   Blue dot: SMD after matching
+        *   Vertical dashed line (black): SMD=0 reference line
+        *   Vertical dotted line (red): SMD=±0.1 guideline for acceptable range
+    *   **Balance Metrics**: Displays the SMD and improvement percentage for each covariate in a table.
+        *   `Variable`: Covariate name
+        *   `SMD Before`: SMD before matching
+        *   `SMD After`: SMD after matching (background color green if absolute SMD <= 0.1, red if > 0.1)
+        *   `Improvement %`: Shows the percentage decrease in the absolute value of SMD due to matching.
 
-## 使用例
+## Usage Example
 
-以下は、ファイルからデータを読み込み、傾向スコアマッチングを行い、その結果を評価する基本的なワークフローです。
+The following is a basic workflow for loading data from a file, performing propensity score matching, and evaluating the results.
 ![psm_flow](./imgs/psm_flow.png)
 
+1.  Load the dataset for analysis (e.g., `titanic` or `heart_disease`) using the **File** widget.
+2.  Connect the output of the **File** widget to the `Data` input of the **Propensity Score Matching** widget.
+3.  Open the **Propensity Score Matching** widget and configure the following in the control panel:
+    *   Select the `Treatment Variable` and specify the appropriate `Control group value`.
+    *   Assign the necessary covariates to the `Covariates` list.
+    *   Set `Outcome Variable` or `Meta Variables` if needed.
+    *   Adjust `PSM Model Settings` and `Matching Settings` according to your objectives.
+    *   Click the `Execute` button.
+4.  Review the results in the main area:
+    *   Check the propensity score model's performance in `Model Diagnostics`.
+    *   Observe changes in sample size and improvement in propensity score distribution in `Matching Preview`.
+    *   Verify if covariate balance has improved (SMD has decreased) in `Balance Evaluation`.
+5.  Connect the outputs of the **Propensity Score Matching** widget to other widgets for further analysis:
+    *   Connect `Matched Data` to an **AB test** widget to check the lift after matching, or to **Scatter Plot** or **Box Plot** widgets to explore the relationship between the outcome variable and the treatment group.
 
-1.  **File (ファイル)** ウィジェットで分析対象のデータセット (例: `titanic` や `heart_disease`) を読み込みます。
-2.  **File** ウィジェットの出力を **Propensity Score Matching** ウィジェットの `Data` 入力に接続します。
-3.  **Propensity Score Matching** ウィジェットを開き、コントロールパネルで以下を設定します。
-    *   `Treatment Variable` を選択し、適切な `Control group value` を指定します。
-    *   `Covariates` リストに必要な共変量を割り当てます。
-    *   必要に応じて `Outcome Variable` や `Meta Variables` を設定します。
-    *   `PSM Model Settings` と `Matching Settings` を目的に応じて調整します。
-    *   `Execute` ボタンをクリックします。
-4.  メインエリアで結果を確認します。
-    *   `Model Diagnostics` で傾向スコアモデルの性能を確認します。
-    *   `Matching Preview` でサンプルサイズの変化と傾向スコア分布の改善を確認します。
-    *   `Balance Evaluation` で共変量のバランスが改善されたか（SMDが小さくなったか）を確認します。
-5.  **Propensity Score Matching** ウィジェットの出力を他のウィジェットに接続して、さらに分析を進めます。
-    *   `Matched Data` を **AB test** ウィジェットに接続して、マッチング後のliftを確認したり、**Scatter Plot (散布図)** や **Box Plot (箱ひげ図)** などで結果変数と処置群の関係を探索したりします。
+    ![psm_flow2](./imgs/psm_flow2.png)
 
-    ![psm_flpsm_flow2ow](./imgs/psm_flow2.png)
+    *   Connect `Propensity Scores` to a **Distribution** widget to examine the detailed distribution of propensity scores.
+    *   Connect `Balance Report` to a **Data Table** widget to view SMD values in detail.
 
-    *   `Propensity Scores` を **Distribution (分布)** ウィジェットに接続して、傾向スコアの詳細な分布を確認します。
-    *   `Balance Report` を **Data Table** ウィジェットに接続して、SMDの値を詳細に確認します。
+## Detailed Logic
 
-## 詳細なロジック
+### Propensity Score Model Construction
 
-### 傾向スコアモデルの構築
+1.  **Data Preparation**:
+    *   Data for model training is prepared based on the covariates and treatment variable selected by the user.
+    *   Categorical variables among the covariates are converted to dummy variables using **One-Hot Encoding** (with the `drop_first=True` option, which drops the first category). This allows categorical variables to be input into the model as numerical values.
+    *   Numerical covariates are **standardized** (scaled to mean 0, standard deviation 1). This equalizes the influence of variables with different scales on model training.
+2.  **Model Training**:
+    *   A **logistic regression model** is trained with the treatment variable as the target variable (control group=0, treatment group=1) and the preprocessed covariates as explanatory variables.
+    *   The regularization (None, L1, L2, Elastic Net) and regularization strength (α) selected by the user are applied to the model. Regularization helps prevent model overfitting and provides stable estimation when there are many covariates.
+3.  **Propensity Score Calculation**:
+    *   The trained logistic regression model is used to predict the probability (propensity score) that each sample is assigned to the treatment group.
 
-1.  **データ準備**:
-    *   ユーザーが選択した共変量と処置変数に基づいて、モデル学習用のデータが準備されます。
-    *   共変量に含まれるカテゴリカル変数は、**One-Hotエンコーディング**（最初のカテゴリをドロップする `drop_first=True` オプション付き）によってダミー変数化されます。これにより、カテゴリカル変数も数値としてモデルに投入できるようになります。
-    *   数値型の共変量は、**標準化**（平均0、標準偏差1にスケーリング）されます。これにより、異なるスケールの変数がモデル学習に与える影響を均一化します。
-2.  **モデル学習**:
-    *   処置変数を目的変数（対照群=0, 処置群=1）、前処理された共変量を説明変数として、**ロジスティック回帰モデル**を学習します。
-    *   ユーザーが選択した正則化（なし、L1、L2、Elastic Net）と正則化強度(α)がモデルに適用されます。正則化は、モデルの過学習を防ぎ、共変量が多い場合に安定した推定を行うのに役立ちます。
-3.  **傾向スコアの計算**:
-    *   学習されたロジスティック回帰モデルを用いて、各サンプルが処置群に割り当てられる確率（傾向スコア）を予測します。
+### Matching Algorithm
 
-### マッチングアルゴリズム
+Using the calculated propensity scores, control group samples with similar propensity scores are found for each sample in the treatment group.
 
-計算された傾向スコアを用いて、処置群の各サンプルに対して類似した傾向スコアを持つ対照群のサンプルを探します。
+*   **Nearest Neighbor**:
+    *   For each treated sample, control samples with the closest propensity scores are selected according to the specified matching ratio (e.g., one for 1:1, two for 1:2).
+    *   Matching with replacement is always enabled, meaning the same control sample can be matched multiple times.
+*   **Caliper**:
+    *   Similar to nearest neighbor, it finds samples with close propensity scores, but additionally, the absolute difference in propensity scores between the treated and control samples must be less than or equal to a pre-set "caliper value".
+    *   This prevents matching between samples with vastly different propensity scores, thereby improving the quality of the match.
+    *   The user can choose whether to match with or without replacement.
 
-*   **最近傍法 (Nearest Neighbor)**:
-    *   処置群の各サンプルに対し、傾向スコアが最も近い対照群のサンプルを、指定されたマッチング比率（例: 1:1なら1つ、1:2なら2つ）だけ選び出します。
-    *   復元抽出が常に有効となり、同じ対照群サンプルが複数回マッチングされることがあります。
-*   **カリパー法 (Caliper)**:
-    *   最近傍法と同様に傾向スコアが近いサンプルを探しますが、加えて、処置群サンプルと対照群サンプルの傾向スコアの差の絶対値が、事前に設定した「カリパー値」以下であるという条件を満たす必要があります。
-    *   これにより、傾向スコアが大きく異なるサンプル同士がマッチングされるのを防ぎ、マッチングの質を高めます。
-    *   復元抽出の有無はユーザーが選択できます。
+### Balance Evaluation
 
-### バランス評価
+Checks whether the balance of covariates between the treatment and control groups has improved after matching. The primary metric used is the Standardized Mean Difference (SMD).
 
-マッチングによって共変量のバランスが処置群と対照群の間で改善されたかを確認します。主要な指標として標準化平均差 (SMD) を用います。
+*   **Standardized Mean Difference (SMD)**:
+    *   SMD = (Mean of covariate in treatment group - Mean of covariate in control group) / sqrt((Variance of covariate in treatment group + Variance of covariate in control group) / 2)
+    *   A smaller absolute value of SMD indicates better balance for that covariate. Generally, SMD < 0.1 is considered well-balanced.
+    *   The widget calculates and visually displays the SMD for each covariate before and after matching.
 
-*   **標準化平均差 (Standardized Mean Difference, SMD)**:
-    *   SMD = (処置群の共変量の平均 - 対照群の共変量の平均) / sqrt((処置群の共変量の分散 + 対照群の共変量の分散) / 2)
-    *   SMDの絶対値が小さいほど、その共変量のバランスが良いことを示します。一般的に、SMD < 0.1 であれば良好なバランスと見なされます。
-    *   ウィジェットでは、各共変量についてマッチング前とマッチング後のSMDを計算し、視覚的に表示します。
-
-このウィジェットは、これらのステップを自動化し、結果を分かりやすく表示することで、ユーザーが傾向スコアマッチングを容易に実行し、その結果を評価できるように設計されています。
+This widget automates these steps and presents the results in an easy-to-understand manner, enabling users to perform propensity score matching and evaluate its results conveniently.

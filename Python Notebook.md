@@ -1,25 +1,25 @@
 # Python Notebook
 
-Allye内でJupyter Notebook環境を提供し、Pythonコードの実行とデータ連携を可能にするウィジェットです。データの加工、分析、視覚化など、Pythonの強力な機能をAllyeのワークフローに統合できます。また、Notebook Assistant機能により、AIがコーディングをサポートします。
+This widget provides a Jupyter Notebook environment within Allye, enabling Python code execution and data integration. You can integrate Python's powerful features for data manipulation, analysis, visualization, and more into your Allye workflows. Additionally, the Notebook Assistant feature allows AI to support your coding.
 
-Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウンドで起動されます。デフォルトのポート番号は `8887` ですが、Allyeの右上にある歯車アイコン (下図参照) からアクセスできる「User Settings」ダイアログ (下図参照) で変更可能です。
+When Allye starts, a Jupyter Notebook server is also launched in the background. The default port number is `8887`, but it can be changed in the "User Settings" dialog (see figures below), accessible via the gear icon in the top-right corner of Allye.
 
 ![user_setting_icon](./imgs/user_setting_icon.png)
 
-*Allyeツールバーの設定アイコン*
+*Allye toolbar settings icon*
 
 ![user_settings](./imgs/user_settings.png)
 
-*User Settingsダイアログ: Jupyter Portの設定*
+*User Settings dialog: Jupyter Port setting*
 
-**入力 (Inputs)**
+**Inputs**
 
 *   **Data**: `Orange.data.Table`
-    *   ウィジェットに接続されるデータセット。このデータは、Notebook内でPandas DataFrame `df` として自動的に利用可能になります。
-    *   **仕様**: 数値、カテゴリ、文字列、日時型など、Orangeが扱える一般的な表形式データ。
-    *   **入力データ例**:
+    *   The dataset connected to the widget. This data automatically becomes available as a Pandas DataFrame `df` within the Notebook.
+    *   **Specifications**: General tabular data that Orange can handle, including numerical, categorical, string, and datetime types.
+    *   **Example Input Data**:
         ```
-        # Irisデータセットの場合 (イメージ)
+        # Iris dataset (conceptual)
         Feature: sepal length (Continuous)
         Feature: sepal width (Continuous)
         Feature: petal length (Continuous)
@@ -27,119 +27,119 @@ Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウ�
         Target: iris (Discrete: Iris-setosa, Iris-versicolor, Iris-virginica)
         ```
 
-**出力 (Outputs)**
+**Outputs**
 
 *   **Notebook Data**: `Orange.data.Table`
-    *   Notebook内で処理され、`send_data_to_next_widget(df_processed)` 関数によって出力されたデータ。
-    *   **出力データ例**:
+    *   Data processed within the Notebook and outputted by the `send_data_to_next_widget(df_processed)` function.
+    *   **Example Output Data**:
         ```
-        # 入力データから特定の条件でフィルタリングされ、新しい列が追加されたデータ (イメージ)
+        # Data filtered by specific conditions and with a new column added (conceptual)
         Feature: sepal length (Continuous)
         Feature: sepal width (Continuous)
         Feature: petal length (Continuous)
         Feature: petal width (Continuous)
-        Feature: sepal_area (Continuous) <- 新しく追加された列
-        Target: iris (Discrete: Iris-setosa, Iris-versicolor) <- フィルタリングされたクラス
+        Feature: sepal_area (Continuous) <- Newly added column
+        Target: iris (Discrete: Iris-setosa, Iris-versicolor) <- Filtered classes
         ```
 
-**機能の説明**
+**Feature Description**
 
-*   **Jupyter Notebook環境**:
-    *   ウィジェットのメインエリアにJupyter Notebookインターフェースが表示され、コードの記述、実行、Markdownセルでのドキュメンテーション作成が可能です。
+*   **Jupyter Notebook Environment**:
+    *   The main area of the widget displays the Jupyter Notebook interface, allowing for code writing, execution, and documentation creation in Markdown cells.
 
     ![notebook_overview](./imgs/notebook_overview.png)
 
-    *Python Notebookウィジェットの全体像*
-*   **データ入出力**:
-    *   **入力**: 上流のウィジェットから渡されたデータは、Notebook起動時に自動生成されるコードによってPandas DataFrame `df` に読み込まれます。
+    *Overall view of the Python Notebook widget*
+*   **Data Input/Output**:
+    *   **Input**: Data passed from upstream widgets is loaded into a Pandas DataFrame `df` by automatically generated code when the Notebook starts.
         ```python
-        # Notebook内で自動生成される入力データ読み込みコードの例
+        # Example of auto-generated input data loading code in the Notebook
         import pandas as pd
-        from widget_data_handler import read_from_shared_memory, store_output_df # widget_data_handler.py はAllye内部で提供
+        from widget_data_handler import read_from_shared_memory, store_output_df # widget_data_handler.py is provided internally by Allye
 
-        # ... (共有メモリ/Pickleパス設定) ...
+        # ... (shared memory/Pickle path settings) ...
 
         df = read_from_shared_memory(
-            shname="nb_<widget_id>", # <widget_id>はウィジェット毎のユニークID
-            len_bytes=<size>, # データサイズ
-            pickle_path="/path/to/in_data_<widget_id>.pkl" # Pickleファイルのパス
+            shname="nb_<widget_id>", # <widget_id> is a unique ID for each widget
+            len_bytes=<size>, # data size
+            pickle_path="/path/to/in_data_<widget_id>.pkl" # Path to the Pickle file
         )
         ```
-    *   **出力**: Notebook内で処理した結果のDataFrameを次のウィジェットに渡すには、`send_data_to_next_widget()` 関数を使用します。
+    *   **Output**: To pass the processed DataFrame from the Notebook to the next widget, use the `send_data_to_next_widget()` function.
         ```python
-        # Notebook内で記述する出力コードの例
-        # df_processed は処理済みのPandas DataFrame
+        # Example of output code written in the Notebook
+        # df_processed is the processed Pandas DataFrame
         send_data_to_next_widget(df_processed)
         ```
-*   **Notebook Assistant (チャットAI)**:
-    *   ウィジェット左側のコントロールエリアに搭載されたAIチャットボットです。
-    *   Notebookに関する質問、Pythonコードの生成依頼、デバッグの相談などが可能です。
-    *   **設定オプション**:
-        *   `Send column and attribute information`: チェックを入れると、入力データの列名、型、役割などのメタデータをAIに送信し、より文脈に沿った回答を得やすくします。生データは送信されません。
-        *   `Send sample data (5 rows)`: チェックを入れると、入力データからランダムに5行のサンプルデータをAIに送信します。生データが共有されることに注意してください。
-*   **自動Notebook生成と管理**:
-    *   各Python Notebookウィジェットには、ユニークなID (`widget_id`) が割り当てられます。
-    *   このIDに基づき、Jupyter Notebookファイル (`notebook_<widget_id>.ipynb`) およびデータ受け渡し用の一時ファイル (Pickle形式: `in_data_<widget_id>.pkl`, `out_data_<widget_id>.pkl`) が作成されます。
-    *   Notebookファイルには、データ入出力のための定型コードが自動的に挿入・更新されます。
+*   **Notebook Assistant (Chat AI)**:
+    *   An AI chatbot located in the widget's left control area.
+    *   You can ask questions about the Notebook, request Python code generation, or consult on debugging.
+    *   **Setting Options**:
+        *   `Send column and attribute information`: If checked, sends metadata such as input data column names, types, and roles to the AI, helping to get more contextually relevant answers. Raw data is not sent.
+        *   `Send sample data (5 rows)`: If checked, sends 5 random rows of sample data from the input data to the AI. Note that raw data will be shared.
+*   **Automatic Notebook Generation and Management**:
+    *   Each Python Notebook widget is assigned a unique ID (`widget_id`).
+    *   Based on this ID, a Jupyter Notebook file (`notebook_<widget_id>.ipynb`) and temporary files for data transfer (Pickle format: `in_data_<widget_id>.pkl`, `out_data_<widget_id>.pkl`) are created.
+    *   Boilerplate code for data input and output is automatically inserted and updated in the Notebook file.
 
-**UIの説明** (上記のPython Notebookウィジェットの全体像スクリーンショット参照)
+**UI Description** (Refer to the overall Python Notebook widget screenshot above)
 
-*   **コントロールエリア (左側)**:
+*   **Control Area (Left Side)**:
     *   **Notebook Assistant**:
-        *   上部にタイトル「Notebook Assistant」。
-        *   中央にチャットメッセージが表示されるエリア。
-        *   下部に入力用のテキストボックス（`質問を入力してください...`）と送信ボタン（紙飛行機アイコン）。
-        *   `Cmd+Enter` (Mac) または `Ctrl+Enter` (Windows/Linux) でもメッセージを送信できます。
+        *   Title "Notebook Assistant" at the top.
+        *   Chat messages are displayed in the central area.
+        *   Text input box at the bottom (`Enter your question...`) and a send button (paper airplane icon).
+        *   Messages can also be sent with `Cmd+Enter` (Mac) or `Ctrl+Enter` (Windows/Linux).
     *   **Action Settings**:
-        *   **Send column and attribute information**: AIに送信するデータ情報に関するチェックボックス。
-        *   **Send sample data (5 rows)**: AIに送信するサンプルデータに関するチェックボックス。
-*   **メインエリア (右側)**:
-    *   標準的なJupyter Notebookのインターフェースが表示されます。
-    *   ファイル名 (`notebook_<widget_id>.ipynb`) がタブに表示されます。
-    *   ツールバーからセルの実行 (▶︎ Run)、保存 (💾)、カーネル操作などが可能です。
-    *   最初のセル (Markdown形式) には、データ入出力に関するガイドが記述されています。
-    *   2番目のセル (Code形式) には、データ入出力のための基本的なPythonコードが自動生成されています。
+        *   **Send column and attribute information**: Checkbox regarding data information to send to AI.
+        *   **Send sample data (5 rows)**: Checkbox regarding sample data to send to AI.
+*   **Main Area (Right Side)**:
+    *   Displays a standard Jupyter Notebook interface.
+    *   The filename (`notebook_<widget_id>.ipynb`) is shown in the tab.
+    *   Cell execution (▶︎ Run), saving (💾), kernel operations, etc., are available from the toolbar.
+    *   The first cell (Markdown format) contains a guide on data input/output.
+    *   The second cell (Code format) contains auto-generated basic Python code for data input/output.
 
-**使用例**
+**Usage Example**
 
 ![notebook_flow](./imgs/notebook_flow.png)
 
-1.  **データのフィルタリングと新規列の追加**:
-    *   `File` ウィジェットで `iris.csv` を読み込みます。
-    *   `File` ウィジェットの出力を `Python Notebook` ウィジェットの `Data` 入力に接続します。
-    *   `Python Notebook` ウィジェットを開き、メインエリアのNotebookに以下のコードを追記または編集して実行します (2番目のコードセル内)。
+1.  **Filtering Data and Adding a New Column**:
+    *   Load `iris.csv` using the `File` widget.
+    *   Connect the output of the `File` widget to the `Data` input of the `Python Notebook` widget.
+    *   Open the `Python Notebook` widget and add or edit the following code in the Notebook in the main area (within the second code cell), then run it:
         ```python
-        # df は入力データが読み込まれたPandas DataFrame
+        # df is the Pandas DataFrame with loaded input data
 
-        # 'sepal length' が 5.0 より大きいデータをフィルタリング
-        df_filtered = df[df['sepal length'] > 5.0].copy() # .copy() をつけてSettingWithCopyWarningを回避
+        # Filter data where 'sepal length' is greater than 5.0
+        df_filtered = df[df['sepal length'] > 5.0].copy() # Use .copy() to avoid SettingWithCopyWarning
 
-        # 新しい列 'sepal_area' を追加 (sepal length * sepal width)
+        # Add a new column 'sepal_area' (sepal length * sepal width)
         df_filtered['sepal_area'] = df_filtered['sepal length'] * df_filtered['sepal width']
 
-        # 結果を次のウィジェットに送信
-        # この行は既存の send_data_to_next_widget(df) を置き換えるか、dfをdf_filteredに変更
+        # Send the result to the next widget
+        # This line replaces the existing send_data_to_next_widget(df) or changes df to df_filtered
         send_data_to_next_widget(df_filtered)
 
-        # 結果の先頭5行を表示 (任意、Notebook上で確認するため)
+        # Display the first 5 rows of the result (optional, for confirmation in the Notebook)
         df_filtered.head()
         ```
-    *   `Python Notebook` ウィジェットの `Notebook Data` 出力を `Data Table` ウィジェットに接続します。
-    *   `Data Table` ウィジェットには、フィルタリングされ、新しい列 `sepal_area` が追加されたデータが表示されます。
+    *   Connect the `Notebook Data` output of the `Python Notebook` widget to a `Data Table` widget.
+    *   The `Data Table` widget will display the filtered data with the new `sepal_area` column.
 
-2.  **Notebook Assistantによるコード生成**:
-    *   上記と同様に `File` ウィジェットからデータを `Python Notebook` ウィジェットに接続します。
-    *   コントロールエリアのNotebook Assistantに、例えば「入力データ `df` から、`petal length` が中央値より大きい行のみを抽出するコードを書いてください。」と入力し、送信します。
-    *   AIが生成したコードを参考に、Notebook上で実行し、結果を確認します。
+2.  **Code Generation with Notebook Assistant**:
+    *   Connect data from a `File` widget to the `Python Notebook` widget as above.
+    *   In the Notebook Assistant in the control area, enter, for example: "Write Python code to extract rows from the input data `df` where `petal length` is greater than the median." and send.
+    *   Use the code generated by the AI as a reference, run it in the Notebook, and check the results.
 
-**詳細なロジック**
+**Detailed Logic**
 
-*   **Jupyter Notebookサーバー**:
-    *   Allyeアプリケーションの起動プロセスの一部として、Pythonの `subprocess` モジュールなどを利用してJupyter Notebookサーバーが起動されると想定されます。設定ファイル (`config_allye.yaml`) の `jupyter: port` および `jupyter: host` がこの起動コマンドに使用されます。
-    *   ウィジェットは、この外部で起動されているJupyterサーバーの特定のNotebookページを `QWebEngineView` で表示します。
+*   **Jupyter Notebook Server**:
+    *   It is assumed that a Jupyter Notebook server is started as part of the Allye application's launch process, likely using Python's `subprocess` module. The `jupyter: port` and `jupyter: host` settings from the configuration file (`config_allye.yaml`) would be used for this launch command.
+    *   The widget displays a specific Notebook page from this externally running Jupyter server using `QWebEngineView`.
 
-**注意点・補足**
+**Notes/Caveats**
 
-*   **`widget_data_handler.py`**: このファイルはAllyeの内部コンポーネントであり、Python NotebookウィジェットがJupyter Notebook環境とスムーズにデータをやり取りするためのヘルパー関数 (`read_from_shared_memory`, `store_output_df`) を提供します。ユーザーが直接このファイルを編集する必要はありません。
-*   **Jupyter Notebookサーバー**: このウィジェットが機能するためには、Jupyter Notebookサーバーがバックグラウンドで実行されている必要があります。通常、Allye起動時に自動的に起動されます。ポート競合などが発生した場合は、「User Settings」でポート番号を変更してください。
-*   **ファイルパス**: データ受け渡し用の一時ファイルやNotebookファイルは、通常ユーザーのホームディレクトリに保存されます。これらのファイルはウィジェットの動作に必要であり、手動で削除すると問題が発生する可能性があります。ウィジェット削除時には、関連ファイルもクリーンアップされます。
+*   **`widget_data_handler.py`**: This file is an internal component of Allye and provides helper functions (`read_from_shared_memory`, `store_output_df`) for the Python Notebook widget to smoothly exchange data with the Jupyter Notebook environment. Users do not need to edit this file directly.
+*   **Jupyter Notebook Server**: For this widget to function, the Jupyter Notebook server must be running in the background. It is usually started automatically when Allye launches. If port conflicts occur, change the port number in "User Settings".
+*   **File Paths**: Temporary files for data transfer and Notebook files are typically saved in the user's home directory. These files are necessary for the widget's operation, and manually deleting them can cause problems. When a widget is deleted, related files are also cleaned up.
