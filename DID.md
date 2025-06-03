@@ -13,7 +13,7 @@ The Difference-in-Differences (DID) method is a statistical technique used in ob
 The input data is expected to contain the following information:
 
 *   **Treatment Variable**:
-    *   A variable indicating which individuals received the treatment (treated group) and which did not (control group).
+    *   A variable indicating which individuals assigned to the treatment group and which did not (control group).
     *   **Must be a binary (two-category) Discrete Variable.** Within the widget, you will select which value represents the control group (encoded as 0 for analysis).
 *   **Outcome Variable**:
     *   The variable for which you want to evaluate the effect of the intervention (e.g., sales, scores, symptom severity).
@@ -34,14 +34,14 @@ The input data is expected to contain the following information:
 
 The following is an example of panel data for analyzing the effect of introducing a new store format.
 
-| Store ID (Unit ID) | Year-Month (Time) | New Format Intro (Treatment) | Sales (Outcome) | Customer Count (Covariate) | Region (Meta) |
+| Store ID (Unit ID) | Year-Month (Time) | New Format Intro Group (Treatment) | Sales (Outcome) | Customer Count (Covariate) | Region (Meta) |
 | :----------------- | :---------------- | :--------------------------- | :-------------- | :------------------------- | :------------ |
-| StoreA             | 2020-01           | 0 (Not Introduced)           | 1000            | 500                        | East          |
-| StoreA             | 2020-02           | 0 (Not Introduced)           | 1100            | 550                        | East          |
-| StoreA             | 2020-03           | 1 (Introduced)               | 1500            | 700                        | East          |
-| StoreB             | 2020-01           | 0 (Not Introduced)           | 800             | 400                        | West          |
-| StoreB             | 2020-02           | 0 (Not Introduced)           | 850             | 420                        | West          |
-| StoreB             | 2020-03           | 0 (Not Introduced)           | 900             | 450                        | West          |
+| StoreA             | 2020-01           | 1 (Treatment grp)           | 1000            | 500                        | East          |
+| StoreA             | 2020-02           | 1 (Treatment grp)           | 1100            | 550                        | East          |
+| StoreA             | 2020-03           | 1 (Treatment grp)               | 1500            | 700                        | East          |
+| StoreB             | 2020-01           | 0 (Control grp)           | 800             | 400                        | West          |
+| StoreB             | 2020-02           | 0 (Control grp)           | 850             | 420                        | West          |
+| StoreB             | 2020-03           | 0 (Control grp)           | 900             | 450                        | West          |
 | ...                | ...               | ...                          | ...             | ...                        | ...           |
 
 In this example, "Store ID" is the Unit ID variable, "Year-Month" is the Time variable, "New Format Intro" is the Treatment variable (0 for control, 1 for treated), "Sales" is the Outcome variable, "Customer Count" is a Covariate, and "Region" is a Meta variable. The Intervention Point would be set within the widget, for example, to "2020-03-01".
@@ -97,8 +97,6 @@ The control panel is used to assign data variables, set the intervention point, 
         *   **Covariates List**: Appears if `Covariate Adjustment` is enabled. Drag and drop variables from the list below to the "Covariates" list to use them as covariates.
         *   **Meta Variables List**: Move variables not used in the analysis but to be kept in the data to the "Meta Variables" list.
     *   **Parallel Trends Test**: If checked, tests the crucial DID assumption that the outcome variable trends for the treated and control groups would have been parallel in the absence of the intervention, using pre-treatment data. Results are displayed in the "Model Diagnostics" section of the main area.
-
-![did_control_event_study_placeholder](./imgs/did_control_event_study_placeholder.png)
 
 *(Figure: Placeholder for "Event Study Plot" options section)*
 
