@@ -21,7 +21,7 @@ DB Connectorウィジェットは、ユーザーがGUIを通じてデータベ�
 
 
 主な機能は以下の通りです:
-*   **多様なデータベースへの接続**: PostgreSQL, MySQL, SQL Server, Redshift, Google BigQueryといった複数のデータベースシステムに対応しています。
+*   **多様なデータベースへの接続**: PostgreSQL, MySQL, SQL Server, Google BigQueryといった複数のデータベースシステムに対応しています。
 *   **接続情報の永続化**: 設定した接続情報は、ローカルのJSONファイル (`~/.allye_secrets/connections.json`) に安全に保存され、ウィジェット起動時に自動的に読み込まれるため、再利用が容易です。
 *   **直感的でインタラクティブなUI**:
     *   保存済みの接続は、DBタイプを示すアイコンと共にリスト表示されます。
@@ -35,6 +35,8 @@ DB Connectorウィジェットは、ユーザーがGUIを通じてデータベ�
 *   **Google BigQuery認証サポート**:
     *   サービスアカウントキーファイル（JSON）のパスを指定する方法に加え、**`gcloud` コマンドラインインターフェース (CLI) を利用した認証機能**も提供します。
     *   <span style="color:red; font-weight:bold;">重要: BigQueryの `gcloud` 認証機能（`Run gcloud auth application-default login` ボタン）を利用するには、お使いのコンピュータに Google Cloud SDK (gcloud CLI) が事前にインストールされ、OSの環境変数PATHが正しく設定されている必要があります。</span>
+*   **Amazon Redshiftサポート**: **Redshift Provisioned Cluster**と**Redshift Serverless**の両方に接続できます。従来の**ユーザー名/パスワード**認証に加え、**IAM認証**（AWSプロファイルまたは直接的なアクセスキーを使用）もサポートします。
+    *   <span style="color:red; font-weight:bold;">重要: RedshiftのIAM認証を利用するには、`redshift_connector`ライブラリが必要です。</span>
 *   **接続情報の管理**: 保存された接続情報の複製 (Clone) や削除がGUIから簡単に行えます。
 
 ## UIコンポーネントの説明
@@ -59,7 +61,7 @@ DB Connectorウィジェットの画面は、大きく分けてタイトルバ�
     *   ドロップダウンリストから接続したいデータベースの種類を選択します (PostgreSQL, MySQL, SQL Server, Redshift, BigQuery)。
     *   選択すると、DBタイプに応じたアイコンが表示され、下部の接続詳細フォームの内容が切り替わります。
 *   **接続詳細フォーム (DBタイプにより内容が変化)**:
-    *   **汎用DB (PostgreSQL, MySQL, SQL Server, Redshift) 選択時**:
+    *   **汎用DB (PostgreSQL, MySQL, SQL Server) 選択時**:
         *   `Project ID`: (このフォームでは表示されません)
         *   `Host`: データベースサーバーのホスト名またはIPアドレス。
         *   `Port`: データベースサーバーのポート番号 (DBタイプ選択時にデフォルト値が入力されます)。
@@ -67,6 +69,19 @@ DB Connectorウィジェットの画面は、大きく分けてタイトルバ�
         *   `Username`: データベースへの接続に使用するユーザー名。
         *   `Password`: 上記ユーザー名に対応するパスワード。右端のボタンで入力内容の表示/非表示を切り替えられます。
         *   `Connection Name`: この接続設定を保存する際の識別名。左ペインのリストに表示されます。
+    *   **Redshift 選択時**:
+        *   フォームは、クラスター/サーバーレスタイプ、認証方式、接続詳細のセクションに分かれています。
+        *   `Redshift Type`: `Redshift cluster` (プロビジョニング済みクラスター用) と `serverless` から選択します。
+        *   `Cluster Identifier` / `Workgroup Name`: 選択したタイプに応じて、クラスターの一意な識別子またはサーバーレスのワークグループ名を入力します。これはIAM認証で使用されます。
+        *   `Authentication Method`: `Username/Password` と `IAM Authentication` から選択します。
+        *   選択した認証方式に応じて、後続の接続詳細フィールドが変化します。
+        *   `Username/Password` の場合: `Host`, `Port`, `Database`, `Username`, `Password` の標準的なフィールド。
+        *   `IAM Authentication` の場合:
+            *   `Host`, `Port`, `Database`: 標準の接続情報。ホストとポートは、クラスターまたはサーバーレスワークグループのエンドポイントである必要があります。
+            *   `Database Username`: RedshiftでIAM認証用に設定されたデータベースユーザー。
+            *   `AWS Credentials`: AWS認証情報を提供するためのフィールド群。`AWS Profile`名（`~/.aws/config`や`~/.aws/credentials`ファイルで設定）を提供するか、`Access Key ID`と`Secret Access Key`を直接指定できます。
+            *   `Region`: Redshiftリソースが存在するAWSリージョン（例: `ap-northeast-1`）。
+        *   `Connection Name`: この接続設定を保存する際の識別名。
     *   **BigQuery 選択時**:
         *   `Project ID`: Google CloudプロジェクトのID。
         *   `Credentials Path`: (オプション) Google CloudサービスアカウントキーのJSONファイルのフルパス。空の場合、`gcloud` のアプリケーションデフォルト認証情報 (ADC) が使用されます。
@@ -115,13 +130,27 @@ DB Connectorウィジェットの画面は、大きく分けてタイトルバ�
 6.  `Save / Update` ボタンをクリックして接続情報を保存します。
 7.  `Connect` ボタンをクリックします。ステータス表示が「Connected」になれば接続成功です。
 
-### 例3: 保存済みの接続設定を再利用する
+### 例3: IAM認証を使用してAmazon Redshift Serverlessに接続する
+<span style="color:red; font-weight:bold;">前提: `redshift_connector[sqlalchemy]` ライブラリがインストールされていること (`pip install "redshift_connector[sqlalchemy]"`)。AWS認証情報が設定済みであること（例: AWSプロファイル経由、またはキーの提供）。</span>
+1.  右ペインの「DB Type」ドロップダウンから「Redshift」を選択します。
+2.  「Redshift Type」として「serverless」を選択します。
+3.  サーバーレスの「Workgroup Name」を入力します。
+4.  「Authentication Method」として「IAM Authentication」を選択します。
+5.  サーバーレスワークグループの「Host」（エンドポイント）と「Port」を入力します。
+6.  「Database」名と「Database Username」（RedshiftでIAMアクセス用に作成したユーザー）を入力します。
+7.  「AWS Credentials」セクションで、「AWS Profile」名（例: `default`）を入力するか、「Access Key ID」と「Secret Access Key」を提供します。
+8.  ワークグループが存在するAWS「Region」（例: `ap-northeast-1`）を入力します。
+9.  「Connection Name」（例: `My Redshift IAM`）を入力します。
+10. `Save / Update` ボタンをクリックします。自動テストオプションが有効な場合、接続がテストされます。
+11. `Connect` ボタンをクリックして接続を確立します。
+
+### 例4: 保存済みの接続設定を再利用する
 1.  ウィジェットを開くと、以前保存した接続が左ペインのリストに表示されます。
 2.  リストから利用したい接続名（例: `My Local PostgreSQL`）をクリックします。
 3.  選択した接続の情報が右ペインのフォームに自動的に読み込まれます。
 4.  `Connect` ボタンをクリックして、データベースに再接続します。
 
-### 例4: 既存の接続設定を複製して一部変更する
+### 例5: 既存の接続設定を複製して一部変更する
 1.  左ペインのリストから、複製元となる接続設定を選択します。
 2.  右ペインにある `Clone` ボタンをクリックします。
 3.  元の接続名に「- Copy」（または「- Copy 2」など、重複を避けた名前）が付加された新しい接続エントリが左ペインのリストに作成され、その情報が右ペインのフォームに読み込まれます。
@@ -142,9 +171,11 @@ DB Connectorウィジェットの画面は、大きく分けてタイトルバ�
 *   バックエンドでは、Pythonの強力なORMライブラリであるSQLAlchemyを使用してデータベースエンジン (`sqlalchemy.engine.Engine`) を作成します。
 *   選択されたDBタイプとフォームに入力された情報に基づいて、適切なデータベース接続URI (Uniform Resource Identifier) が動的に生成されます。
     *   例 (PostgreSQL): `postgresql://username:password@host:port/database`
+    *   例 (Redshift, ユーザー名/パスワード): `redshift+psycopg2://username:password@host:port/database`
     *   例 (BigQuery, ADC使用): `bigquery://project_id`
     *   例 (BigQuery, サービスアカウントキー使用): `bigquery://project_id?credentials_path=/path/to/your/credentials.json`
 *   `Connect` ボタンクリック時や「Auto-test connection before saving」が有効な場合の保存時には、実際にデータベースに対して非常に軽量なクエリ（例: `SELECT 1`）を実行することで、接続の可否をテストします。
+*   **RedshiftのIAM認証**では、ウィジェットはSQLAlchemyの`creator`機能を利用して`redshift_connector`ライブラリと連携します。これにより、IAMに関する複雑なパラメータ（プロファイル、キー、リージョン、クラスター/ワークグループ情報など）を直接接続関数に渡すことができます。この機能を使用するにはライブラリのインストールが必要です: `pip install "redshift_connector[sqlalchemy]"`。
 
 ### Google BigQuery認証 (gcloud CLI連携)
 *   ユーザーが `Run gcloud auth application-default login` ボタンをクリックすると、ウィジェットはOSのプロセスとして `gcloud auth application-default login` コマンドを非同期で実行します。

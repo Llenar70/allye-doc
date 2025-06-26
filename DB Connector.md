@@ -20,7 +20,8 @@ The DB Connector widget is designed to allow users to easily configure and manag
 *Figure 1: Overview of the DB Connector widget. The settings area is on the left, and the connection list/details are on the right (Note: The image description in the original text seems to be a copy-paste error from the Binary Analysis widget. This description assumes the standard layout of a connection manager).*
 
 Key features include:
-*   **Connection to Diverse Databases**: Supports multiple database systems including PostgreSQL, MySQL, SQL Server, Redshift, and Google BigQuery.
+*   **Connection to Diverse Databases**: Supports multiple database systems including PostgreSQL, MySQL, SQL Server, and Google BigQuery.
+*   **Enhanced Amazon Redshift Support**: Connect to both **Redshift Provisioned Clusters** and **Redshift Serverless**. It supports authentication via traditional **Username/Password** as well as **IAM Authentication** (using AWS profiles or direct access keys).
 *   **Persistent Connection Information**: Configured connection information is securely saved in a local JSON file (`~/.allye_secrets/connections.json`) and automatically loaded when the widget starts, facilitating easy reuse.
 *   **Intuitive and Interactive UI**:
     *   Saved connections are listed with icons indicating the DB type.
@@ -58,7 +59,7 @@ The DB Connector widget screen is broadly composed of a title bar, a left pane (
     *   Select the type of database to connect to from the dropdown list (PostgreSQL, MySQL, SQL Server, Redshift, BigQuery).
     *   Upon selection, an icon corresponding to the DB type is displayed, and the content of the connection details form below changes.
 *   **Connection Details Form (content varies by DB type)**:
-    *   **When a generic DB (PostgreSQL, MySQL, SQL Server, Redshift) is selected**:
+    *   **When a generic DB (PostgreSQL, MySQL, SQL Server) is selected**:
         *   `Project ID`: (Not displayed in this form)
         *   `Host`: Hostname or IP address of the database server.
         *   `Port`: Port number of the database server (default value is entered when DB type is selected).
@@ -66,6 +67,19 @@ The DB Connector widget screen is broadly composed of a title bar, a left pane (
         *   `Username`: Username for connecting to the database.
         *   `Password`: Password corresponding to the above username. A button on the right toggles visibility of the input.
         *   `Connection Name`: The identification name for saving this connection setting. Displayed in the list in the left pane.
+    *   **When Redshift is selected**:
+        *   The form is divided into sections for cluster/serverless type, authentication method, and connection details.
+        *   `Redshift Type`: Choose between `Redshift cluster` (for provisioned clusters) and `serverless`.
+        *   `Cluster Identifier` / `Workgroup Name`: Depending on the selected type, enter the unique identifier for your cluster or the name of your serverless workgroup. This is used for IAM authentication.
+        *   `Authentication Method`: Choose between `Username/Password` and `IAM Authentication`.
+        *   The subsequent connection details fields change based on the selected authentication method.
+        *   For `Username/Password`: Standard fields for `Host`, `Port`, `Database`, `Username`, and `Password`.
+        *   For `IAM Authentication`:
+            *   `Host`, `Port`, `Database`: Standard connection details. The host and port should be the endpoint of your cluster or serverless workgroup.
+            *   `Database Username`: The database user that is configured for IAM authentication in Redshift.
+            *   `AWS Credentials`: A group of fields for providing your AWS credentials. You can either provide an `AWS Profile` name (from your `~/.aws/config` or `~/.aws/credentials` files) or specify an `Access Key ID` and `Secret Access Key` directly.
+            *   `Region`: The AWS Region where your Redshift resource is located (e.g., `us-east-1`).
+        *   `Connection Name`: The identification name for saving this connection setting.
     *   **When BigQuery is selected**:
         *   `Project ID`: Google Cloud project ID.
         *   `Credentials Path`: (Optional) Full path to the Google Cloud service account key JSON file. If empty, `gcloud` application default credentials (ADC) will be used.
@@ -114,13 +128,27 @@ The DB Connector widget screen is broadly composed of a title bar, a left pane (
 6.  Click the `Save / Update` button to save the connection information.
 7.  Click the `Connect` button. If the status display shows "Connected", the connection is successful.
 
-### Example 3: Reuse a saved connection setting
+### Example 3: Connect to Amazon Redshift Serverless using IAM Authentication
+<span style="color:red; font-weight:bold;">Prerequisites: The `redshift_connector[sqlalchemy]` library must be installed (`pip install "redshift_connector[sqlalchemy]"`). Your AWS credentials must be configured (e.g., via an AWS profile or by providing keys).</span>
+1.  In the right pane, select "Redshift" from the "DB Type" dropdown.
+2.  Select "serverless" as the "Redshift Type".
+3.  Enter your serverless "Workgroup Name".
+4.  Select "IAM Authentication" as the "Authentication Method".
+5.  Enter the "Host" (endpoint) and "Port" for your serverless workgroup.
+6.  Enter the "Database" name and the "Database Username" (the user created in Redshift for IAM access).
+7.  In the "AWS Credentials" section, enter your "AWS Profile" name (e.g., `default`) or provide your "Access Key ID" and "Secret Access Key".
+8.  Enter the AWS "Region" where your workgroup is located (e.g., `us-east-1`).
+9.  Provide a "Connection Name" (e.g., `My Redshift IAM`).
+10. Click the `Save / Update` button. If the auto-test option is enabled, it will test the connection.
+11. Click the `Connect` button to establish the connection.
+
+### Example 4: Reuse a saved connection setting
 1.  When the widget opens, previously saved connections are displayed in the list in the left pane.
 2.  Click the desired connection name from the list (e.g., `My Local PostgreSQL`).
 3.  The information for the selected connection is automatically loaded into the form in the right pane.
 4.  Click the `Connect` button to reconnect to the database.
 
-### Example 4: Duplicate an existing connection setting and modify parts of it
+### Example 5: Duplicate an existing connection setting and modify parts of it
 1.  Select the source connection setting from the list in the left pane.
 2.  Click the `Clone` button in the right pane.
 3.  A new connection entry, with "- Copy" (or "- Copy 2", etc., to avoid duplicates) appended to the original connection name, is created in the list in the left pane, and its information is loaded into the form in the right pane.
@@ -141,9 +169,11 @@ The DB Connector widget screen is broadly composed of a title bar, a left pane (
 *   On the backend, SQLAlchemy, a powerful ORM library for Python, is used to create a database engine (`sqlalchemy.engine.Engine`).
 *   Based on the selected DB type and the information entered in the form, an appropriate database connection URI (Uniform Resource Identifier) is dynamically generated.
     *   Example (PostgreSQL): `postgresql://username:password@host:port/database`
+    *   Example (Redshift, Username/Password): `redshift+psycopg2://username:password@host:port/database`
     *   Example (BigQuery, using ADC): `bigquery://project_id`
     *   Example (BigQuery, using service account key): `bigquery://project_id?credentials_path=/path/to/your/credentials.json`
 *   When the `Connect` button is clicked, or when saving with "Auto-test connection before saving" enabled, a very lightweight query (e.g., `SELECT 1`) is actually executed against the database to test connectivity.
+*   For **Redshift IAM Authentication**, the widget uses SQLAlchemy's `creator` function to integrate with the `redshift_connector` library. This allows passing complex IAM parameters (like profile, keys, region, and cluster/workgroup info) directly to the connection function. To use this, the library must be installed: `pip install "redshift_connector[sqlalchemy]`.
 
 ### Google BigQuery Authentication (gcloud CLI Integration)
 *   When the user clicks the `Run gcloud auth application-default login` button, the widget executes the `gcloud auth application-default login` command as an OS process asynchronously.
