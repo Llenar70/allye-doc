@@ -69,6 +69,8 @@ In the control area, users set the data and model parameters for the analysis.
 4.  **Advanced Options**:
     *   **Fit intercept**: Specifies whether to include an intercept (constant term) in the model. If checked, an intercept is included.
     *   **Normalize features**: Specifies whether to normalize (standardize) explanatory variables. If checked, each explanatory variable is transformed to have a mean of 0 and a variance of 1. This is particularly useful when variables have vastly different scales or when applying regularization.
+    *   **Calculate VIF (on sampled data)**: Calculates Variance Inflation Factors for explanatory variables using a random sample (default 10,000 rows) to keep computation fast on large datasets.
+    *   **Plot sample size (max points)**: Sets an upper limit for the number of points displayed in plots. When the dataset exceeds this value, the widget draws a random subset so that the UI remains responsive.
 5.  **Apply**:
     *   Analysis is automatically performed when the widget loads or when new data is input. If settings in the control panel are changed, the "Apply" button becomes active; clicking it applies the changes to the model, triggering recalculation and redrawing.
 
@@ -133,7 +135,7 @@ The Regression Analysis widget internally performs the following preprocessing s
 1.  **Domain Reconstruction**: Based on the features, target variables, and meta variables selected by the user in the "Data Variables" section of the UI, the domain (variable set) of the input data is reconstructed.
 2.  **Categorical Variable Encoding**:
     *   If categorical variables are included in the explanatory variables, one-hot encoding is applied.
-    *   The `pandas.get_dummies` function is used with the `drop_first=True` option, which removes the first category of each categorical variable as a reference category. This helps avoid multicollinearity. Encoded variable names combine the original variable name and the category value (e.g., `grade_B`).
+    *   scikit-learn's `OneHotEncoder` (`drop='first'`, `handle_unknown='ignore'`) is used to perform one-hot encoding. The first category of each categorical variable is removed as a reference category to avoid multicollinearity, and dense arrays are generated for faster computation. Encoded variable names combine the original variable name and the category value (e.g., `grade_B`).
 3.  **Missing Value Handling**:
     *   Rows containing missing values (NaN) in either features or the target variable are excluded from the analysis.
 4.  **Feature Normalization**:
@@ -155,8 +157,8 @@ Depending on the selected model type and regularization options, one of the foll
     *   Log-Likelihood (approximate): `L ≈ -n/2 * (log(2π) + log(RSS/n) + 1)`
     *   AIC: `-2L + 2k`
     *   BIC: `-2L + log(n)k` (where k is the number of estimated parameters = number of explanatory variables + intercept (1 if present) + error variance (1))
-*   **P-values**: Obtained from the results of `statsmodels.api.OLS` when no regularization is applied. For regularized models (Lasso, Ridge), P-values are generally not directly calculated and are therefore not displayed (shown as N/A or `-`).
-*   **VIF (Variance Inflation Factor)**: For each explanatory variable `X_i`, an auxiliary linear regression model is built with `X_i` as the target variable and all other explanatory variables as predictors. Using the R-squared (`R_i²`) of this auxiliary regression, VIF is calculated as `1 / (1 - R_i²)`. This calculation is implemented in the `calculate_vif` function within `glm_models.py`.
+*   **P-values**: Obtained from the results of `statsmodels.api.OLS` when no regularization is applied. When the dataset contains more than 100,000 rows, the widget randomly samples 100,000 rows to estimate P-values; therefore the values are approximate and a warning banner is displayed. For regularized models (Lasso, Ridge), P-values are generally not calculated and are displayed as N/A (`-`).
+*   **VIF (Variance Inflation Factor)**: The calculation is optional (enable **Calculate VIF** in Advanced Options). For each explanatory variable `X_i`, an auxiliary linear regression model is built with `X_i` as the target variable and all other explanatory variables as predictors. The R-squared (`R_i²`) of this auxiliary regression is then used to compute `1 / (1 - R_i²)`. When the data exceeds the chosen sample size (default 10,000 rows), the calculation is performed on that random sample to speed up processing. This calculation is implemented in the `calculate_vif` function within `glm_models.py`.
 
 ### Plots
 

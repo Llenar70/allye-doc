@@ -70,9 +70,8 @@ This widget allows setting model configurations in the control area (left panel)
     *   **Class weights**: Option to address class imbalance in sample sizes.
         *   `None`: No weighting.
         *   `Balanced`: Adjusts weights to give more importance to the minority class.
-        *   This option is active when the regularization type is not `None` (when using `scikit-learn`). If regularization type is `None`, this option is disabled and automatically set to `None`.
-
-5.  **Apply**
+        *   **Calculate VIF (on sampled data)**: Calculates Variance Inflation Factors for the explanatory variables. For large datasets, VIF is computed on a random sample (default 10,000 rows) to keep computation fast.
+    *   **Apply**
     *   Retrains the model and updates the results with the current settings. May also be applied automatically when the widget starts or when data changes, if data is already input.
 
 ### Main Area (Right Panel)
@@ -103,10 +102,10 @@ The main area is scrollable and displays the following analysis results:
     *   Detailed information about each feature (and intercept) of the model is displayed in a table format.
         *   `VARIABLE`: Feature name or intercept. One-hot encoded variables are displayed with their original variable name and value (e.g., `grade_B`).
         *   `COEFFICIENT`: Learned coefficient value.
-        *   `P-Value`: p-value of the coefficient (displayed only if regularization type is `None`. Blue text if <= 0.05, red text otherwise).
+        *   `P-Value`: p-value of the coefficient (displayed only if regularization type is `None`). When the dataset contains more than 100,000 rows the widget randomly samples 100,000 rows to approximate p-values; therefore the values are approximate and a warning banner is shown. Blue text if ≤ 0.05, red text otherwise.
         *   `ODDS RATIO`: Odds ratio (`exp(coefficient)`).
         *   `IMPORTANCE`: Variable importance (absolute value of coefficient).
-        *   `VIF`: Variance Inflation Factor. An indicator of multicollinearity. Generally, values exceeding 5 or 10 may indicate a problem. Displayed as `-` (or NaN) for the intercept. Orange text if VIF is >= 5 and < 10, red text if VIF is >= 10.
+        *   `VIF`: Variance Inflation Factor. Calculation is optional (enable **Calculate VIF** in Advanced Options). The widget computes VIF on a random sample (default 10,000 rows) to accelerate processing on large datasets. Displayed as `-` (or NaN) for the intercept. Orange text if VIF ≥ 5 and < 10, red text if VIF ≥ 10.
 
 4.  **Coefficient Visualization**
     *   Displays the coefficient values of each feature (excluding the intercept) as a bar plot.
@@ -159,7 +158,7 @@ The following example demonstrates the basic usage of the `Binary Analysis` widg
 1.  **Data Preprocessing (`preprocess_data` method)**:
     *   The input `Orange.data.Table` to the widget is internally converted to a pandas DataFrame.
     *   Data is reconstructed based on the features, target variable, and meta variables selected by the user in the control area.
-    *   **Categorical Variable Encoding**: Discrete variables (categorical variables) among the selected features are one-hot encoded (using `pd.get_dummies` with the `drop_first=True` option to avoid multicollinearity). The encoded feature names (`self.feature_names`) and a mapping of original variable names to generated dummy variable names (`self.dummy_feature_mapping`) are stored.
+    *   **Categorical Variable Encoding**: Discrete features are one-hot encoded with scikit-learn’s `OneHotEncoder` (`drop='first'`, `handle_unknown='ignore'`). The first category of each variable is removed as a reference to avoid multicollinearity, and a dense/sparse matrix is produced for efficient computation. Encoded variable names combine the original variable name and the category value (e.g., `grade_B`). The encoded feature names (`self.feature_names`) and a mapping of original variable names to generated dummy variable names (`self.dummy_feature_mapping`) are stored.
     *   **Missing Value Handling**: Rows containing at least one missing value (NaN) in either the features (X) or the target variable (y) are excluded from the analysis.
     *   Finally, a numerical feature matrix `self.X` and a target variable vector `self.y` are prepared for model training.
 
@@ -174,6 +173,9 @@ The following example demonstrates the basic usage of the `Binary Analysis` widg
         *   `sklearn.linear_model.LogisticRegression` is used internally.
         *   The regularization strength `alpha` is converted to `scikit-learn`'s `C` parameter (`C = 1/alpha`) and passed to the model.
         *   The "Class weights (`class_weight`)" option becomes active.
+        *   **Very Large Datasets**:
+            *   If `regularization="None"` and the dataset exceeds **500,000** rows, the widget trains the `statsmodels` logistic model on a random sample of **100,000** rows to obtain coefficients and p-values quickly. A warning banner indicates that sampling was used and the statistics are approximate.
+            *   When using scikit-learn logistic regression (`regularization` ≠ `None`) and the dataset exceeds **1,000,000** rows (or if *Incremental learning* is explicitly enabled), the widget automatically switches to `SGDClassifier` with incremental learning. This keeps memory usage low but means that coefficients and metrics are approximate; a corresponding warning is displayed in the footer.
     *   If "Normalize features (`normalize_features=True`)" is selected, features are standardized using `sklearn.preprocessing.StandardScaler` before model training. This scaler is `fit_transform`ed on the training data and only `transform`ed for subsequent predictions.
     *   The model is trained (`model.fit()`) using the prepared `self.X` and `self.y`, and the list of encoded feature names (`self.feature_names` or `model.input_feature_names_for_vif`).
 

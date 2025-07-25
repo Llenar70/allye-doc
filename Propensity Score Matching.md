@@ -165,7 +165,7 @@ The following is a basic workflow for loading data from a file, performing prope
 
 1.  **Data Preparation**:
     *   Data for model training is prepared based on the covariates and treatment variable selected by the user.
-    *   Categorical variables among the covariates are converted to dummy variables using **One-Hot Encoding** (with the `drop_first=True` option, which drops the first category). This allows categorical variables to be input into the model as numerical values.
+    *   Categorical variables among the covariates are **dummy-coded** using **One-Hot Encoding** (implemented with scikit-learn’s `OneHotEncoder(drop='first', handle_unknown='ignore')`). This produces a sparse/dense matrix efficiently and avoids multicollinearity by dropping the first category.
     *   Numerical covariates are **standardized** (scaled to mean 0, standard deviation 1). This equalizes the influence of variables with different scales on model training.
 2.  **Model Training**:
     *   A **logistic regression model** is trained with the treatment variable as the target variable (control group=0, treatment group=1) and the preprocessed covariates as explanatory variables.
@@ -184,6 +184,7 @@ Using the calculated propensity scores, control group samples with similar prope
     *   Similar to nearest neighbor, it finds samples with close propensity scores, but additionally, the absolute difference in propensity scores between the treated and control samples must be less than or equal to a pre-set "caliper value".
     *   This prevents matching between samples with vastly different propensity scores, thereby improving the quality of the match.
     *   The user can choose whether to match with or without replacement.
+*   **Performance optimisation (FAISS)**: When the Caliper method is selected and Facebook’s FAISS library is available, the widget uses FAISS for fast nearest-neighbour search on the propensity scores. If FAISS is not installed the code transparently falls back to a highly-optimised Python/NumPy implementation. The matching logic and results are identical; only speed differs.
 
 ### Balance Evaluation
 
@@ -195,3 +196,9 @@ Checks whether the balance of covariates between the treatment and control group
     *   The widget calculates and visually displays the SMD for each covariate before and after matching.
 
 This widget automates these steps and presents the results in an easy-to-understand manner, enabling users to perform propensity score matching and evaluate its results conveniently.
+
+### Additional Notes
+
+* **IPW trimming**: When Inverse Propensity Weighting (IPW) is enabled, extreme propensity scores are trimmed at the 1 % and 99 % percentiles before computing weights to improve stability.
+* **No-regularisation mode**: Selecting *None* for regularisation uses a logistic model with an extremely large `C` (≈ 1 e12) under L2 penalty to emulate an unregularised fit because recent scikit-learn versions deprecate the explicit `penalty='none'`, ensuring consistent behaviour.
+* **Large dataset sampling**: When the input table exceeds **300 000 rows**, the widget automatically draws a random sample of 300 000 rows before running the PSM pipeline to keep computation responsive. A status-bar warning indicates that sampling was applied and all reported statistics are approximate.

@@ -70,6 +70,7 @@
 4.  **高度なオプション (Advanced Options)**
     *   **切片を適合 (Fit intercept)**: モデルに切片（定数項）を含めるかどうかを指定します。
     *   **特徴量を正規化 (Normalize features)**: 学習前に特徴量を標準化（平均0、分散1にスケーリング）するかどうかを指定します。内部で `sklearn.preprocessing.StandardScaler` が使用されます。
+    *   **VIFを計算 (サンプリング計算)**: 説明変数の VIF (Variance Inflation Factor) を計算します。大規模データでは計算を高速化するため、ランダムサンプル（デフォルト 10,000 行）で計算されます。
     *   **クラス重み (Class weights)**: クラス間のサンプル数の不均衡に対処するためのオプション。
         *   `None`: 重み付けなし。
         *   `Balanced`: サンプル数が少ないクラスの重みを大きく調整します。
@@ -107,10 +108,10 @@
     *   モデルの各特徴量（および切片）に関する詳細な情報がテーブル形式で表示されます。
         *   `VARIABLE`: 特徴量名または切片。ワンホットエンコードされた変数は元の変数名と値で表示されます (例: `grade_B`)。
         *   `COEFFICIENT`: 学習された係数値。
-        *   `P-Value`: 係数のp値（正則化タイプが `None` の場合のみ表示。0.05以下の場合は青文字、それより大きい場合は赤文字で表示）。
+        *   `P-Value`: 係数の p 値（正則化タイプが `None` の場合のみ表示）。データが 100,000 行を超える場合、p 値は 100,000 行のランダムサンプルで近似計算されるため概算値となり、ウィジェットに警告が表示されます。0.05 以下は青、0.05 超は赤で表示。
         *   `ODDS RATIO`: オッズ比 (`exp(coefficient)`)。
         *   `IMPORTANCE`: 変数重要度（係数の絶対値）。
-        *   `VIF`: 分散拡大係数 (Variance Inflation Factor)。多重共線性の指標。一般的に5や10を超えると問題ありとされることがあります。切片の場合は `-` (または NaN) と表示。VIFが5以上10未満の場合はオレンジ文字、10以上の場合は赤文字で表示されます。
+        *   `VIF`: 分散拡大係数 (Variance Inflation Factor)。計算はオプションで（Advanced Options の **VIFを計算** を有効化）。計算はランダムサンプル（デフォルト 10,000 行）で行われ、大規模データでも迅速に処理できるようになっています。切片の VIF は `-` (または NaN) で表示されます。VIF が 5 以上 10 未満でオレンジ、10 以上で赤文字。
 
 4.  **係数可視化 (Coefficient Visualization)**
     *   切片を除く各特徴量の係数値をバープロットで表示します。
@@ -164,7 +165,7 @@
 1.  **データ前処理 (`preprocess_data` メソッド)**:
     *   ウィジェットに入力された `Orange.data.Table` は、内部的に pandas DataFrame に変換されます。
     *   ユーザーがコントロールエリアで選択した特徴量、目的変数、メタ変数に基づいてデータが再構成されます。
-    *   **カテゴリカル変数のエンコーディング**: 選択された特徴量のうち、離散変数（カテゴリカル変数）はワンホットエンコーディング (`pd.get_dummies` を使用し、`drop_first=True` オプションで多重共線性を回避）されます。エンコーディング後の特徴量名 (`self.feature_names`) と、元の変数名と生成されたダミー変数名のマッピング情報 (`self.dummy_feature_mapping`) が保持されます。
+    *   **カテゴリカル変数のエンコーディング**: 離散特徴量は scikit-learn の `OneHotEncoder`（`drop='first'`, `handle_unknown='ignore'`）でワンホットエンコードされます。各カテゴリ変数の先頭カテゴリを基準カテゴリとして削除し、多重共線性を回避します。エンコード後の変数名は元の変数名とカテゴリ値を組み合わせたものになります (例: `grade_B`)。エンコーディング後の特徴量名 (`self.feature_names`) と、元の変数名と生成されたダミー変数名のマッピング情報 (`self.dummy_feature_mapping`) が保持されます。
     *   **欠損値処理**: 特徴量 (X) または目的変数 (y) に一つでも欠損値 (NaN) を含む行は、分析対象から除外されます。
     *   最終的に、数値化された特徴量行列 `self.X` と目的変数ベクトル `self.y` がモデル学習用に準備されます。
 
@@ -176,9 +177,12 @@
         *   この場合、係数のp値や標準誤差などの統計的情報が計算されます。
         *   「クラス重み (`class_weight`)」オプションは無効です。
     *   **正則化あり (L1, L2, Elastic Net) の場合**:
-        *   内部で `sklearn.linear_model.LogisticRegression` が使用されます。
-        *   正則化強度 `alpha` は、`scikit-learn` の `C` パラメータ (`C = 1/alpha`) に変換されてモデルに渡されます。
+        *   `sklearn.linear_model.LogisticRegression` を使用します。
+        *   正則化強度 `alpha` は `scikit-learn` の `C` パラメータ (`C = 1/alpha`) に変換され、モデルに渡されます。
         *   「クラス重み (`class_weight`)」オプションが有効になります。
+    *   **大規模データセットへの対応**:
+        *   `regularization="None"` かつデータセットが **50 万行** を超える場合、係数と p 値を高速に算出するため `statsmodels` のロジスティック回帰を **10 万行** のランダムサンプルで学習します。サンプリングが行われた旨の警告が表示され、値は近似となります。
+        *   `regularization` が `None` 以外でデータセットが **100 万行** を超える場合（または *Incremental learning* が明示的に有効化されている場合）、ウィジェットは自動的に `SGDClassifier`（インクリメンタル学習）に切り替えます。メモリ消費を抑えますが、係数や指標は近似値となり、フッターに警告が表示されます。
     *   「特徴量を正規化 (`normalize_features=True`)」が選択されている場合、モデル学習前に `sklearn.preprocessing.StandardScaler` を用いて特徴量が標準化されます。このスケーラーは学習データで `fit_transform` され、以降の予測時には `transform` のみが行われます。
     *   準備された `self.X` と `self.y`、およびエンコーディング後の特徴量名リスト (`self.feature_names` または `model.input_feature_names_for_vif`) を用いてモデルが学習されます (`model.fit()`)。
 
@@ -202,5 +206,4 @@
     *   ROC曲線プロットには、FPR、TPR、および計算されたAUC値が表示されます。
 
 5.  **出力データの生成**:
-    *   **係数 (`create_coefficients_table` メソッド)**: モデルから取得した係数名、係数値、p値、オッズ比、重要度、VIF値を元に、新しい `Orange.data.Table` を生成して出力します。ドメインは、属性として `ContinuousVariable("coefficient")`, `ContinuousVariable("p_value")`, `ContinuousVariable("odds_ratio")`, `ContinuousVariable("importance")`, `ContinuousVariable("VIF")` を、メタ情報として `StringVariable("variable")` を持ちます。
-    *   **予測 (`create_predictions_table` メソッド)**: 前処理後の入力データ (`self.preprocessed_data`) をベースに、モデルによる予測クラスラベル (例: `predicted_target`) と各クラスへの予測確率 (例: `prob_0`, `prob_1`) を新しい列として追加した `Orange.data.Table` を生成して出力します。
+    *   **係数 (`
