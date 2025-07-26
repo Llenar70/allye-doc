@@ -29,34 +29,47 @@ Traditionally, answering this question was a complex, time-consuming task reserv
 To give you a taste, here's what the process might look like in Python using popular libraries:
 
 ```python
-# Import necessary libraries
 import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from causalinference import CausalModel
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# 1. Load and clean data
-# Assume 'data.csv' has user demographics, 'saw_ad' (1 or 0), and 'converted' (1 or 0)
+# 1. read data
 df = pd.read_csv('data.csv')
 df.dropna(inplace=True)
 
-# 2. Define variables
+# 2. Variable settings
 treatment = df['saw_ad'].values
 outcome = df['converted'].values
 covariates = df[['age', 'past_purchases', 'time_on_site']].values
+covariate_names = ['age', 'past_purchases', 'time_on_site']
 
-# 3. Build a propensity score model (e.g., Logistic Regression)
-# This model predicts the likelihood of a user seeing the ad based on their attributes
+# 3. PSM modeling
 propensity_model = LogisticRegression()
 propensity_model.fit(covariates, treatment)
 propensity_scores = propensity_model.predict_proba(covariates)[:, 1]
 
-# 4. Use a causal inference library to match users and calculate the effect
+# 4. Visualize pre-matching distribution
+plt.figure(figsize=(8, 5))
+sns.histplot(propensity_scores[treatment == 1], color='blue', label='Treated', kde=True, stat="density", bins=20)
+sns.histplot(propensity_scores[treatment == 0], color='orange', label='Control', kde=True, stat="density", bins=20)
+plt.legend()
+plt.show()
+
+# 5. Perform Matching
 causal = CausalModel(Y=outcome, D=treatment, X=covariates)
 causal.est_propensity_s(propensity_scores)
 causal.est_via_matching(bias_adj=True)
 
-# 5. Print the results
+# 6. Check result
+...
+
+# 7. Love plot
+...
+
+# 8. 結果の表示
 print(causal.estimates)
 
 # ...and this is just a simplified version.
@@ -75,49 +88,84 @@ Think of it like this: To test a new fertilizer, you can't just compare a plant 
 
 <p align="center">
   <img src="./imgs/psm_intuitive.png"
-       alt="psm_intuitive" width="300">
+       alt="psm_intuitive" width="400">
 </p>
-
-
 
 PSM does this for people. It calculates a "propensity score" for every user—the probability they would have been exposed to your ad based on their characteristics (like age, location, browsing history). Then, it finds pairs of users—one who saw the ad and one who didn't—that have a nearly identical propensity score. By comparing the conversion rates of these matched pairs, you can isolate the true effect of the ad itself.
 
-## 3. The Allye Way: 4 Simple Steps
+## 3. The Allye Way: 3 Simple Steps
 
 Allye takes the complexity of Propensity Score Matching and turns it into a simple, no-code workflow. Here’s how you can find your true ROI in minutes.
 
 ### Step 1: Connect to Your Spreadsheet
-Just input URL of your ad performance data. This should be a simple file containing user attributes (age, past purchases, etc.), a column indicating who saw the ad (the treatment group), and a column for the outcome (e.g., conversion).
+Just input URL and connect to your ad performance data. This should contain user attributes (age, past purchases, etc.), a column indicating who saw the ad (the treatment group), and a column for the outcome (e.g., conversion).
 
 <p align="center">
   <img src="./imgs/ad_cpn_input_data.png"
-       alt="ad_cpn_input_data" width="300">
+       alt="ad_cpn_input_data" width="600">
 </p>
 
-### Step 2: Use the Propensity Score Matching Node
+### Step 2: Use & Configure the Propensity Score Matching Node
 In Allye's visual canvas, you build your analysis by connecting nodes. Simply select the "Propensity Score Matching" node from the analysis library and place it on your canvas. This tells Allye exactly what kind of causal analysis you want to perform.
 
-`[Image Description: Allye's visual workflow builder. A box labeled "Source Data: campaign_data.csv" is on the left. An arrow connects from it to a newly placed node in the center labeled "Analysis: Propensity Score Matching (PSM)".]`
+<p align="center">
+  <img src="./imgs/ad_cpn_psm_node.png"
+       alt="ad_cpn_psm_node" width="500">
+</p>
 
-### Step 3: Configure & Run
-Click on the PSM node to open its simple configuration panel. Define your treatment (the "saw_ad" column), your outcome (the "converted" column), and the user demographics you want to use for matching. Then, just click "Run". No code, no formulas.
+Click on the PSM node to open its configuration panel. Define your treatment (the "saw_ad" column), your outcome (the "converted" column), and the user demographics you want to use for matching.
 
-`[Image Description: A close-up of the PSM node's settings panel. It features clear dropdown menus labeled: "Treatment Group (Who saw the ad?)", "Outcome (What happened?)", and "User Attributes for Matching (Covariates)". The user has selected the appropriate columns from their data. A large, blue "Run Analysis" button is at the bottom.]`
+<p align="center">
+  <img src="./imgs/ad_cpn_psm_config.png"
+       alt="ad_cpn_psm_config" width="500">
+</p>
 
-### Step 4: Understand the True Impact
-Instantly, Allye performs the complex matching and calculations. It presents the result in a clear, easy-to-understand dashboard. Allye calculates the **Average Treatment Effect (ATE)**, showing you the actual number of *additional* conversions generated by your ad. Our AI Agent even provides a business-ready summary of the findings.
 
-`[Image Description: The final results screen in Allye. A large heading reads "Campaign Causal Impact". Below it is a key metric in a large font: "Average Treatment Effect (ATE): +8.5%". A bar chart visually compares the "Ad Group Conversion Rate" (e.g., 20%) with the "Matched Control Group Conversion Rate" (e.g., 11.5%). To the right, an "AI Agent Insights" box contains a text summary: "The ad campaign directly caused an 8.5 percentage point lift in conversions..."]`
+### Step 3: Execute matching & Confirm results
+
+Then, just click "Execute" and confirm results. No code, no formulas.　Allye instantly runs the complex analysis and presents a detailed report. While it looks advanced, **you only need to check one thing** to understand the story.
+
+#### Did We Create a Fair "Apples-to-Apples" Comparison?
+
+First, we need to confirm that we are comparing similar groups of people. The initial data is often biased. For instance, users who saw your ad might have already been more loyal customers with more `past_purchases`.
+
+<p align="center">
+  <img src="./imgs/ad_cpn_past_purchase.png"
+       alt="ad_cpn_past_purchase" width="450">
+</p>
+
+
+Look at the **Propensity Score Distribution** chart.
+
+Before matching, you can see the two distributions (the lighter-colored areas) are not aligned. The group that saw the ad (Treated) was different from the group that didn't (Control).
+
+But **after matching, the two dark lines overlap almost perfectly.** This is the proof: Allye has successfully created two identical groups for a fair comparison, removing the bias that loyal customers were more likely to see the ad.
+
+<p align="center">
+  <img src="./imgs/ad_cpn_distribution.png"
+       alt="ad_cpn_distribution" width="450">
+</p>
+
+
+### Step 3: Understand the True Impact
+Finally, use the AB Test widget to check the difference in conversion rates between the matched user groups. This result shows the additional conversions—i.e., the uplift—achieved by your advertisement.
+
+
+<p align="center">
+  <img src="./imgs/ad_cpn_cvr_test.png"
+       alt="ad_cpn_cvr_test" width="600">
+</p>
+
 
 ## 4. The Result: Confident, Actionable Insights
 
 So, what does this all mean for your $50,000 campaign?
 
-Instead of just a correlation (1,000 total conversions), you now have a **causal number**. The analysis reveals that your ad campaign generated **450 additional conversions** that would not have happened otherwise.
+Instead of just a correlation (1,000 total conversions), you now have a **causal number**. The analysis reveals that your ad campaign generated **+12.7% additional conversions** that would not have happened otherwise.
 
 Now you can confidently report:
-> "Our $50,000 campaign generated 450 incremental conversions at a cost of $111 per true conversion. This resulted in a **true ROI of 150%**."
+> "Our $50,000 campaign generated +12.7% incremental conversions at a cost of $111 per true conversion. This resulted in a **true ROI of 150%**."
 
 This insight is a game-changer. It allows you to stop guessing and start making strategic decisions. You can now effectively optimize your future ad spend, reallocating budget from low-impact campaigns to high-impact ones, backed by causal evidence.
 
-With Allye, measuring the true impact of your work is no longer a six-week data science project. It's a five-minute task that empowers you to prove your value and drive real business growth.
+With Allye, measuring the true impact of your work is no longer a one-week data science project. It's a five-minute task that empowers you to prove your value and drive real business growth.
