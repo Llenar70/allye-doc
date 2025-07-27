@@ -69,7 +69,7 @@ causal.est_via_matching(bias_adj=True)
 # 7. Love plot
 ...
 
-# 8. 結果の表示
+# 8. check result
 print(causal.estimates)
 
 # ...and this is just a simplified version.
