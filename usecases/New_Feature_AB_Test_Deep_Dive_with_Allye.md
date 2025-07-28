@@ -74,11 +74,14 @@ In Allye’s canvas, drag the Causal Tree node into place and open its config pa
 ### 3. Run — Then Read the Auto-Generated Summary
 Hit **Run**. Allye trains the Causal Tree and instantly delivers:
 
-1. **Tree Visualization** — see which features split the audience and how deep the rabbit hole goes
-2. **Gemini Summary** — a plain-English (and chart-backed) overview of positive and negative segments
+1. **Model Diagnostics** — instant snapshot of tree depth, leaf count, AUUC score, and the Qini curve to verify overall lift  
+2. **Feature Importance** — bar chart ranking which attributes drive the splits  
+3. **CATE Distribution** — histogram of unit-level treatment effects that uncovers outliers and tail risk  
+4. **Causal Tree Visualization** — interactive tree where you can zoom, pan, and click nodes to inspect segment-level lift  
+5. **Gemini Summary** — plain-English insights highlighting the highest-positive and most at-risk segments
 
 <p align="center">
-  <img src="./imgs/feature_ab_test_tree_result.png" alt="feature_ab_test_tree_result" width="600">
+  <img src="./imgs/feature_ab_test_tree_result.png" alt="feature_ab_test_tree_result" width="1000">
 </p>
 
 ---

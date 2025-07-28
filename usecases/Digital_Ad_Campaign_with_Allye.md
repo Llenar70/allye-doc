@@ -143,7 +143,7 @@ But **after matching, the two dark lines overlap almost perfectly.** This is the
 
 <p align="center">
   <img src="./imgs/ad_cpn_distribution.png"
-       alt="ad_cpn_distribution" width="900">
+       alt="ad_cpn_distribution" width="1000">
 </p>
 
 
