@@ -147,7 +147,7 @@ But **after matching, the two dark lines overlap almost perfectly.** This is the
 </p>
 
 
-### Step 3: Understand the True Impact
+### Step 4: Understand the True Impact
 Finally, use the AB Test widget to check the difference in conversion rates between the matched user groups. This result shows the additional conversions—i.e., the uplift—achieved by your advertisement.
 
 

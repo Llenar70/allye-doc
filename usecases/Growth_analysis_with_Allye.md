@@ -52,26 +52,9 @@ Engineering lets out a collective groan. Marketing loses momentum. And Maya’s 
 
 ---
 
-## 3. Forging the Weapons: Your Causal Toolkit
+## 3. The Allye Way: Causal Analysis Made Simple
 
-Most tutorials throw models at you and hope for the best. Let's be real. Growth is a team sport, and each player has a different need:
-
-*   The **Product Manager** needs a compelling story for the C-suite.
-*   The **Analyst** needs numbers that are defensible and true.
-*   The **Data Scientist** needs to slay the dragon of hidden bias.
-
-Allye unites this trio with two battle-hardened causal inference techniques.
-
-> **Think of it this way:** PSM is like a Vegas card dealer, ensuring every player (user) gets a fair hand. Causal Forest is the seasoned pro who can look at any hand and tell you exactly how much it's worth, and under what conditions it will win big.
-
-*   **Propensity Score Matching (PSM):** This is our bias-killer. It meticulously matches users who completed a step with nearly identical users who didn't, ensuring we're comparing apples to apples, not apples to oranges.
-*   **Causal Forest:** This is our opportunity-finder. It goes beyond the "average" effect to reveal the rich, heterogeneous truth: *for whom* does this change matter most? And *by how much*?
-
-Together, they deliver not just the **average LTV uplift** of fixing a step, but the **hidden pockets of users** where the ROI is explosive.
-
----
-
-## 4. The Allye Way: From Chaos to Clarity — No Code, Just a Few Clicks
+Allye makes advanced causal analysis easy for everyone on your team—no code required. Here’s how you can quickly identify which step in your funnel will drive the biggest LTV growth:
 
 | # | What You Do | Allye's Node |
 |---|---|---|
@@ -100,7 +83,7 @@ Together, they deliver not just the **average LTV uplift** of fixing a step, but
 
 ---
 
-## 5. The Moment of Truth: One Chart to Rule Them All
+## 4. The Moment of Truth: One Chart to Rule Them All
 
 Allye condenses weeks of analysis into a single、no-nonsense table:
 
@@ -117,7 +100,7 @@ Hover over any bar and Allye surfaces the CATE. For Android users aged 18-24、t
 
 ---
 
-## 6. The Battle Plan: From Insight to Action
+## 5. The Battle Plan: From Insight to Action
 
 * **Primary Move — Slash the Tutorial:** Cut the flow from six screens to three. For Gen-Z Android users still hesitating、send a targeted push. Expected lift from a **+20 pp** completion boost: **+$1.1** LTV on average、a **9 %** bump overall.
 * **Secondary Move — Smooth the Profile:** Once the tutorial win is banked、polish the profile setup to capture the next wave of value.
@@ -125,7 +108,7 @@ Hover over any bar and Allye surfaces the CATE. For Android users aged 18-24、t
 
 ---
 
-## 7. The Victory Lap: One Sprint、9 % LTV Growth
+## 6. The Victory Lap: One Sprint、9 % LTV Growth
 
 The team executed、fast.
 

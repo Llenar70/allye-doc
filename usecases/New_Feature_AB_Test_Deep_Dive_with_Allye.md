@@ -65,14 +65,14 @@ In Allye’s canvas, drag the Causal Tree node into place and open its config pa
 
 *   **Treatment column**: `treatment`
 *   **Outcome column**: `clicked`
-*   **Splitting features**: age, country, device, past_sessions, …
+*   **Covariate features**: age, country, device, past_sessions, …
 
 <p align="center">
   <img src="./imgs/feature_ab_test_tree_node.png" alt="feature_ab_test_tree_node" width="500">
 </p>
 
 ### 3. Run — Then Read the Auto-Generated Summary
-Hit **Run**. Allye trains the Causal Tree and instantly delivers:
+Hit **Execute**. Allye trains the Causal Tree and instantly delivers:
 
 1. **Model Diagnostics** — instant snapshot of tree depth, leaf count, AUUC score, and the Qini curve to verify overall lift  
 2. **Feature Importance** — bar chart ranking which attributes drive the splits  
