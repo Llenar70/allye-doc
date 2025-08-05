@@ -44,12 +44,14 @@ To answer this question, let's use Allye to measure the "true" effect of the adv
 
 #### Confirming Data Content
 1. Connect a **Data Table** widget to the File widget
-2. Open the Data Table and confirm the data content (age, past_purchases, etc.)
 
 <p align="center">
   <img src="./imgs/tutorial_ad_data_table_create.png"
        alt="marketer_question" width="400">
 </p>
+
+2. Open the Data Table and confirm the data content (age, past_purchases, etc.)
+
 <p align="center">
   <img src="./imgs/tutorial_ad_data_table_check.png"
        alt="marketer_question" width="400">
@@ -67,7 +69,7 @@ To answer this question, let's use Allye to measure the "true" effect of the adv
 2. Double-click the widget and configure as follows:
    - **Treatment Variable**: `saw_ad`
    - **Control Group**: `0`
-   - **Outcome Variable**: `converted`
+   - **Target Variable**: `converted`
 
 <p align="center">
   <img src="./imgs/tutorial_ad_ab_test_setting_before.png"
@@ -115,12 +117,40 @@ Now it's time for Allye's true strength - causal inference.
 
 #### Executing Propensity Score Matching
 1. Connect a **Propensity Score Matching** widget to the first File widget
-2. Double-click the widget and configure as follows:
-   - **Treatment**: `saw_ad`
-   - **Outcome**: `converted`
-   - **Covariates**: Select `past_purchases`, `time_on_site`, `age`
 
-**Explanation**: "Here, we pair users who have similar age, site time, and past purchases, but one saw the ad and the other didn't, creating fair comparison groups."
+<p align="center">
+  <img src="./imgs/tutorial_ad_psm.png"
+       alt="marketer_question" width="400">
+</p>
+
+2. Double-click the widget and configure as follows:
+   - **Treatment Variable**:
+     - Select binary treatment variable: `saw_ad`
+     - Select control group value: `0`
+   - **Outcome Variable**: `converted`
+   - **Covariates**: Select `past_purchases`, `time_on_site`
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_psm_setting.png"
+       alt="marketer_question" width="400">
+</p>
+
+**Note**: "age is not needed in Covariates based on our previous check. If age is already in Covariates, you can remove it by dragging and dropping it to Meta Variables."
+
+3. Click the Execute button at the bottom of the widget's control area.
+
+**Explanation**: "Here, we pair users who have similar site time, and past purchases, but one saw the ad and the other didn't, creating fair comparison groups."
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_psm_result1.png"
+       alt="marketer_question" width="400">
+</p>
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_psm_result2.png"
+       alt="marketer_question" width="400">
+</p>
+
 
 ### Step 4: Verifying Results and Confirming the Correct Effect
 
@@ -128,17 +158,39 @@ Let's verify that the bias has been properly corrected and reveal the "true" eff
 
 #### Confirming Bias Correction
 1. Connect a **Distributions** widget to the **Matched Data** output port of the Propensity Score Matching widget
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_distributions_psm.png"
+       alt="marketer_question" width="400">
+</p>
+
 2. Open the widget and, as in Step 2, display `past_purchases` grouped by `saw_ad`
 
-**Results**: "Excellent! After matching, the distribution of past purchases for both groups is almost the same. You can also confirm that the distributions of `time_on_site` and `age` are similarly aligned. Now we have a fair comparison foundation."
+**Results**: "Excellent! After matching, the distribution of past purchases for both groups is almost the same. You can also confirm that the distributions of `time_on_site` is similarly aligned. Now we have a fair comparison foundation."
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_distributions_psm_result.png"
+       alt="marketer_question" width="400">
+</p>
 
 #### Measuring the "True" Effect
 1. Connect a new **AB Test** widget to the **Matched Data** output port of the Propensity Score Matching widget
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_ab_test_psm.png"
+       alt="marketer_question" width="400">
+</p>
+
 2. Configure the widget the same as in Step 1:
    - **Treatment Variable**: `saw_ad`
    - **Outcome Variable**: `converted`
 
 **Final Conclusion**: "This is the 'true' effect of the ad after removing bias. You should see a more realistic, yet statistically significant conversion rate improvement compared to the apparent number from Step 1. Now you can confidently report to your boss!"
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_ab_test_psm_result.png"
+       alt="marketer_question" width="400">
+</p>
 
 ### Step 5: AI Reporting for Professional Documentation
 
