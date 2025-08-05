@@ -88,7 +88,7 @@ You are a marketer for an e-commerce site. You want to know if subscribing to yo
 
 You have collected data on your users, including their characteristics, whether they subscribed, their subsequent spending, and if they opted out.
 
-[Download the sample data here](./sample_data/psm_newsletter_data.csv)
+[Download the sample data here](https://github.com/Llenar70/allye-doc/blob/main/course/sample_data/psm_newsletter_data.csv)
 
 Let's use Allye to see what the true impact of the newsletter was.
 
