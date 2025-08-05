@@ -12,7 +12,7 @@ This tutorial explores one of the most critical business challenges: "Web advert
 ## Prerequisites
 
 - Sample data: `ad_campaign_sample.csv`
-  - This file is preset in Allye or can be downloaded from this tutorial page
+  - This file can be simply downloaded from the link below
 - Data fields:
   - `age`: Customer age
   - `past_purchases`: Number of past purchases
@@ -33,8 +33,8 @@ To answer this question, let's use Allye to measure the "true" effect of the adv
 ### Step 1: Data Loading and Confirming the Apparent Effect
 
 #### Data Loading
-1. Place a **File** widget on the canvas
-2. Double-click the File widget and load `ad_campaign_sample.csv`
+1. Download the CSV file from the link below
+2. Drag and drop the downloaded CSV file onto the canvas - this will automatically create a **File** widget
 
 #### Confirming Data Content
 1. Connect a **Data Table** widget to the File widget
@@ -44,8 +44,9 @@ To answer this question, let's use Allye to measure the "true" effect of the adv
 1. Connect an **AB Test** widget to the File widget
 2. Double-click the widget and configure as follows:
    - **Treatment Variable**: `saw_ad`
+   - **Control Group**: `0`
    - **Outcome Variable**: `converted`
-3. **Review Results**: "Looking at the results, there's a large difference in conversion rates. Users who saw the ad appear to have a XX% higher conversion rate than those who didn't. But is this really just the effect of the ad?"
+3. **Review Results**: "Looking at the results, there's a large difference in conversion rates. Users who saw the ad appear to have a 19.3% higher conversion rate than those who didn't. But is this really just the effect of the ad?"
 
 ### Step 2: Discovering Bias - Why Did the Difference Occur?
 
