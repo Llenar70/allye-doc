@@ -200,8 +200,22 @@ Let's create a professional report using Allye's AI Reporting feature.
 1. In the AB Test widget from Step 4, click the **AI Reporting** button (located in the bottom-right corner of the widget)
 2. The report generation screen will appear
 3. Click the **Generate AI Allye's Report** button without making any changes
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_ai_reporting.png"
+       alt="marketer_question" width="400">
+</p>
+
 4. Wait for the report to be generated
+
+When the report generation is complete, an "AI Allye Analysis" section will be added to the right area.
+
 5. Click the **[Save]** button in the same screen to save in HTML, PDF, md, or .report format
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_ai_reporting_save.png"
+       alt="marketer_question" width="400">
+</p>
 
 **Note**: The AI Reporting button is available in the bottom-right corner of each widget. This feature automatically analyzes the widget's results and generates comprehensive reports with explanations, visualizations, and insights.
 
