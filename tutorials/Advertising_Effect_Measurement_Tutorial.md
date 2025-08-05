@@ -34,19 +34,52 @@ To answer this question, let's use Allye to measure the "true" effect of the adv
 
 #### Data Loading
 1. Download the CSV file from the link below
+[ Download link ]
 2. Drag and drop the downloaded CSV file onto the canvas - this will automatically create a **File** widget
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_data_loading.png"
+       alt="marketer_question" width="400">
+</p>
 
 #### Confirming Data Content
 1. Connect a **Data Table** widget to the File widget
 2. Open the Data Table and confirm the data content (age, past_purchases, etc.)
 
+<p align="center">
+  <img src="./imgs/tutorial_ad_data_table_create.png"
+       alt="marketer_question" width="400">
+</p>
+<p align="center">
+  <img src="./imgs/tutorial_ad_data_table_check.png"
+       alt="marketer_question" width="400">
+</p>
+
 #### Conducting a Simple A/B Test
 1. Connect an **AB Test** widget to the File widget
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_ab_test.png"
+       alt="marketer_question" width="400">
+</p>
+
+
 2. Double-click the widget and configure as follows:
    - **Treatment Variable**: `saw_ad`
    - **Control Group**: `0`
    - **Outcome Variable**: `converted`
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_ab_test_setting_before.png"
+       alt="marketer_question" width="400">
+</p>
+
 3. **Review Results**: "Looking at the results, there's a large difference in conversion rates. Users who saw the ad appear to have a 19.3% higher conversion rate than those who didn't. But is this really just the effect of the ad?"
+
+<p align="center">
+  <img src="./imgs/tutorial_ad_ab_test_result_before.png"
+       alt="marketer_question" width="400">
+</p>
 
 ### Step 2: Discovering Bias - Why Did the Difference Occur?
 
@@ -58,11 +91,21 @@ Let's determine whether it's the ad that's excellent or the "people" who saw the
    - **Variable**: `past_purchases`
    - **Split by**: `saw_ad`
 
+<p align="center">
+  <img src="./imgs/tutorial_ad_distributions_past_purchases_setting.png"
+       alt="marketer_question" width="400">
+</p>
+
 #### Discovering Bias
 "Look at the graph. Users in the group who saw the ad (saw_ad=1) clearly have more past purchases than those who didn't (saw_ad=0). This isn't a fair comparison."
 
+<p align="center">
+  <img src="./imgs/tutorial_ad_distributions_past_purchases_result.png"
+       alt="marketer_question" width="400">
+</p>
+
 #### Checking Other Variables
-Similarly, switch the Variable in the Distributions widget to `time_on_site` and `age`. You'll see that these variables also have biases between groups.
+Similarly, switch the Variable in the Distributions widget to `time_on_site` and `age`. You'll see that `time_on_site` also shows a bias between groups, while `age` appears to be more evenly distributed.
 
 **Conclusion**: "These background factors (which we call covariates) are creating the apparent effect. Let's remove this bias."
 
