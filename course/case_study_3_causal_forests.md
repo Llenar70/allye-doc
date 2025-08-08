@@ -222,6 +222,12 @@ By running two separate Causal Forest analyses, you move beyond a single insight
 
 -   **Key Insight: Different Actions Matter to Different Users**: Your analysis reveals two distinct user personas with different drivers of retention:
 
+  <p align="center">
+    <img src="./imgs/course3_Actionable_Strategy.png" alt="Actionable Strategy" width="300">
+  </p>
+
+
+
 -   **Persona A: The "Habit-Driven Buyer"**:
     -   **Behavior**: For users who were previously on a **paid plan** and show clear category affinity (e.g., **"Fashion"**), making a *repeat purchase* within 7 days tends to produce a more consistently negative CATE (larger reduction in re‑churn).
     -   **Interpretation**: The diagnostics indicate that stronger historical engagement and prior monetization push the CATE more negative in the Re‑Engagement model—consistent with re‑activating an existing habit.
