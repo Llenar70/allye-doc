@@ -6,6 +6,11 @@ You're a product manager focused on increasing user retention and Lifetime Value
 
 You might have a few ideas for re-engaging them, like offering a discount coupon or a tour of new features. However, these are just hypotheses. You're concerned that you might be overlooking other, more critical actions, and you lack the confidence to act on these hunches. Simply giving everyone the same offer feels inefficient and risks annoying users for whom the offer is irrelevant. Rather than testing random ideas, you want to first analyze your observational data to discover what organic behaviors *actually* lead to long-term retention. The key challenge is to understand **which user actions drive loyalty for which users** during that critical comeback moment.
 
+<p align="center">
+  <img src="./imgs/course3_one_size_fits_all.png" alt="One size fits all" width="500">
+</p>
+
+
 In this case study, you'll learn how to use **Causal Forest**, a powerful machine learning method, to move beyond one-size-fits-all solutions and design a personalized retention strategy.
 
 Specifically, you will practice the following steps:
@@ -51,6 +56,11 @@ You have two core hypotheses about these critical actions:
 
 Your goal is to use Causal Forest on your existing **observational data** to test both hypotheses and see which spontaneous actions have a causal impact on retention, after accounting for user self-selection. This will require running two separate analyses.
 
+<p align="center">
+  <img src="./imgs/course3_designing _analysis.png" alt="Causal Forest Concept" width="700">
+</p>
+
+
 ### 2. Defining the Analysis from Observational Data
 
 -   **Target**: Users who were inactive for 90+ days and returned in the last 14 days.
@@ -70,6 +80,8 @@ Your goal is to use Causal Forest on your existing **observational data** to tes
 
 ## Analyzing with Allye
 
+You have collected data on your users. Let's use Allye to investigate what the true impact of your hypothesis.
+
 > [Download the sample data here](https://github.com/Llenar70/allye-doc/blob/main/course/sample_data/causal_forest_retention_data.csv)
 
 ### 1. Load Data
@@ -80,7 +92,67 @@ Drag & drop your `causal_forest_retention_data.csv` file to the canvas and view 
   <img src="./imgs/course3_load_data.png" alt="Load Data" width="700">
 </p>
 
-### 2. Set Up and Compare Two Causal Forest Models
+### 2. EDA: From Intuition to Insight
+
+Before building causal models, it's crucial to perform Exploratory Data Analysis (EDA). This isn't just a technical prerequisite; it's a vital process for aligning your own intuition / understanding with the reality of the data. By carefully examining what seem like "obvious" patterns, you deepen your understanding of customer behavior. This iterative process of questioning and verifying is what transforms an analyst into a domain expert, sparking new ideas and building a solid foundation for more advanced analysis.
+
+Let's start by exploring some fundamental intuitions about user behavior.
+
+**1. Validating Basic Intuitions about Re-Churn**
+
+What kind of comeback user is more likely to stick around? Our intuition suggests:
+-   Users who were highly engaged *before* they became inactive might have a stronger underlying connection to the product.
+  - Connect a `Box Plot` widget. Select `sessions_in_last_30d_before_idle` as the *Variable* and `churn_within_30d` as *Subgroups*. 
+  - You should observe that users who re-churned have fewer sessions, confirming the expected correlation. The p-value from a t-test is 0.00, indicating this difference is statistically significant and aligns with intuition.
+<p align="center">
+  <img src="./imgs/course3_session_boxplot.png" alt="Load Data" width="600">
+</p>
+
+-   Conversely, users who were inactive for a very long time might find it harder to re-engage.
+  - Now, change the *Variable* to `days_idle`. You'll observe that users with a longer idle period before returning are more likely to re-churn. While this is a correlation, when combined with domain knowledge, it suggests a causal relationship.
+<p align="center">
+  <img src="./imgs/course3_idle_boxplot.png" alt="Load Data" width="450">
+</p>
+
+-   **Hypothesis 1 (Re-Engagement)** 
+  - Use a `Bar Plot (Allye)` to compare `churn_within_30d` between users who did and did not `made_repeat_purchase_in_7d`. You'll likely see a lower re-churn rate for purchasers. 
+<p align="center">
+  <img src="./imgs/course3_bar_repeatpurchase.png" alt="Load Data" width="600">
+</p>
+
+-   **Hypothesis 2 (Discovery)** 
+  - Repeat the process for `used_new_feature_in_7d`. You will probably confirm they are high-engagement users, you may notice many are from the free plan.
+<p align="center">
+  <img src="./imgs/course3_bar_newfeature_use.png" alt="Load Data" width="600">
+</p>
+
+Validating these basic patterns not only strengthens your trust in the data and your intuition, but also opens up exciting opportunities for discovery. If you encounter results that *contradict* your expectations, see it as a valuable chance to dig deeper—such surprises can spark new questions, reveal hidden data issues, or inspire fresh perspectives that lead to breakthrough insights.
+
+
+**Why This Isn't Enough: The Limits of Correlation**
+
+The patterns you've uncovered are insightful and align with our hypotheses. However, they only show **correlations**. Are people staying *because* they made a repeat purchase, or were they already more loyal and thus more likely to make a purchase anyway? This is the classic problem of **selection bias** as we learned in the course 2.
+To move from correlation to causation and get a true estimate of the impact of these actions for *different types* of users, we need a more powerful tool that can account for these underlying differences. This is why we'll use the `Causal Forest` widget next.
+
+---
+
+(optional)💡 **Advanced EDA: Deep Dive into Repeat Purchasers**
+
+We've confirmed that repeat purchasers are less likely to re-churn. But who *are* these users?
+Here, let's take a deeper dive into the data to further enhance your customer understanding. 
+For example, you could investigate:
+
+-   **Favorite Category**: Do users who make repeat purchases tend to have a clear preference for certain product categories?
+  - You can use `Select Rows` to extract repeat purchase users.
+-   **Acquisition Channel**: Are users acquired through `organic_search` more likely to make a repeat purchase than those from `paid_social`?
+-   **Device Type**: Does `device_type` influence purchasing behavior?
+-   **Account Age**: Do users with a longer history (`account_age_years`) show different purchasing patterns?
+
+This kind of deep dive is where true domain expertise is built. By continuously questioning, exploring, and understanding the nuances of your user base, you move beyond surface-level metrics to uncover actionable insights.
+
+
+
+### 3. Set Up and Compare Two Causal Forest Models
 
 To test both of your hypotheses, you will create two parallel `Causal Forest` widgets.
 
@@ -88,77 +160,80 @@ To test both of your hypotheses, you will create two parallel `Causal Forest` wi
     -   Connect a `Causal Forest` widget to your data.
     -   Set **Treatment Variable** to `made_repeat_purchase_in_7d`.
     -   Set **Outcome Variable** to `churn_within_30d`.
+    -   Set **Meta Variables** to `user_id`.
+    -   Include `used_new_feature_in_7d` as a **Covariate** to control for exploration behavior.    
     -   Select all other relevant user features as **Covariates**.
+    -   You can proceed with the default settings in the `Forest Hyperparameters` area.
+
+<p align="center">
+  <img src="./imgs/course3_CF_re_engagement.png" alt="Causal Forest Re-Engagement" width="1000">
+</p>
 
 2.  **Model 2 (Discovery Analysis)**:
     -   Create a second `Causal Forest` widget.
     -   Set **Treatment Variable** to `used_new_feature_in_7d`.
     -   Keep the **Outcome Variable** and **Covariates** the same as in Model 1.
-
+    -   Set **Meta Variables** to `user_id`.
+    -   Include `made_repeat_purchase_in_7d` as a **Covariate** to control for purchase behavior.
+    -   Select all other relevant user features as **Covariates**.
+    -   You can proceed with the default settings in the `Forest Hyperparameters` area.
 <p align="center">
-  <img src="./imgs/course3_two_forests.png" alt="Two Causal Forest Widgets" width="800">
+  <img src="./imgs/course3_CF_discovery.png" alt="Causal Forest Discovery" width="1000">
 </p>
 
-### 3. Diagnose and Interpret Each Model
+### 4. Diagnose and Interpret Each Model
 
 For each of the two models, investigate the diagnostic plots to understand the results:
 
--   **Distribution of ITEs**: Look at the overall distribution of the individual treatment effects for both "repeat purchase" and "new feature usage." This gives you a high-level view of how impactful each action is across the entire user base.
--   **Variable Importance**: Compare which user features are most important for predicting the effect in each model. Do the same user characteristics drive the effectiveness of both actions, or are they different? This is a crucial step for uncovering deeper insights.
+-   **Distribution of CATEs**: Causal Forest predicts the expected treatment effect based on each user's covariates (features), which is known as the **Conditional Average Treatment Effect (CATE)**. This can be interpreted as the best estimate of the **Individual Treatment Effect (ITE)** for each user. In this plot, look at the overall distribution of the predicted ITEs for both "repeat purchase" and "new feature usage." This gives you a high-level view of how impactful each action is across the entire user base.
+-   **Feature Importance**: Compare which user features are most important for predicting the effect in each model. Do the same user characteristics drive the effectiveness of both actions, or are they different? This is a crucial step for uncovering deeper insights.
+-   **SHAP Values**: Explain how each feature shifts the predicted CATE for an individual. Positive SHAP means the feature increases the (beneficial) treatment effect; negative means it decreases it. Use this to understand which attributes amplify or dampen the effect within key segments.
 
 <p align="center">
   <img src="./imgs/course3_ite_distribution_comparison.png" alt="ITE Distribution Comparison" width="800">
 </p>
 
-### 4. Create and Verify Segments for Each Insight
+ **How to Read the Two Models (What, Why, So‑What)** 
 
-Based on the ITEs from *each* model, create and analyze user segments.
+- **Start with the CATE distributions (What)**: Compare the centers and spreads.
+  - In the Re‑Engagement model (repeat purchase), the distribution is shifted further below zero and is relatively compact. This means the expected treatment effect is more consistently negative on churn (i.e., a larger, more reliable reduction in re‑churn) across many users.
+  - In the Discovery model (new feature use), the center is closer to zero and the spread is wider. This indicates a smaller average effect with stronger heterogeneity; some users gain a lot, others very little.
+  <p align="center">
+    <img src="./imgs/course3_cate_distribution.png" alt="CATE Distribution" width="700">
+  </p>
 
-1.  Connect a `Select Rows` widget to the first Causal Forest (Re-Engagement). Filter for users where the predicted effect of a repeat purchase is strong (e.g., ITE for churn < -0.10).
-2.  Connect another `Select Rows` to the second Causal Forest (Discovery). Filter for users where the predicted effect of using a new feature is strong.
-3.  Use `Data Table` and `AB Test` widgets to inspect these segments. Do they overlap? Are the characteristics of the "high-potential for re-purchase" segment different from the "high-potential for new feature discovery" segment?
+- **Check Feature Importance (Why)**: Which covariates govern where the effect is large?
+  - Re‑Engagement: Historical engagement (e.g., total sessions, days idle) and preference signals (e.g., category) are prominent. This suggests the benefit of making a repeat purchase depends strongly on prior habit and affinity.
+  - Discovery: Plan status (paid vs. free), tenure, and engagement dominate. This points to user maturity and prior monetization as the key gatekeepers for whether “trying something new” turns into retention value.
+  <p align="center">
+    <img src="./imgs/course3_feature_importance.png" alt="Feature Importance" width="700">
+  </p>
 
-### 5. Share Your Findings with AI Report
-
-Click the `AI Report` button on the canvas to get auto-generated insights that synthesize findings from your entire workflow. This is especially powerful when comparing the results of the two models.
-
-<br>
+- **Use SHAP to read directionality (Why, precisely)**: Look at how high vs. low values move the predicted CATE.
+  - Re‑Engagement: Higher historical engagement and shorter idle periods push CATE further negative (bigger churn‑reduction). Paid and strong category affinity often amplify the benefit—consistent with a “habit re‑activation” story.
+  - Discovery: High engagement combined with a historically free plan tends to push CATE more negative; for long‑tenured or already‑paid users, the effect is weaker or nearer zero—consistent with “novelty matters most for explorers.”
+  <p align="center">
+    <img src="./imgs/course3_shap.png" alt="SHAP Value" width="700">
+  </p>
 
 ## Making Decisions: From Behavioral Insights to Actionable Strategy
 
-By running two separate Causal Forest analyses, you move beyond a single insight and can now develop a much more nuanced understanding of your comeback users. You're not just asking "what works?" but "what works for whom?"
+By running two separate Causal Forest analyses, you move beyond a single insight and can now develop a much more nuanced understanding of your comeback users. You're not just asking "what works?" but "what works for whom?" The diagnostics show that a repeat purchase within 7 days delivers a stronger and more stable reduction in re‑churn overall—particularly for users with prior monetization and clear affinity—whereas trying a new feature has a smaller average impact but yields outsized gains for specific subgroups, especially historically engaged users on the free plan. Use these complementary insights to target “habit‑driven buyers” with purchase nudges and “curious explorers” with guided discovery.
 
 -   **Key Insight: Different Actions Matter to Different Users**: Your analysis reveals two distinct user personas with different drivers of retention:
 
 -   **Persona A: The "Habit-Driven Buyer"**:
-    -   **Behavior**: For users who were previously on a **paid plan** and favored the **"Fashion" category**, the act of making a *repeat purchase* has a powerful causal effect, reducing their re-churn probability by up to 15 percentage points.
-    -   **Interpretation**: For this group, retention is about re-establishing a routine. Their past investment (paid plan) and clear preference signal that they return looking for familiar value.
-    -   **Action Driver**: The key driver for this group is `made_repeat_purchase_in_7d`.
+    -   **Behavior**: For users who were previously on a **paid plan** and show clear category affinity (e.g., **"Fashion"**), making a *repeat purchase* within 7 days tends to produce a more consistently negative CATE (larger reduction in re‑churn).
+    -   **Interpretation**: The diagnostics indicate that stronger historical engagement and prior monetization push the CATE more negative in the Re‑Engagement model—consistent with re‑activating an existing habit.
+    -   **Action Driver**: Prioritize `made_repeat_purchase_in_7d`; new‑feature prompts are secondary for this group.
+    -   **Strategy & Targeted experiments**: Offer a time‑sensitive coupon in the user’s preferred category vs. no offer (control). Expect higher repeat purchases and lower re‑churn for this segment.
 
 -   **Persona B: The "Curious Explorer"**:
-    -   **Behavior**: For users who were historically on a **free plan** and had high engagement (`total_sessions_before_idle`), the act of *using a new feature* has the strongest causal impact on their retention. For them, a repeat purchase shows little to no effect.
-    -   **Interpretation**: This group is not driven by past purchasing habits. They are looking for new value and innovation in the product. Their retention is sparked by discovering new functionalities.
-    -   **Action Driver**: The key driver for this group is `used_new_feature_in_7d`.
+    -   **Behavior**: For users who are historically **free‑plan** and **highly engaged** (`total_sessions_before_idle`), *using a new feature* within 7 days shows a more negative CATE in the Discovery model, while the incremental effect of a repeat purchase is comparatively smaller.
+    -   **Interpretation**: SHAP indicates that free status and high engagement push the Discovery CATE downward (more benefit), whereas paid/long‑tenured users see effects closer to zero—consistent with novelty creating value for explorers.
+    -   **Action Driver**: Prioritize `used_new_feature_in_7d`; purchase incentives play a supporting role.
+    -   **Strategy & Targeted experiments**: On return, trigger a guided tour/tooltip for a major new feature vs. standard welcome (control). Expect higher new‑feature adoption and lower re‑churn for this segment.
 
-### Crafting a Data-Driven, Persona-Based Retention Strategy
-
-These causal insights allow you to replace a one-size-fits-all approach with a sophisticated, persona-driven strategy:
-
-1.  **Confirm the "Why" for Each Persona**: You have validated that different behaviors are critical for different user segments. You've moved beyond correlation to understand the causal drivers of retention for distinct groups.
-
-2.  **Define Persona-Specific Goals**:
-    -   **For Habit-Driven Buyers**: The goal is to **incentivize a repeat purchase** shortly after they return.
-    -   **For Curious Explorers**: The goal is to **guide them toward discovering new features**.
-
-3.  **Design Targeted Interventions (The "How")**: Now you can design precise A/B tests to confirm that your interventions successfully encourage these key behaviors.
-    -   **Test for Persona A (Habit-Driven Buyers)**:
-        -   **Treatment Group**: Offer a **time-sensitive discount coupon** for the "Fashion" category to incentivize that crucial repeat purchase.
-        -   **Control Group**: Give this segment no offer.
-        -   **Hypothesis**: The coupon will increase repeat purchases, which will causally decrease re-churn for this specific segment.
-    -   **Test for Persona B (Curious Explorers)**:
-        -   **Treatment Group**: Upon their return, trigger a **guided tour or tooltip highlighting a major new feature** relevant to their past activity.
-        -   **Control Group**: Show them the standard welcome-back message.
-        -   **Hypothesis**: The feature tour will increase new feature adoption, which will causally decrease re-churn for this segment.
 
 By first using Causal Forest to identify *which behaviors matter to whom*, you can design smarter, more targeted, and more effective experiments. You're no longer guessing what might work; you're building a causal chain from persona to action to outcome.
 

@@ -88,7 +88,7 @@ You are a marketer for an e-commerce site. You want to know if subscribing to yo
 
 You have collected data on your users, including their characteristics, whether they subscribed, their subsequent spending, and if they opted out.
 
-[Download the sample data here](https://github.com/Llenar70/allye-doc/blob/main/course/sample_data/psm_newsletter_data.csv)
+[Download the sample data here](https://raw.githubusercontent.com/Llenar70/allye-doc/main/course/sample_data/psm_newsletter_data.csv)
 
 Let's use Allye to see what the true impact of the newsletter was.
 
@@ -115,9 +115,7 @@ Let's use Allye to see what the true impact of the newsletter was.
   <img src="./imgs/course2_psm_widget.png" alt="PSM Widget Setup" width="700">
 </p>
 
-  - Select `Logistict Regression`, `L1 
-  (Lasso)` in both `Model Type` and 
-  `Regularization`.
+  - Select `Logistic Regression` and `L1 (Lasso)` in both `Model Type` and `Regularization`.
   - You can proceed with the default settings in the `Matching Settings` area.
   - (optional) If you are unsure about the meaning of any option, click the "Ask" button at the bottom right of the widget to ask AI Allye. She not only understands the widget's spec but also has deep expertise in statistical analysis.
 <p align="center">
@@ -161,7 +159,7 @@ Our analysis provides a clear, data-driven story:
 
 With this evidence, you can confidently state:
 
-"After correcting for selection bias, our analysis shows the newsletter has no impact on user spending. Worse, it directly causes an 9~17% increase in the opt-out rate, meaning we are actively driving users away. The current strategy is not working. The decision is to **halt the current newsletter campaign and re-evaluate its content and frequency** to provide more value and reduce user churn."
+"After correcting for selection bias, our analysis shows the newsletter has no impact on user spending. Worse, it directly causes a 9–17% increase in the opt-out rate, meaning we are actively driving users away. The current strategy is not working. The decision is to **halt the current newsletter campaign and re-evaluate its content and frequency** to provide more value and reduce user churn."
 
 <br>
 

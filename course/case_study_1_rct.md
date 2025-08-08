@@ -88,14 +88,14 @@ You are a product manager for an e-commerce site, and you hypothesize that chang
 
 After two weeks, you have collected data on which version each user saw and whether they converted (clicked "Sign Up").
 
-[Download the sample data here](https://github.com/Llenar70/allye-doc/blob/main/course/sample_data/rct_cvr_data_with_covariates.csv)
+[Download the sample data here](https://raw.githubusercontent.com/Llenar70/allye-doc/main/course/sample_data/rct_cvr_data_with_covariates.csv)
 
 Now, let's use Allye to analyze if there is a statistically significant difference in CVR between the two groups.
 
 **Analysis Steps**
 
 1.  **Load Data**: First, we need to bring our collected data into the analysis environment.
-  - Drag & Drop your `rct_cvr_data.csv` file to the canvas.
+  - Drag & Drop your `rct_cvr_data_with_covariates.csv` file to the canvas.
 <p align="center">
   <img src="./imgs/course1_load_data.png" alt="course1_load_data" width="600">
 </p>

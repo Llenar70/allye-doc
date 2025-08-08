@@ -15,7 +15,7 @@ All these are questions about causality. Your professional life is a continuous 
 
 <p align="center">
   <img src="./imgs/onlin_introduction.png"
-       alt="onlin_introduction" width="400">
+       alt="online_introduction" width="400">
 </p>
 
 ## Beyond Correlation: The Power of Causal Inference
@@ -48,11 +48,11 @@ This course is a practical guide to applying causal inference to your daily work
   *Topic: Testing the effect of a new feature on user engagement.*  
   Learn to design, execute, and analyze a Randomized Controlled Trial (RCT) to uncover the true causal impact of your product decisions.
 
-- **Case Study 2: Improving Newsletter Performance with Propensity Score Matching**  
+- **[Case Study 2: Improving Newsletter Performance with Propensity Score Matching](./case_study_2_propensity_score.md)**  
   *Topic: Improving a marketing newsletter.*  
   Estimate the causal effect of a newsletter subscription on user behavior by using propensity score matching to create a fair comparison.
 
-- **Case Study 3: Understanding User Retention with Causal Forests**  
+- **[Case Study 3: Understanding User Retention with Causal Forests](./case_study_3_causal_forests.md)**  
   *Topic: Unpacking the mechanics of "come back" user retention.*  
   Go beyond average effects and use Causal Forests to discover what drives retention for different user segments.
 
