@@ -46,12 +46,19 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 
 ## Feature Description
 
-![lineardml_overview_placeholder](./imgs/lineardml_overview_placeholder.png)
+<p align="center">
+  <img src="./imgs/lineardml_overview_placeholder.png" alt="lineardml_overview_placeholder" width="1000">
+</p>
+
+
 *(Figure: Placeholder for the overall interface of the LinearDML widget)*
 
 ### Control Area (Left Panel)
 
-![lineardml_control_placeholder](./imgs/lineardml_control_placeholder.png)
+<p align="center">
+  <img src="./imgs/lineardml_control_placeholder.png" alt="lineardml_control_placeholder" width="600">
+</p>
+
 
 * **Data Variables**
   * **Treatment Type**: Choose `Binary` or `Continuous`.
@@ -88,8 +95,11 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 
 ### Main Area (Right Panel)
 
-![lineardml_main_results_placeholder1](./imgs/lineardml_main_results_placeholder1.png)
-![lineardml_main_results_placeholder2](./imgs/lineardml_main_results_placeholder2.png)
+<p align="center">
+  <img src="./imgs/lineardml_main_results_placeholder1.png" alt="lineardml_main_results_placeholder1" width="1000">
+</p>
+
+
 
 * **Model Diagnostics**
   * **Metrics**:
@@ -109,7 +119,12 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 
 ## Usage Example
 
-![lineardml_workflow_placeholder](./imgs/lineardml_workflow_placeholder.png)
+<p align="center">
+  <img src="./imgs/lineardml_workflow_placeholder.png" alt="lineardml_workflow_placeholder" width="300">
+</p>
+
+
+
 *(Figure: File → LinearDML → Data Table)*
 
 1. Load the dataset with the **File** widget.

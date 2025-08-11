@@ -46,12 +46,17 @@ LinearDML は econML による Double Machine Learning (DML) を用いて、処�
 
 ## 機能説明
 
-![lineardml_overview_placeholder](./imgs/lineardml_overview_placeholder.png)
+<p align="center">
+  <img src="./imgs/lineardml_overview_placeholder.png" alt="lineardml_overview_placeholder" width="1000">
+</p>
+
 *(図: LinearDML ウィジェットの全体インターフェースのプレースホルダー)*
 
 ### コントロールエリア（左パネル）
 
-![lineardml_control_placeholder](./imgs/lineardml_control_placeholder.png)
+<p align="center">
+  <img src="./imgs/lineardml_control_placeholder.png" alt="lineardml_control_placeholder" width="600">
+</p>
 
 * **Data Variables**
   * **Treatment Type**: `Binary` または `Continuous` を選択。
@@ -88,8 +93,9 @@ LinearDML は econML による Double Machine Learning (DML) を用いて、処�
 
 ### メインエリア（右パネル）
 
-![lineardml_main_results_placeholder1](./imgs/lineardml_main_results_placeholder1.png)
-![lineardml_main_results_placeholder2](./imgs/lineardml_main_results_placeholder2.png)
+<p align="center">
+  <img src="./imgs/lineardml_main_results_placeholder1.png" alt="lineardml_main_results_placeholder1" width="1000">
+</p>
 
 * **Model Diagnostics**
   * **Metrics**:
@@ -109,7 +115,10 @@ LinearDML は econML による Double Machine Learning (DML) を用いて、処�
 
 ## 使用例
 
-![lineardml_workflow_placeholder](./imgs/lineardml_workflow_placeholder.png)
+<p align="center">
+  <img src="./imgs/lineardml_workflow_placeholder.png" alt="lineardml_workflow_placeholder" width="300">
+</p>
+
 *(図: File → LinearDML → Data Table)*
 
 1. **File** ウィジェットでデータを読み込みます。
