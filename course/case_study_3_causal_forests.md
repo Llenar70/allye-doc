@@ -57,7 +57,7 @@ You have two core hypotheses about these critical actions:
 Your goal is to use Causal Forest on your existing **observational data** to test both hypotheses and see which spontaneous actions have a causal impact on retention, after accounting for user self-selection. This will require running two separate analyses.
 
 <p align="center">
-  <img src="./imgs/course3_designing _analysis.png" alt="Causal Forest Concept" width="700">
+  <img src="./imgs/course3_designing_analysis.png" alt="Causal Forest Concept" width="700">
 </p>
 
 

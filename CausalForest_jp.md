@@ -1,6 +1,6 @@
 # Causal Forest
 
-Causal Forest（因果ランダムフォレスト）は、複数の決定木をアンサンブル学習させて処置効果（Treatment Effect）の異質性を推定する機械学習手法です。各木がサンプルを異なる方法で分割し、個別の処置効果（CATE: Conditional Average Treatment Allye 上で Causal Forest を簡単に構築・評価し、結果を可視化できます。
+Causal Forest（因果ランダムフォレスト）は、複数の決定木をアンサンブルして、サンプルごとの処置効果（CATE: Conditional Average Treatment Effect）の異質性を推定する手法です。各木がサンプルを異なる方法で分割してCATEを推定することで、汎化性能と安定性を高めます。本ウィジェットを使うと、Orange上でCausal Forestを簡単に構築・評価・可視化できます。
 
 ---
 
@@ -16,7 +16,7 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 
 * **処置変数 (Treatment Variable)**
   * どのサンプルが処置群（Treatment Group）に割り当てられ、どのサンプルが対照群（Control Group）に割り当てられたかを示す変数。
-  * **必ず二値（2 カテゴリ）の離散変数（Discrete Variable）である必要があります。** ウィジェット内で、どちらの値を対照群（0 としてエンコード）とするかを選択します。
+  * **必ず二値（2カテゴリ）の離散変数（Discrete Variable）である必要があります。** ウィジェット内で、どちらの値を対照群（分析上は0として扱う）とするかを選択します。もう一方は1として扱われます。
 * **結果変数 (Outcome Variable)**
   * 処置の効果を評価したい変数（例: 売上、コンバージョン率、顧客満足度）。
   * 数値（Continuous Variable）または離散（Discrete Variable）が使用可能です。
@@ -42,7 +42,7 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 
 * **Enhanced Data**
   * データ型: `Orange.data.Table`
-  * 説明: 元データに Causal Forest が予測した CATE (条件付き平均処置効果)、`y_hat_control` (対照群だった場合の予測結果)、`y_hat_treatment` (処置群だった場合の予測結果) の3列をメタ列として追加したデータ。これにより、各サンプルの推定処置効果だけでなく、処置の有無両方の場合の予測結果を後続解析に利用できます。
+  * 説明: 元データに `CATE`（条件付き平均処置効果）、`y_hat_control`（対照群だった場合の予測結果）、`y_hat_treatment`（処置群だった場合の予測結果）の3列をメタ列として追加したデータ。これにより、各サンプルの推定処置効果だけでなく、処置の有無両方の場合の予測結果を後続解析に利用できます。
 
 ---
 
@@ -56,7 +56,7 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 * **Data Variables**
   * **Treatment Variable**
     * 二値処置変数を選択します。
-    * Control Group Value を指定し、0 としてエンコードします。それ以外は1としてエンコードされ、Treatment Groupとして扱われます。
+    * Control Group Value を指定し、0 としてエンコードします（その他は1として扱われます）。
   * **Outcome Variable**
     * 結果変数を選択します。
   * **Covariates**
@@ -66,10 +66,12 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 * **Forest Hyperparameters**
   * **Maximum Depth**: 各決定木の最大深さ。
   * **Number of Trees**: 森を構成する決定木の本数。
+  * **Sample Rate (%)**: 学習前にトレーニングデータからサブサンプリングする割合。パフォーマンス上、実際に学習に使われる行数は最大 50,000 行に制限されます。
   * **Feature Importance Method**
     * `Impurity`: 不純度減少ベース（高速、バイアスあり）。
-    * `Permutation`: 置換インポータンス（信頼性高いが計算コスト大）。
-  * **Test Set Size (%)**: モデル評価と特徴量重要度の計算に使用するテストデータの割合 (0–99)。0 を指定した場合、全データで学習し、各種指標は学習データに基づいて計算されます。0より大きい値を指定すると、その割合のデータをテスト用に取り分け、AUUC ScoreやTransformed Outcome MSEなどの評価指標は、このテストデータで計算されます。
+    * `Permutation`: 置換インポータンス（信頼性は高いが計算コストが大きい）。
+* **Evaluation Settings**
+  * **Test Set Size (%)**: テストデータに取り分ける割合（0–99）。0 の場合は全データで学習し、テストセット依存の指標は表示されません。0 より大きい場合、AUUC や Transformed Outcome MSE などは、このテストデータで評価されます。
 * **Apply Button**
   * すべての必須変数が設定されると有効になり、クリックで学習・評価を実行します。
 
@@ -77,19 +79,18 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 
 ![causalforest_main_results_placeholder1](./imgs/causalforest_main_results_placeholder1.png)
 
-
 ![causalforest_main_results_placeholder2](./imgs/causalforest_main_results_placeholder2.png)
-
 
 * **Model Diagnostics**
   * **Metrics**
     * `Number of Trees`: 実際に学習に使用された木の本数。
     * `Max Depth`: 森に含まれる木の最大深さ。
-    * `AUUC Score (Test Set)`: Uplift Curve 下の面積。高いほど良いランキング性能を示します。
-    * `Transformed Outcome MSE`: テストデータにおける Transformed Outcome と CATE 予測の MSE。
-  * **Feature Importance**: 共変量の重要度を棒グラフで表示。
+    * `AUUC Score (Test Set)`: Uplift（Qini）曲線下の面積。テストセットを設定した場合のみ表示され、設定しない場合は「-」となります。
+    * `Transformed Outcome MSE`: テストデータにおける Transformed Outcome と CATE 予測の MSE（テストセット設定時のみ）。
+  * **Feature Importance**: 共変量の重要度を水平棒グラフで表示。グラフのタイトルには、`Test Set` で計算されたのか、テストセット未使用時の `Training Data` なのかが明示されます。
   * **CATE Distribution**: 予測 CATE の分布をヒストグラムで表示。
-  * **Qini Curve**: Qini Curve (Uplift Curve) を描画し、モデルのランキング性能を可視化。
+  * **SHAP Summary Plot**: 予測されたCATEに対する特徴量影響の要約図。学習データから最大 1,000 行をランダムサンプルして計算します。`shap` ライブラリが未導入の場合や計算に失敗した場合は省略されます。
+  * **Qini Curve**: Qini Curve（Uplift Curve）を描画し、モデルのランキング性能を可視化。
 
 ---
 
@@ -104,10 +105,11 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 3. **Causal Forest** を開き、左パネルで以下を設定します。
    * `Treatment Variable`, `Control group value`, `Outcome Variable` を選択。
    * `Covariates` と `Meta Variables` に変数を割り当て。
-   * `Forest Hyperparameters` で `Maximum Depth`, `Number of Trees`, `Feature Importance Method`, `Test Set Size` を設定。
+   * `Forest Hyperparameters` で `Maximum Depth`, `Number of Trees`, `Sample Rate (%)`, `Feature Importance Method` を設定。
+   * `Evaluation Settings` で必要に応じて `Test Set Size (%)` を設定。
    * **Apply** をクリック。
 4. 右パネルで結果を確認します。
-   * **Model Diagnostics** で AUUC, Feature Importance, CATE 分布などを確認。
+   * **Model Diagnostics** で Feature Importance、CATE 分布、SHAP サマリー（利用可能な場合）、AUUC/Qini などを確認。
    * **Qini Curve** でモデルのランキング性能を可視化。
 5. `Enhanced Data` 出力を **Data Table** などに接続し、CATE や予測アウトカム列を確認します。
 
@@ -121,6 +123,7 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 * 選択された主要変数（処置変数、対照群、結果変数）
 * モデル設定（最大深さ、木の本数、特徴量重要度の計算方法、テストセットサイズ）
 * 選択された共変量の数とリスト（最初の 10 個まで）
+* プロット（利用可能な場合）：Feature Importance、CATE 分布、SHAP サマリー、Qini 曲線
 
 ---
 
@@ -128,31 +131,43 @@ Causal Forest（因果ランダムフォレスト）は、複数の決定木を�
 
 ### 1. データ準備 (`CausalForestLogic._prepare_data`)
 
-1. **データ変換**: Orange Table から Numpy 配列 (X, y, treatment) に変換します。
+1. **データ変換**: Orange Table から Numpy 配列（X, y, treatment）に変換します。
 2. **変数選択**: 共変量、結果変数、処置変数に基づいてデータをスライスします。
-3. **対照群のエンコーディング**: 指定された対照群の値を数値 0 として扱います。
+3. **対照群のエンコーディング**: 指定された対照群の値を数値 0 として扱い、もう一方を 1 として扱います。
+4. **カテゴリ変数の処理**: 共変量のカテゴリ変数は自動でワンホットエンコードされ、列名は `変数=値` 形式になります。
 
 ### 2. モデル学習 (`CausalForestLogic.run_analysis`)
 
-* `causalml.inference.tree.CausalRandomForestRegressor` を使用して Causal Forest を構築します。通常のランダムフォレストとは異なり、Causal Forestは処置効果の差が最大になるように分岐を探索します。
+* `causalml.inference.tree.CausalRandomForestRegressor` を使用して Causal Forest を構築します。通常のランダムフォレストとは異なり、Causal Forest は子ノード間の処置効果差が最大化されるように分岐を探索します。
+* 学習は `Sample Rate (%)` に基づいてトレーニングデータをサブサンプリングして実行され、さらにパフォーマンスのため学習に用いる行数は最大 50,000 行に制限されます。各木は最大 10,000 行（`max_samples`）でフィットします。
 * `model.fit(X_train, y_train, treatment)` で学習します。
-* 学習後、`model.predict(X, with_outcomes=True)` により CATE だけでなく `y_hat_control`, `y_hat_treatment` も取得します。
+* 学習後、`model.predict(X, with_outcomes=True)` により CATE だけでなく `y_hat_control` と `y_hat_treatment` も取得します。
+* **SHAP 値**: `shap.TreeExplainer` を用いて、学習データから最大 1,000 行をランダムサンプルして SHAP 値を計算し、可視化に利用します（`shap` 未導入時はスキップ）。
 
 ### 3. モデル評価と指標
 
-* **AUUC Score (`_calculate_auuc`)**: サンプルを予測されたCATEの降順で並べ、Uplift Curve（横軸：対象者数、縦軸：累積処置効果）を作成し、その曲線下の面積を計算します。これにより、モデルのランキング性能を評価します。
-* **Feature Importance (`_calculate_feature_importance`)**
-  * `Impurity`: 各木の不純度減少を平均化。
-  * `Permutation`: `sklearn.inspection.permutation_importance` を用いて特徴量をシャッフルし性能低下を測定。
-* **Transformed Outcome MSE (`_calculate_transformed_outcome_mse`)**
-  * ロジスティック回帰で傾向スコアを推定し、それを用いて Transformed Outcome を計算後、CATE予測値とのMSE（平均二乗誤差）を算出します。
+* `Test Set Size (%)` を設定した場合にテストデータで評価が行われます（未設定の場合、テストセット依存の指標は省略）。
+* **AUUC スコア（`_calculate_auuc`）**: テストデータ上で予測CATEの降順に並べ、Uplift（Qini）曲線を作成し、その曲線下面積を算出してランキング性能を評価します。
+* **特徴量重要度（`_calculate_feature_importance`）**:
+  * `Impurity`: モデル内の `feature_importances_`（各木の不純度減少の平均）。
+  * `Permutation`: `sklearn.inspection.permutation_importance` を使用し、モデル自身の CATE 予測をベースライン目標として `neg_mean_squared_error` で評価。テストセットがある場合はテストデータ、ない場合は学習データで計算します。
+* **Transformed Outcome MSE（`_calculate_transformed_outcome_mse`）**: 傾向スコア（ロジスティック回帰、`solver='sag'`, `max_iter=200`, `random_state=42`）を用いて Transformed Outcome を算出し、予測CATEとの MSE をテストデータで評価します。数値の不安定性を避けるため、傾向スコアは `[0.01, 0.99]` にクリップされます。
 
 ### 4. 可視化 (`OWCausalForest.display_results`)
 
-* **Feature Importance**: 棒グラフ。
+* **Feature Importance**: 水平棒グラフ。
 * **CATE Distribution**: ヒストグラム。
-* **Qini Curve**: Qini Curve (Uplift Curve)。
+* **SHAP Summary Plot**: 特徴量影響の要約図（利用可能な場合）。
+* **Qini Curve**: Uplift/Qini 曲線。
 
 ---
 
-> **補足**: Causal Forest は多数の木を統合することで、Causal Tree よりも高い予測性能とロバスト性を実現しますが、解釈性がやや下がります。本ウィジェットは、Feature Importance や Qini Curve などの指標を通じて、モデルの洞察を得やすくしています。 
+> **補足**: Causal Forest は多数の木を統合することで、Causal Tree よりも高い予測性能とロバスト性を実現しますが、解釈性はやや下がります。本ウィジェットは、Feature Importance、SHAP サマリー、Qini 曲線といった可視化を通じて、モデルの洞察を得やすくしています。
+
+---
+
+## パフォーマンスに関する注意
+
+* 学習に使用する行数は `Sample Rate (%)` に基づくサブサンプルのうち最大 50,000 行に制限されます。
+* 各決定木は最大 10,000 行（`max_samples`）で学習されます。大規模データにおける速度とメモリ使用量の改善を目的としています。
+* SHAP の計算は、学習データから最大 1,000 行をランダムに抽出して実行します。`shap` が未導入の場合は自動的にスキップされます。
