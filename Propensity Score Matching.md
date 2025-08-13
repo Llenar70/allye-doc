@@ -94,6 +94,17 @@ The control panel allows for assigning data variables, setting up the propensity
     *   **Caliper Value**: The maximum allowable difference in propensity scores when Caliper matching is selected. Typically, about 0.2 times the standard deviation of the propensity scores is recommended.
     *   **With Replacement**: If checked, allows the same control sample to be matched with multiple treated samples (sampling with replacement). Useful when the number of control samples is small, but can lead to information duplication. For Nearest Neighbor, it's always treated as with replacement.
     *   **Random Seed**: Random seed to ensure reproducibility of the matching process.
+
+*   **Positivity & Trimming**
+    *   **Enforce trimming before matching**: When enabled, samples outside selected bounds are excluded before matching.
+    *   **Trimming mode**:
+        *   `None`: Do not trim (default).
+        *   `Percentile`: Exclude lower/upper percentiles of overall propensity scores (e.g., 1%).
+        *   `Overlap`: Exclude samples outside the estimated common support between treated and control.
+        *   `Fixed bounds`: Keep only samples with propensity scores within a fixed interval (e.g., [0.05, 0.95]).
+    *   **Percentile (0–0.1)**: Percentile value for `Percentile` trimming (default `0.01`).
+    *   **Fixed bounds [min, max]**: Lower and upper bounds for `Fixed bounds` trimming (default `[0.05, 0.95]`).
+    *   **IPW trim percentile (0–0.1)**: Percentile used to clip propensity scores when computing IPW weights (default `0.01`).
 *   **Execute (Button)**
     *   Executes propensity score matching based on the configured parameters.
 
@@ -133,6 +144,9 @@ The main area displays model diagnostic results, a matching preview, and covaria
         *   `SMD Before`: SMD before matching
         *   `SMD After`: SMD after matching (background color green if absolute SMD <= 0.1, red if > 0.1)
         *   `Improvement %`: Shows the percentage decrease in the absolute value of SMD due to matching.
+
+*   **Status Bar Diagnostics**
+    *   After execution, the status bar displays overlap diagnostics (e.g., fraction of treated/control outside the estimated common support). Use this as a quick quantitative check alongside the PS distributions.
 
 ## Usage Example
 
@@ -194,11 +208,13 @@ Checks whether the balance of covariates between the treatment and control group
     *   SMD = (Mean of covariate in treatment group - Mean of covariate in control group) / sqrt((Variance of covariate in treatment group + Variance of covariate in control group) / 2)
     *   A smaller absolute value of SMD indicates better balance for that covariate. Generally, SMD < 0.1 is considered well-balanced.
     *   The widget calculates and visually displays the SMD for each covariate before and after matching.
+    *   Note: When trimming is enabled, SMDs are computed on the trimmed dataset. “Before” refers to pre-matching values after optional trimming.
 
 This widget automates these steps and presents the results in an easy-to-understand manner, enabling users to perform propensity score matching and evaluate its results conveniently.
 
 ### Additional Notes
 
 * **IPW trimming**: When Inverse Propensity Weighting (IPW) is enabled, extreme propensity scores are trimmed at the 1 % and 99 % percentiles before computing weights to improve stability.
+* **Pre-matching trimming**: Optional pre-matching trimming (Percentile/Overlap/Fixed bounds) can be applied to mitigate positivity violations and improve match quality. When enabled, all diagnostics and SMDs refer to the trimmed dataset.
 * **No-regularisation mode**: Selecting *None* for regularisation uses a logistic model with an extremely large `C` (≈ 1 e12) under L2 penalty to emulate an unregularised fit because recent scikit-learn versions deprecate the explicit `penalty='none'`, ensuring consistent behaviour.
 * **Large dataset sampling**: When the input table exceeds **300 000 rows**, the widget automatically draws a random sample of 300 000 rows before running the PSM pipeline to keep computation responsive. A status-bar warning indicates that sampling was applied and all reported statistics are approximate.

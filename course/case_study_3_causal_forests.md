@@ -16,10 +16,9 @@ In this case study, you'll learn how to use **Causal Forest**, a powerful machin
 Specifically, you will practice the following steps:
 
 -   Frame the business problem of reducing re-churn as a causal inference question.
--   Understand the intuition behind **Causal Forest** and how it estimates the *Individual Treatment Effect (ITE)*.
+-   Understand the intuition behind **Causal Forest** and how it estimates the *Conditional Average Treatment Effect (CATE)* and uses it as an individualized effect (ITE approximation).
 -   Design an analysis to discover if a spontaneous user action has a causal impact on retention, and for which user segments.
 -   Use the discovered insights to create a data-driven, personalized CRM strategy for different user segments.
--   Implement the analysis in Allye and share the results with stakeholders using the AI Report feature.
 
 <br>
 
@@ -29,7 +28,7 @@ In our previous case studies, we focused on the *Average Treatment Effect on Tre
 
 Relying only on the average effect can be misleading. A strategy that is a huge success for one segment could be a complete failure for another. The average would just show a mediocre result, potentially leading you to abandon a great, targeted idea. This is the challenge of **heterogeneous effects**.
 
-This is where **Causal Forest** comes in. It's a machine learning method that moves beyond averages to estimate the **Individual Treatment Effect (ITE)**—the causal effect of a treatment on each individual user. It helps you answer the crucial question: *"Who does my feature work for?"*
+This is where **Causal Forest** comes in. It's a machine learning method that moves beyond averages to estimate the **Conditional Average Treatment Effect (CATE)**—the expected causal effect conditional on user features. In practice, we interpret this as the best available individualized effect (an approximation to the ITE) for each user. It helps you answer the crucial question: *"Who does my feature work for?"*
 
 ### How Does It Work Intuitively?
 
@@ -69,7 +68,9 @@ Your goal is to use Causal Forest on your existing **observational data** to tes
     -   Analysis 1 (Re-Engagement): `made_repeat_purchase_in_7d` (1 if the user made any purchase within 7 days of returning, 0 otherwise).
     -   Analysis 2 (Discovery): `used_new_feature_in_7d` (1 if the user tried a recently launched feature within 7 days of returning, 0 otherwise).
 -   **Covariates (User Features)**: To account for the severe self-selection bias (e.g., enthusiastic users are more likely to re-purchase *and* try new things), we must use historical data as controls:
-    -   `total_sessions_before_idle`: User's historical engagement.
+    -   `total_sessions_before_idle`: User's historical engagement (overall).
+    -   `sessions_in_last_30d_before_idle`: User's engagement in the last 30 days before going idle.
+    -   `days_idle`: Number of days the user was inactive before coming back.
     -   `last_paid_plan`: Was the user a paying customer?
     -   `favorite_category`: User's content preferences.
     -   `account_age_years`: User's tenure.
@@ -80,9 +81,9 @@ Your goal is to use Causal Forest on your existing **observational data** to tes
 
 ## Analyzing with Allye
 
-You have collected data on your users. Let's use Allye to investigate what the true impact of your hypothesis.
+You have collected data on your users. Let's use Allye to investigate the true impact of your hypotheses.
 
-> [Download the sample data here](https://github.com/Llenar70/allye-doc/blob/main/course/sample_data/causal_forest_retention_data.csv)
+> [Download the sample data here](https://raw.githubusercontent.com/Llenar70/allye-doc/main/course/sample_data/causal_forest_retention_data.csv)
 
 ### 1. Load Data
 
@@ -103,7 +104,7 @@ Let's start by exploring some fundamental intuitions about user behavior.
 What kind of comeback user is more likely to stick around? Our intuition suggests:
 -   Users who were highly engaged *before* they became inactive might have a stronger underlying connection to the product.
   - Connect a `Box Plot` widget. Select `sessions_in_last_30d_before_idle` as the *Variable* and `churn_within_30d` as *Subgroups*. 
-  - You should observe that users who re-churned have fewer sessions, confirming the expected correlation. The p-value from a t-test is 0.00, indicating this difference is statistically significant and aligns with intuition.
+  - You should observe that users who re-churned have fewer sessions, confirming the expected correlation. The p-value from a t-test is p < 0.001, indicating this difference is statistically significant and aligns with intuition.
 <p align="center">
   <img src="./imgs/course3_session_boxplot.png" alt="Load Data" width="600">
 </p>
@@ -121,7 +122,7 @@ What kind of comeback user is more likely to stick around? Our intuition suggest
 </p>
 
 -   **Hypothesis 2 (Discovery)** 
-  - Repeat the process for `used_new_feature_in_7d`. You will probably confirm they are high-engagement users, you may notice many are from the free plan.
+  - Repeat the process for `used_new_feature_in_7d`. You will probably confirm these users are highly engaged. You may notice many are on the free plan.
 <p align="center">
   <img src="./imgs/course3_bar_newfeature_use.png" alt="Load Data" width="600">
 </p>
@@ -131,7 +132,7 @@ Validating these basic patterns not only strengthens your trust in the data and 
 
 **Why This Isn't Enough: The Limits of Correlation**
 
-The patterns you've uncovered are insightful and align with our hypotheses. However, they only show **correlations**. Are people staying *because* they made a repeat purchase, or were they already more loyal and thus more likely to make a purchase anyway? This is the classic problem of **selection bias** as we learned in the course 2.
+The patterns you've uncovered are insightful and align with our hypotheses. However, they only show **correlations**. Are people staying *because* they made a repeat purchase, or were they already more loyal and thus more likely to make a purchase anyway? This is the classic problem of **selection bias**, as we learned in Case Study 2.
 To move from correlation to causation and get a true estimate of the impact of these actions for *different types* of users, we need a more powerful tool that can account for these underlying differences. This is why we'll use the `Causal Forest` widget next.
 
 ---
@@ -185,7 +186,7 @@ To test both of your hypotheses, you will create two parallel `Causal Forest` wi
 
 For each of the two models, investigate the diagnostic plots to understand the results:
 
--   **Distribution of CATEs**: Causal Forest predicts the expected treatment effect based on each user's covariates (features), which is known as the **Conditional Average Treatment Effect (CATE)**. This can be interpreted as the best estimate of the **Individual Treatment Effect (ITE)** for each user. In this plot, look at the overall distribution of the predicted ITEs for both "repeat purchase" and "new feature usage." This gives you a high-level view of how impactful each action is across the entire user base.
+-   **Distribution of CATEs**: Causal Forest predicts the expected treatment effect based on each user's covariates (features), which is known as the **Conditional Average Treatment Effect (CATE)**. In observational settings, CATE is often used as the best available approximation to the **Individual Treatment Effect (ITE)** for each user. In this plot, look at the overall distribution of the predicted CATEs for both "repeat purchase" and "new feature usage." This gives you a high-level view of how impactful each action is across the entire user base.
 -   **Feature Importance**: Compare which user features are most important for predicting the effect in each model. Do the same user characteristics drive the effectiveness of both actions, or are they different? This is a crucial step for uncovering deeper insights.
 -   **SHAP Values**: Explain how each feature shifts the predicted CATE for an individual. Positive SHAP means the feature increases the (beneficial) treatment effect; negative means it decreases it. Use this to understand which attributes amplify or dampen the effect within key segments.
 
@@ -203,15 +204,15 @@ For each of the two models, investigate the diagnostic plots to understand the r
   </p>
 
 - **Check Feature Importance (Why)**: Which covariates govern where the effect is large?
-  - Re‑Engagement: Historical engagement (e.g., total sessions, days idle) and preference signals (e.g., category) are prominent. This suggests the benefit of making a repeat purchase depends strongly on prior habit and affinity.
-  - Discovery: Plan status (paid vs. free), tenure, and engagement dominate. This points to user maturity and prior monetization as the key gatekeepers for whether “trying something new” turns into retention value.
+  - Re‑Engagement: Historical engagement (e.g., `total_sessions_before_idle` or `sessions_in_last_30d_before_idle`, `days_idle`) and preference signals (e.g., `favorite_category`) are prominent. This suggests the benefit of making a repeat purchase depends strongly on prior habit and affinity.
+  - Discovery: Plan status (`last_paid_plan`), tenure (`account_age_years`), and engagement dominate. This points to user maturity and prior monetization as the key gatekeepers for whether “trying something new” turns into retention value.
   <p align="center">
     <img src="./imgs/course3_feature_importance.png" alt="Feature Importance" width="700">
   </p>
 
 - **Use SHAP to read directionality (Why, precisely)**: Look at how high vs. low values move the predicted CATE.
-  - Re‑Engagement: Higher historical engagement and shorter idle periods push CATE further negative (bigger churn‑reduction). Paid and strong category affinity often amplify the benefit—consistent with a “habit re‑activation” story.
-  - Discovery: High engagement combined with a historically free plan tends to push CATE more negative; for long‑tenured or already‑paid users, the effect is weaker or nearer zero—consistent with “novelty matters most for explorers.”
+  - Re‑Engagement: Higher historical engagement and shorter `days_idle` push CATE further negative (bigger churn‑reduction). `last_paid_plan` being paid and strong `favorite_category` affinity often amplify the benefit—consistent with a “habit re‑activation” story.
+  - Discovery: High engagement combined with `last_paid_plan` = free tends to push CATE more negative; for users with higher `account_age_years` or `last_paid_plan` = paid, the effect is weaker or nearer zero—consistent with “novelty matters most for explorers.”
   <p align="center">
     <img src="./imgs/course3_shap.png" alt="SHAP Value" width="700">
   </p>
@@ -229,13 +230,13 @@ By running two separate Causal Forest analyses, you move beyond a single insight
 
 
 -   **Persona A: The "Habit-Driven Buyer"**:
-    -   **Behavior**: For users who were previously on a **paid plan** and show clear category affinity (e.g., **"Fashion"**), making a *repeat purchase* within 7 days tends to produce a more consistently negative CATE (larger reduction in re‑churn).
+-   **Behavior**: For users with `last_paid_plan` = paid and clear `favorite_category` affinity (e.g., "Fashion"), making a *repeat purchase* within 7 days tends to produce a more consistently negative CATE (larger reduction in re‑churn).
     -   **Interpretation**: The diagnostics indicate that stronger historical engagement and prior monetization push the CATE more negative in the Re‑Engagement model—consistent with re‑activating an existing habit.
     -   **Action Driver**: Prioritize `made_repeat_purchase_in_7d`; new‑feature prompts are secondary for this group.
     -   **Strategy & Targeted experiments**: Offer a time‑sensitive coupon in the user’s preferred category vs. no offer (control). Expect higher repeat purchases and lower re‑churn for this segment.
 
 -   **Persona B: The "Curious Explorer"**:
-    -   **Behavior**: For users who are historically **free‑plan** and **highly engaged** (`total_sessions_before_idle`), *using a new feature* within 7 days shows a more negative CATE in the Discovery model, while the incremental effect of a repeat purchase is comparatively smaller.
+-   **Behavior**: For users who are historically **highly engaged** (`total_sessions_before_idle`) and have `last_paid_plan` = free, *using a new feature* within 7 days shows a more negative CATE in the Discovery model, while the incremental effect of a repeat purchase is comparatively smaller.
     -   **Interpretation**: SHAP indicates that free status and high engagement push the Discovery CATE downward (more benefit), whereas paid/long‑tenured users see effects closer to zero—consistent with novelty creating value for explorers.
     -   **Action Driver**: Prioritize `used_new_feature_in_7d`; purchase incentives play a supporting role.
     -   **Strategy & Targeted experiments**: On return, trigger a guided tour/tooltip for a major new feature vs. standard welcome (control). Expect higher new‑feature adoption and lower re‑churn for this segment.
