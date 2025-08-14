@@ -248,9 +248,29 @@ By first using Causal Forest to identify *which behaviors matter to whom*, you c
 
 ## Real-World Hurdles and Beyond
 
--   **Unobserved Confounding**: Causal Forest can only account for the features you provide it. If a critical unobserved factor exists (e.g., the user's *reason* for coming back), the ITE estimates could be biased.
--   **Treatment Costs**: If your treatment has a cost (like a discount), you should factor this into your decision-making, focusing on segments where the increase in LTV outweighs the cost.
 -   **Combining with Online Experiments**: The best practice is to use Causal Forest to *generate hypotheses* about segments, and then run new, targeted A/B tests on those segments to confirm the effect.
+
+### When Causal Forest or PSM Are Not the Right Tool (and DID Might Be)
+
+While Causal Forest and Propensity Score Matching (PSM) are powerful when you can credibly assume selection-on-observables (no unobserved confounding conditional on covariates) and have sufficient overlap, they are not always the best fit. Consider using Difference-in-Differences (DID) instead when the setting is closer to a quasi-experiment in time.
+
+-   When to prefer DID:
+    -   **Group-level, time-bound intervention**: The intervention happens to a defined group at a specific start date (e.g., policy change, UI redesign for a subset, store layout rollout). DID naturally models pre/post changes vs. a contemporaneous control group.
+    -   **Plausible Parallel Trends (PT)**: You can defend that in the absence of the intervention, treated and control groups would have followed parallel trends. Under PT, DID can difference out **time-invariant unobservables**, something PSM/CF cannot do.
+    -   **Hard-to-match scenarios**: Treated users are systematically different and **overlap/positivity is weak**, making PSM matching or CF counterfactual prediction unreliable.
+    -   **Stable units, limited spillovers**: Interference across units is minimal in the pre/post window (SUTVA is more plausible at the group/time level).
+
+-   When Causal Forest/PSM may be inappropriate or fragile:
+    -   **Unobserved Confounding**: Causal Forest/PSM can only account for the features you provide it. If a critical unobserved factor exists (e.g., the user's *reason* for coming back), the ITE estimates could be biased.
+    -   **Strong selection on unobservables** that are time-invariant (e.g., latent loyalty) and drive both treatment and outcome.
+    -   **Simultaneous, coordinated interventions** where the counterfactual for treated users is difficult to learn from untreated users (little support/overlap).
+    -   **Severe covariate shift** or **limited common support** between treated and control populations.
+    -   **Dynamic, time-structured effects** that require pre-trend checks or event-study views; DID provides built-in diagnostics for these.
+
+-   When to stay with Causal Forest/PSM:
+    -   **No clear intervention date** or treatments occur idiosyncratically per user without a common start time.
+    -   **Rich covariates and strong overlap** support selection-on-observables and individualized effect learning.
+    -   Your goal is **individual-level targeting** and uplift discovery, not just an average policy effect.
 
 In our next case study, we will explore **Difference-in-Differences (DID)**, a powerful method for measuring the impact of large-scale changes, like a new store layout.
 

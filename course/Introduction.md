@@ -2,11 +2,12 @@
 
 ## What is Causal Inference, and Why Do You Need It?
 
-Your work is filled with questions of cause and effect. Whether you're a product manager, a marketer, a researcher, or a business leader, you constantly grapple with understanding the impact of your decisions.
+Your work is filled with questions of cause and effect. Whether you're a product manager, a marketer, a healthcare professional, or a researcher, you constantly grapple with understanding the impact of your decisions.
 
 -   **Product managers** wonder: "How can we design a feature that truly improves user satisfaction and Lifetime Value (LTV)?"
 -   **Marketers** ask: "Which campaign is most effective at driving conversions, and why?"
--   **Business leaders** need to know: "What strategies will lead to sustainable growth?"
+-   **Medical professionals** ask: "Which treatment strategy leads to better patient outcomes, and for whom?"
+-   **Researchers** ask: "What is the causal effect of an intervention on outcomes, and how robust is the evidence?"
 
 You want to understand your customers to find inspiration that makes an impact. What causes users to grow? What pain points lead them to churn? How can you build genuine loyalty?
 
