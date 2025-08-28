@@ -13,8 +13,8 @@ The Difference-in-Differences (DID) method is a statistical technique used in ob
 The input data is expected to contain the following information:
 
 *   **Treatment Variable**:
-    *   A variable indicating which individuals assigned to the treatment group and which did not (control group).
-    *   **Must be a binary (two-category) Discrete Variable.** Within the widget, you will select which value represents the control group (encoded as 0 for analysis).
+    *   A variable indicating which observations are treated vs. control.
+    *   Should be a Discrete variable (can be multi-category). In the widget you select the control group value; all other values are treated (encoded as 1). A strict binary variable is not required.
 *   **Outcome Variable**:
     *   The variable for which you want to evaluate the effect of the intervention (e.g., sales, scores, symptom severity).
     *   Can be a numerical (Continuous Variable) or discrete (Discrete Variable).
@@ -25,7 +25,7 @@ The input data is expected to contain the following information:
     *   A variable that uniquely identifies each individual or unit (e.g., company, region).
     *   Required when using an individual fixed-effects model (when the `Fixed Effects` option is enabled). Can be a Discrete Variable, String Variable, or a Continuous Variable that effectively functions as a categorical ID.
 *   **Covariates** (Optional):
-    *   Time-varying or time-invariant variables that may affect the outcome variable and whose distribution might differ between the treated and control groups. Including these in the model can improve the precision of estimates and reduce bias (when the `Covariate Adjustment` option is enabled).
+    *   Time-varying or time-invariant variables that may affect the outcome. If you place variables in the Covariates list, they are included in the model (no separate checkbox).
     *   Can be numerical (Continuous Variable) or discrete (Discrete Variable).
 *   **Meta Variables** (Optional):
     *   Identifiers or additional information not directly used in the analysis but to be retained in the data.
@@ -48,19 +48,18 @@ In this example, "Store ID" is the Unit ID variable, "Year-Month" is the Time va
 
 ## Outputs
 
-*   **Results Table**:
-    *   Data type: `Orange.data.Table`
-    *   Description: Estimation results of the DID model. Typically includes:
-        *   `Variable` (meta): Variable name (e.g., "Treatment Effect (DID)", "Treatment Group (Pre-diff)", "Post-Intervention (Trend for Control)", covariate names, "Intercept").
-        *   `Estimate`: Estimated coefficient for each variable.
-        *   `StdError`: Standard error for each coefficient.
-        *   `PValue`: p-value for each coefficient.
-*   **Model Diagnostics**:
-    *   Data type: `Orange.data.Table`
-    *   Description: This output port is defined, but in the current version, data output in Table format is not implemented. Diagnostic information such as the model's R-squared value and number of observations is displayed in the widget's main area UI.
-*   **Treated Data**:
-    *   Data type: `Orange.data.Table`
-    *   Description: This output port is defined, but in the current version, data output is not implemented. The prepared data used for analysis is not output.
+- **Results Table**:
+  - Type: `Orange.data.Table`
+  - Content: DID model estimates as shown in the UI table. Columns: `Variable` (meta), `Estimate`, `StdError`, `PValue`, `95% CI` (meta). When Event Study is enabled, period rows (e.g., `period (-4)`) are appended.
+- **Model Diagnostics**:
+  - Type: `Orange.data.Table`
+  - Content: Diagnostic metrics (`Parallel Trends p-value`, `R² (Overall)`, `R² (Within)` or `Adj. R²`, `Observations`, `F-statistic (Overall)`), with optional details.
+- **Event Study Results**:
+  - Type: `Orange.data.Table`
+  - Content: One row per relative period. Columns: `Period`, `Estimate`, `StdError`, `PValue`, and if available `ConfLower`, `ConfUpper`.
+- **Treated Data**:
+  - Type: `Orange.data.Table`
+  - Note: Reserved; not emitted in the current version.
 
 ## Feature Description
 
@@ -91,12 +90,11 @@ The control panel is used to assign data variables, set the intervention point, 
 *(Figure: Placeholder for "Model Settings" section)*
 
 *   **Model Settings**
-    *   **Fixed Effects**: If checked, a unit fixed-effects model is used to control for time-invariant unobserved heterogeneity specific to units (individuals). If unchecked, it approximates a Pooled OLS model without fixed effects.
-        *   **Select Unit ID variable for Fixed Effects**: Appears if `Fixed Effects` is enabled. Select the variable that uniquely identifies units.
-    *   **Covariate Adjustment**: If checked, covariates are included in the model for adjustment.
-        *   **Covariates List**: Appears if `Covariate Adjustment` is enabled. Drag and drop variables from the list below to the "Covariates" list to use them as covariates.
-        *   **Meta Variables List**: Move variables not used in the analysis but to be kept in the data to the "Meta Variables" list.
-    *   **Parallel Trends Test**: If checked, tests the crucial DID assumption that the outcome variable trends for the treated and control groups would have been parallel in the absence of the intervention, using pre-treatment data. Results are displayed in the "Model Diagnostics" section of the main area.
+    *   **Fixed Effects**: When enabled, uses a unit fixed-effects model (PanelOLS with entity and time effects). When disabled, uses pooled OLS with time fixed effects.
+        *   **Unit ID**: Visible when `Fixed Effects` is enabled. Choose the unit identifier.
+    *   **Covariates / Meta Lists**: Always visible. Drag variables into `Covariates` to include in the model; place identifiers in `Meta Variables`.
+    *   **Standard Errors**: SE type chooser (`Auto`, `Clustered by Unit`, `HAC (Newey–West)`) and optional **HAC lag**. With FE on, SE are clustered by unit; otherwise HAC is used (auto lag if not specified).
+    *   **Parallel Trends Test**: Tests the parallel trends assumption using pre-intervention data and reports a p-value.
 
 *(Figure: Placeholder for "Event Study Plot" options section)*
 
@@ -105,13 +103,12 @@ The control panel is used to assign data variables, set the intervention point, 
     *   **Event Study Options**: Appears if the above checkbox is enabled.
         *   **Reference Period**: Select the relative period to be used as the baseline for comparison in the event study. If the intervention point is 0, typically the period immediately preceding the intervention (e.g., -1) is chosen. Options are dynamically generated based on the data and time aggregation settings.
         *   **Confidence Interval Level**: Select the confidence interval level to display on the plot (e.g., "95%", "90%", "None").
-        *   **Time Aggregation**: Select the time aggregation method for the event study analysis.
-            *   `Original`: Uses the original time variable's unit (e.g., daily if the data is daily).
-            *   `Daily`: Aggregates and analyzes data on a daily basis.
-            *   `Weekly`: Aggregates and analyzes data on a weekly basis.
-            *   `Monthly`: Aggregates and analyzes data on a monthly basis.
+        *   **Time Aggregation**: `Auto`, `As‑is`, `Weekly`, `Monthly`, `Daily`.
+            *   `Auto`: Chooses a sensible granularity from the data.
+            *   `As‑is`: Uses the original time stamps.
+            *   `Weekly`/`Monthly`/`Daily`: Aggregates time before computing relative periods.
 *   **Buttons**
-    *   **Run**: Executes the DID analysis (and event study analysis if enabled) based on the set parameters. Becomes active when all required variables are selected.
+    *   **Run**: Executes DID (and Event Study if enabled). The button is enabled when required variables (Treatment, Control value, Outcome, Time; plus Unit ID if FE is on) are selected.
     *   **Reset**: Resets the widget's settings to their default values.
 
 ### Main Area (Right Panel)
@@ -124,8 +121,7 @@ The main area displays data visualization, analysis results, model diagnostics, 
 
 *   **Time Series Visualization**
     *   Plots the average values of the selected outcome variable over time for the treated and control groups.
-    *   **Intervention Line**: A red vertical line is displayed at the set intervention point.
-    *   **Interaction**: The intervention point can be changed interactively by double-clicking on the plot. Moving the mouse cursor displays a preview line, suggesting clickable dates.
+    *   **Intervention Lines**: Vertical lines indicate the pre-period end and post-period start (intervention). Change these via the date inputs; the plot is not used to set dates.
 *   **Analysis Results**
     *   **Results Table Display**: Shows the DID model estimation results (variable name, coefficient, standard error, p-value) in a table format.
 *   **Model Diagnostics**
@@ -226,9 +222,8 @@ A key assumption for the validity of DID analysis is that, in the absence of the
 Event study analysis assesses how the treatment effect changes over multiple periods before and after the intervention (dynamic effects).
 
 1.  **Relative Period Calculation (`_get_relative_periods`)**:
-    *   Converts each observation time point to a relative period with the intervention time as 0 (e.g., one period before intervention is -1, one period after is 1).
-    *   The original time variable is aggregated according to the `Time Aggregation` setting (Original, Daily, Weekly, Monthly), and relative periods are calculated.
-        *   `Original`: Relative periods based on the original data's time unit (e.g., daily if data is daily).
+    *   Converts each observation time to a relative period with the intervention as 0 (e.g., -1 for the period just before, +1 for the period after).
+    *   Periods are computed using the selected granularity (`Auto`, `As‑is`, `Weekly`, `Monthly`, `Daily`).
         *   `Daily/Weekly/Monthly`: Relative periods in days/weeks/months, respectively.
 2.  **Model Estimation (`run_event_study_analysis`)**:
     A common event study equation is:
@@ -249,6 +244,9 @@ The main time series plot visualizes the trend of the average outcome variable f
 
 1.  **Data Extraction and Aggregation**: Extracts data based on the selected time and outcome variables. Calculates the average outcome for each time point, separately for the treated and control groups.
 2.  **Plotting**: Plots these average values over time. Treated and control groups are shown in different colors.
-3.  **Intervention Line Display and Interaction**:
-    *   A vertical line is displayed at the intervention point set by the user or interactively on the plot.
-    *   Double-clicking on the plot sets that point as the new intervention point. Moving the mouse shows a preview line and the date. This allows for exploratory analysis of different intervention timings (however, a "Run" is needed to re-analyze after changes).
+3.  **Intervention Lines**:
+    *   Vertical lines mark the pre-period end and intervention start. Use the date inputs to change these; the plot does not change dates.
+
+### Notes on Period Windows
+
+You can set a pre-period end and an intervention start. Rows strictly between these dates are excluded; rows on or before the pre-period end are pre, and rows strictly after the intervention are post.
