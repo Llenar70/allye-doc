@@ -77,19 +77,18 @@ The main area displays the A/B test analysis results for each selected target va
 For each target variable, the following information is displayed in a table and a graph:
 
 *   **Title**: Displayed in the format `Target Variable Name (Test Type Used)`. For example, if the target variable `int_rate` is continuous and Test Type is 'Auto', it will display `(T-test)`.
-*   **Results Table**:
-    *   **Group**: Each value of the treatment variable (group name). The control group is indicated with `(Control)`.
-    *   **Sample (Sample Size)**: The sample size (number of data points) for each group.
-    *   **Rate (%) / Average**:
-        *   If the target variable is discrete: Displayed as 'Rate (%)', showing the proportion of positive outcomes (e.g., "yes", "true", "1", or other values determined by internal logic as positive).
-        *   If the target variable is continuous: Displayed as 'Average', showing the mean value.
-    *   **Lift**: The percentage change in the target variable compared to the control group. Calculated as `((Treatment Group Value - Control Group Value) / abs(Control Group Value)) * 100`. The lift value for the control group itself is displayed as `-`.
-    *   **p-value**: The p-value from the statistical test comparing against the control group. A smaller p-value suggests that the observed difference is less likely due to chance (i.e., statistically significant). The p-value for the control group itself is displayed as `-`.
-    *   **Confidence Interval**: The confidence interval for the **difference** from the control group. For example, a 95% confidence interval is interpreted as, "if the same experiment were repeated 100 times, the true difference would fall within this interval in 95 of those repetitions." The confidence interval for the control group itself is displayed as `-`.
-    *   **Significant**: Displays `✓` (significant difference) if the p-value is less than the set significance level (1 - confidence level), and `✗` (no significant difference) otherwise. The control group itself displays `-`.
+*   **Results Table (per target)**:
+    *   Columns:
+        *   Group, Sample, Value (`Rate (%)` for discrete or `Average` for continuous)
+        *   Abs CI: Absolute confidence interval for each group's value (discrete: binomial CI via normal approximation; continuous: t-CI)
+        *   Effect Δ: Absolute difference vs control (pp for discrete, original units for continuous)
+        *   Lift (%): Relative lift vs control. If control=0 then +∞/−∞ (NA when both 0)
+        *   p-value, Significant
+    *   The control group row shows `Effect Δ = -`, `Lift = -`, `p-value = -`, `Significant = -`.
 
 *   **Results Graph (Bar Chart)**:
     *   Displays the Rate (%) or Average for each group as a bar chart.
+    *   Error bars show the Abs CI for each group.
     *   The color of each bar differs by group.
     *   Error bars are displayed on the bars for treatment groups. These error bars represent the **range derived by adding the confidence interval of the difference from the control group to the control group's mean/rate**.
         *   `Error Bar Lower Bound = Control Group Value + Lower Bound of Difference CI`
@@ -143,16 +142,16 @@ Statistical tests are performed between each treatment group and the control gro
     *   If the target variable is a **continuous variable**: **Welch's t-test** (a t-test that does not assume equal variances) is used.
 *   **User-Specified Test Methods**:
     *   **T-Test**: Performs Welch's t-test.
-    *   **Chi-Square**: Performs Chi-square test (or Fisher's exact test).
-    *   **Mann-Whitney U**: Performs Mann-Whitney U test.
+    *   **Chi-Square**: Performs Chi-square test (or Fisher's exact test). Only for binary discrete targets (2×2). Multi-level discrete targets are not supported.
+    *   **Mann-Whitney U**: Performs Mann-Whitney U test. CI is not displayed.
 *   **p-value**: The p-value obtained from each test indicates the probability that the observed difference (or a larger difference) would occur by chance under the null hypothesis (that there is no actual difference).
-*   **Lift**: Calculated as `((Treatment Group Value - Control Group Value) / abs(Control Group Value)) * 100 (%)`. If the control group value is 0, the lift is treated as 0.
-*   **Confidence Interval** (calculated for the difference):
-    *   **Discrete Variable (Difference in Proportions)**: The confidence interval for `(Treatment Group Proportion - Control Group Proportion)` is calculated. The standard error is calculated using `sqrt(p1(1-p1)/n1 + p2(1-p2)/n2)`, and the confidence interval is constructed based on a normal distribution approximation. Results are displayed as percentages.
-    *   **Continuous Variable (Difference in Means)**: The confidence interval for `(Treatment Group Mean - Control Group Mean)` is calculated. The standard error is calculated based on Welch's t-test, and the confidence interval is constructed using the t-distribution.
+*   **Lift**: Calculated as `((Treatment − Control) / Control) * 100 (%)`. If control=0 then +∞/−∞ (NA when both are 0).
+*   **Effect (Δ) and Confidence**:
+    *   Effect Δ shows `(Treatment − Control)` (pp or units). Its CI is not displayed in the table to avoid confusion.
+    *   The table shows Abs CI per group (binomial/t-CI). The plot also uses Abs CI per group.
 *   **Multiple Comparison Correction**:
-    *   When performing multiple comparisons (e.g., multiple treatment groups vs. control group, or multiple target variables), the overall probability of a false positive (concluding a difference exists when it doesn't) increases. To adjust for this, p-values are corrected using the selected method (Bonferroni, Holm, Benjamini-Hochberg).
-    *   This correction is applied to the p-values of each treatment group (other than the control group) when there are three or more distinct values (groups) for the treatment variable.
+    *   When performing multiple comparisons (e.g., multiple treatment groups vs control and/or multiple target variables), p-values are corrected using the selected method (Bonferroni, Holm, Benjamini-Hochberg).
+    *   Correction is applied once across the family of tests comprised of all selected targets × non-control groups.
 
 ### Result Display (`ResultSection`)
 The analysis results for each target variable are displayed by a dedicated `ResultSection` widget.
