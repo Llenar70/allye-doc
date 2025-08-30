@@ -13,11 +13,11 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 入力データには以下の情報が含まれている必要があります。
 
 *   **処置変数 (Treatment Variable)**:
-    *   どのサンプルが処置群（Treatment Group）に割り当てられ、どのサンプルが対照群（Control Group）に割り当てられたかを示す変数。
-    *   **必ず二値（2カテゴリ）の離散変数（Discrete Variable）である必要があります。** ウィジェット内で、どちらの値を対照群（分析上は0として扱われる）とするかを選択します。
+    *   処置/対照の割り当てを示す離散変数。
+    *   UIで選択した対照の値は0にエンコードされ、その他の値はすべて1（treated）として集約されます。実務上の解釈を明確にするため、二値の変数を推奨します。
 *   **結果変数 (Outcome Variable)**:
     *   処置の効果を評価したい変数（例：売上、コンバージョン率、顧客満足度）。
-    *   数値（Continuous Variable）または離散（Discrete Variable）が使用可能です。
+    *   数値（Continuous）または二値の離散（Discrete）のみ対応します。二値離散を選んだ場合は、UIでポジティブクラスを選択して y を 0/1 にマップします。多クラス離散（3カテゴリ以上）は非対応です。
 *   **共変量 (Covariates)**:
     *   結果変数に影響を与え、処置効果の異質性を説明する可能性のある変数（特徴量）。これらの変数に基づいて、データが分割されます。
     *   数値（Continuous Variable）または離散（Discrete Variable）が使用可能です。
@@ -63,19 +63,22 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 
 *   **Data Variables**
     *   **Treatment Variable**:
-        *   **Select binary treatment variable**: 処置変数として使用する列を選択します。二値の離散変数のみがリストされます。
-        *   **Select control group value (encoded as 0)**: 処置変数内で、対照群を表す値を選択します。
+        *   **Select treatment variable**: 処置変数として使用する列を選択します。UIで選択した対照の値は0にエンコードされ、その他は1（treated）として集約されます。
+        *   **Select control group value (encoded as 0)**: 処置変数内で、対照群を表す値を選択します（0として扱われます）。
     *   **Outcome Variable**:
-        *   **Select outcome variable**: 結果変数として使用する列を選択します。
+        *   **Select outcome variable**: 結果変数として使用する列を選択します。二値離散を選んだ場合は、ポジティブクラスも選択して y を 0/1 に変換します。
     *   **Covariates**:
         *   分析に使用する共変量をこのリストにドラッグ＆ドロップします。ここにリストされた変数が、ツリーの分岐条件として使用されます。
     *   **Meta Variables**:
         *   分析には使用しないが、データに残しておきたい変数をこのリストに移動します。
 *   **Causal Tree Settings**
-    *   **Maximum Depth**: 作成される木の最大の深さを設定します。値が大きいほど複雑なモデルになりますが、過学習のリスクも高まります。
+    *   **Maximum Depth**: 木の最大深さを設定します。
+    *   **Min Samples per Leaf**: 葉ノードに必要な最小サンプル数です。
+    *   **Random State**: 再現性のための乱数シード（-1/None なら非決定的）。
+    *   **Evaluation Method**: `In-sample (all data)` または `Cross-validated (OOF)` を選択。CVの場合、AUUC/Qiniなどの評価はOOF予測に基づき、分割数（CV Folds）も設定します。
     *   **Feature Importance Method**: 特徴量の重要度を計算する方法を選択します。
-        *   `Impurity-based Feature Importance`: ツリーの分岐がどれだけ結果変数の不純度（ジニ不純度など）を減少させたかに基づいて計算します。高速ですが、バイアスがかかることがあります。
-        *   `Permutation-based Feature Importance`: 特定の特徴量の値をシャッフルし、モデルの性能がどれだけ低下するかを測定して重要度を評価します。より信頼性が高いですが、計算に時間がかかります。
+        *   `Impurity-based Feature Importance`: ツリー内部の分岐に基づく重要度です。
+        *   `Permutation-based Feature Importance`: モデルのCATE予測に対して `sklearn.inspection.permutation_importance` を適用し、シャッフルによる予測劣化から感度を測定します（計算コストが高い）。
 *   **Apply Button**
     *   設定されたパラメータに基づいてCausal Tree分析を実行します。必要な変数がすべて選択されるとアクティブになります。
 
@@ -115,7 +118,7 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 
 *   入力データの基本情報（インスタンス数、属性数）
 *   選択された主要変数（処置変数、対照群、結果変数）
-*   主要なモデル設定（木の最大深度、特徴量重要度の計算方法）
+*   主要なモデル設定（最大深さ、Min Samples per Leaf、Random State、評価方法/分割数、特徴量重要度の方法）
 *   選択された共変量の数とリスト（最初の10個まで）
 
 ## 使用例
@@ -145,7 +148,8 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 
 1.  **データ変換**: Orange Table形式から、分析ライブラリ（`causalml`）が要求するNumpy配列形式（X, y, treatment）に変換します。
 2.  **変数選択**: UIで指定された共変量、結果変数、処置変数に基づいてデータをスライスします。
-3.  **対照群のエンコーディング**: 指定された対照群の値が、モデル内で数値の0として扱われるようにします。
+3.  **処置のエンコーディング**: 選択した対照の値は0に、その他の処置カテゴリは1に集約してエンコードします。
+4.  **カテゴリ変数のエンコーディング**: 離散共変量はワンホット化し、欠損を明示カテゴリ（`=__MISSING__`）として持たせます（全ゼロへの吸い込みを防止）。
 
 ### 2. Causal Treeモデルの推定 (`CausalTreeLogic.run_analysis`)
 
@@ -155,7 +159,7 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 
 ### 3. モデル評価とメトリクス
 
-*   **AUUCスコア (`_calculate_auuc`)**: 予測されたCATEが高い順にサンプルを並べ替え、Uplift Curve（横軸：対象者数、縦軸：累積処置効果）を作成し、その曲線下の面積を計算します。これにより、モデルのランキング性能を評価します。
+*   **AUUCスコア (`_calculate_auuc`)**: 予測CATEの降順で並べ、Uplift（Qini）曲線を形成し、その面積を計算します。評価方法がCVの場合、OOF予測に基づいてAUUCを算出します。
 *   **特徴量の重要度 (`_calculate_feature_importance`)**:
     *   **Impurity-based**: `CausalTreeRegressor`モデルが内部に保持している、各特徴量が分岐にどれだけ貢献したかに基づく重要度 (`feature_importances_`) を使用します。
     *   **Permutation-based**: `sklearn.inspection.permutation_importance` を使用します。各特徴量の値をランダムにシャッフルし、モデルの性能（この場合はAUUCスコアなど）がどれだけ低下するかを測定することで、その特徴量の重要度を評価します。
@@ -165,7 +169,7 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 *   **Causal Treeプロット**: `causalml.inference.tree.plot.plot_causal_tree` を使用して、学習済みモデルを可視化します。
 *   **特徴量重要度プロット**: 計算された重要度を`matplotlib`を用いて水平棒グラフとして描画します。
 *   **CATE分布プロット**: 予測されたCATEの値を`matplotlib`を用いてヒストグラムとして描画します。
-*   **Qini Curveプロット**: AUUCスコアの計算過程で得られるUplift Curve（ここではQini Curveと呼称）を`matplotlib`でプロットします。
+*   **Qini Curveプロット**: AUUCで用いるUplift（Qini）曲線を`matplotlib`でプロットします。
 
 ### 5. Gemini Analysis連携 (`OWCausalTree.analyze_with_gemini`)
 

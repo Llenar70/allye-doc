@@ -14,13 +14,13 @@ The input data is expected to contain the following information:
 
 *   **Treatment Variable**:
     *   A variable indicating which individuals received the treatment (treatment group) and which did not (control group).
-    *   **Must be a binary (having two categories) discrete variable (Categorical Variable).** For example, "Administered Drug A" vs. "Administered Placebo", or "Program Participant" vs. "Non-participant". The user selects which value represents the control group within the widget.
+    *   Preferably a binary discrete variable (categorical). If a multi-level categorical variable is selected, the widget binarizes it internally as Control = the chosen value vs Others = Treated and shows a warning. The user selects which value represents the control group within the widget.
 *   **Covariates**:
     *   Variables that may affect both treatment assignment and the outcome. Examples include age, gender, disease severity, etc.
     *   Can be numerical (Continuous) or discrete (Categorical) variables. Categorical variables are internally converted to dummy variables during propensity score model construction.
 *   **Outcome Variable (Optional)**:
     *   The variable on which the effect of the treatment is to be evaluated. Examples include symptom improvement, test scores, etc.
-    *   This widget itself does not directly estimate the effect size using the outcome variable, but it can be specified for users to analyze in the matched data. Can be numerical or discrete.
+    *   The widget can optionally estimate the Average Treatment Effect (ATE) using Inverse Propensity Weighting (IPW) when an outcome is provided and "Calculate IPW" is enabled. The outcome can be numerical or discrete (categorical outcomes are internally encoded).
 *   **Meta Variables (Optional)**:
     *   Identifiers or additional information not directly used in the analysis but to be retained in the data. Examples include patient ID.
 
@@ -41,12 +41,13 @@ In this example, "Exercise Habit" is the treatment variable ("No" is the control
 
 *   **Matched Data**:
     *   Data type: `Orange.data.Table`
-    *   Description: A dataset containing only the samples from the treatment and control groups selected by propensity score matching. The original variable structure (covariates, outcome variable, meta variables) is maintained. This data can be used in subsequent steps for estimating treatment effects, etc.
+    *   Description: A dataset containing only the samples from the treatment and control groups selected by propensity score matching. The original variable structure (covariates, outcome variable, meta variables) is maintained. Meta columns `Propensity Score` and `IPW` are appended (IPW is included when IPW is computed). This data can be used in subsequent steps for estimating treatment effects, etc.
 *   **Propensity Scores**:
     *   Data type: `Orange.data.Table`
     *   Description: The calculated propensity score for each sample in the original dataset. Typically includes the following meta information:
         *   `Group`: "Treated" or "Control"
         *   `Propensity Score`: The propensity score for each sample (a numerical value between 0 and 1)
+        *   `IPW` (when IPW is enabled): The inverse-probability weight after clipping by the configured percentile.
     *   This output can be used to check the distribution of propensity scores or evaluate the common support region.
 *   **Balance Report**:
     *   Data type: `Orange.data.Table`
@@ -84,7 +85,6 @@ The control panel allows for assigning data variables, setting up the propensity
         *   `None`: No regularization
         *   `L1 (Lasso)`: L1 regularization. Tends to shrink coefficients of unnecessary covariates towards zero.
         *   `L2 (Ridge)`: L2 regularization. Suppresses the magnitude of coefficients.
-        *   `Elastic Net`: A combination of L1 and L2.
     *   **Regularization Strength (α)**: Adjusts the strength of regularization (from 0.001 to 1.000). Smaller values mean weaker regularization, larger values mean stronger. Active when a regularization type other than "None" is selected.
 *   **Matching Settings**
     *   **Matching Method**:
@@ -127,11 +127,9 @@ The main area displays model diagnostic results, a matching preview, and covaria
         *   `Group`: Treated, Control
         *   `Before`: Sample size before matching
         *   `After`: Sample size after matching
-    *   **Propensity Score Distribution**: Displays the distribution of propensity scores for the treatment and control groups before and after matching using kernel density estimate plots. Ideally, the distributions of both groups should become closer after matching.
-        *   Orange line/area: Treatment group (before matching)
-        *   Blue line/area: Control group (before matching)
-        *   Orange dotted line: Treatment group (after matching)
-        *   Blue dotted line: Control group (after matching)
+    *   **Propensity Score Distribution**: Displays kernel density plots for the treatment and control groups.
+        *   Two separate plots are shown: "Before Matching" and "After Matching" (no overlay).
+        *   In each plot, orange shows the treatment group and blue shows the control group. Ideally, the distributions become closer after matching.
 *   **Balance Evaluation**
     *   **Covariate Balance (Standardized Mean Differences)**:
         *   Displays the Standardized Mean Difference (SMD) for each covariate before and after matching in a plot. SMD is the difference in means between the treatment and control groups, divided by the pooled standard deviation of both groups. An absolute value within 0.1 is generally considered well-balanced.
@@ -144,6 +142,9 @@ The main area displays model diagnostic results, a matching preview, and covaria
         *   `SMD Before`: SMD before matching
         *   `SMD After`: SMD after matching (background color green if absolute SMD <= 0.1, red if > 0.1)
         *   `Improvement %`: Shows the percentage decrease in the absolute value of SMD due to matching.
+
+*   **Treatment Effect Estimation (IPW)**
+    *   When "Calculate IPW" is enabled and an outcome is provided, the widget displays the estimated Average Treatment Effect (ATE) computed using IPW. The effect represents the population-level difference between treated and control.
 
 *   **Status Bar Diagnostics**
     *   After execution, the status bar displays overlap diagnostics (e.g., fraction of treated/control outside the estimated common support). Use this as a quick quantitative check alongside the PS distributions.
@@ -183,7 +184,7 @@ The following is a basic workflow for loading data from a file, performing prope
     *   Numerical covariates are **standardized** (scaled to mean 0, standard deviation 1). This equalizes the influence of variables with different scales on model training.
 2.  **Model Training**:
     *   A **logistic regression model** is trained with the treatment variable as the target variable (control group=0, treatment group=1) and the preprocessed covariates as explanatory variables.
-    *   The regularization (None, L1, L2, Elastic Net) and regularization strength (α) selected by the user are applied to the model. Regularization helps prevent model overfitting and provides stable estimation when there are many covariates.
+    *   The regularization (None, L1, L2) and regularization strength (α) selected by the user are applied to the model. Regularization helps prevent model overfitting and provides stable estimation when there are many covariates.
 3.  **Propensity Score Calculation**:
     *   The trained logistic regression model is used to predict the probability (propensity score) that each sample is assigned to the treatment group.
 
@@ -214,7 +215,8 @@ This widget automates these steps and presents the results in an easy-to-underst
 
 ### Additional Notes
 
-* **IPW trimming**: When Inverse Propensity Weighting (IPW) is enabled, extreme propensity scores are trimmed at the 1 % and 99 % percentiles before computing weights to improve stability.
+* **IPW trimming**: When Inverse Propensity Weighting (IPW) is enabled, extreme propensity scores are trimmed at the configured lower/upper percentiles (default 1% and 99%) before computing weights to improve stability.
+* **Outputs with IPW**: When IPW is enabled, the Propensity Scores output includes an `IPW` column, and the Matched Data output appends `Propensity Score` and `IPW` as meta columns (IPW will be empty if not computed).
 * **Pre-matching trimming**: Optional pre-matching trimming (Percentile/Overlap/Fixed bounds) can be applied to mitigate positivity violations and improve match quality. When enabled, all diagnostics and SMDs refer to the trimmed dataset.
 * **No-regularisation mode**: Selecting *None* for regularisation uses a logistic model with an extremely large `C` (≈ 1 e12) under L2 penalty to emulate an unregularised fit because recent scikit-learn versions deprecate the explicit `penalty='none'`, ensuring consistent behaviour.
 * **Large dataset sampling**: When the input table exceeds **300 000 rows**, the widget automatically draws a random sample of 300 000 rows before running the PSM pipeline to keep computation responsive. A status-bar warning indicates that sampling was applied and all reported statistics are approximate.

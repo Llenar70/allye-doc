@@ -13,11 +13,11 @@ A Causal Tree is a machine learning method for exploratory analysis of how the e
 The input data is expected to contain the following information:
 
 *   **Treatment Variable**:
-    *   A variable indicating which samples were assigned to the treatment group and which to the control group.
-    *   **Must be a binary (two-category) Discrete Variable.** Within the widget, you will select which value represents the control group (encoded as 0 for analysis).
+    *   A Discrete variable indicating assignment to treatment/control.
+    *   The selected control value is encoded as 0; all other categories are aggregated and encoded as 1 (treated). While multi-category variables are accepted, a truly binary treatment is recommended for clarity.
 *   **Outcome Variable**:
     *   The variable for which you want to evaluate the effect of the intervention (e.g., sales, conversion rate, customer satisfaction).
-    *   Can be a numerical (Continuous Variable) or discrete (Discrete Variable).
+    *   Must be numerical (Continuous Variable) or binary Discrete. For binary outcomes, select the positive class in the UI. Multi-class discrete outcomes are not supported.
 *   **Covariates**:
     *   Variables that may affect the outcome variable and potentially explain the heterogeneity of the treatment effect (features). The data is split based on these variables.
     *   Can be numerical (Continuous Variable) or discrete (Discrete Variable).
@@ -61,19 +61,22 @@ The control panel is used to assign data variables and set model parameters.
 
 *   **Data Variables**
     *   **Treatment Variable**:
-        *   **Select binary treatment variable**: Select the column to be used as the treatment variable. Only binary discrete variables are listed.
-        *   **Select control group value (encoded as 0)**: Select the value within the treatment variable that represents the control group.
+        *   **Select treatment variable**: Select the column to be used as the treatment variable. The selected control value is encoded as 0; all other categories are aggregated as treated (=1).
+        *   **Select control group value (encoded as 0)**: Select the value within the treatment variable that represents the control group (others become 1).
     *   **Outcome Variable**:
-        *   **Select outcome variable**: Select the column to be used as the outcome variable.
+        *   **Select outcome variable**: Select the column to be used as the outcome variable. If a binary Discrete outcome is selected, also choose the positive class to map y into 0/1.
     *   **Covariates**:
         *   Drag and drop variables to be used in the analysis into this list. The variables listed here will be used as splitting conditions for the tree.
     *   **Meta Variables**:
         *   Move variables not used in the analysis but to be kept in the data to this list.
 *   **Causal Tree Settings**
-    *   **Maximum Depth**: Sets the maximum depth of the tree to be created. A larger value results in a more complex model but also increases the risk of overfitting.
+    *   **Maximum Depth**: Sets the maximum depth of the tree.
+    *   **Min Samples per Leaf**: Minimum number of samples required at a leaf node.
+    *   **Random State**: Seed for reproducible results (set -1/None for non-deterministic).
+    *   **Evaluation Method**: Choose between `In-sample (all data)` and `Cross-validated (OOF)`. When CV is selected, AUUC/Qini and related plots are computed from out-of-fold predictions. You can configure the number of folds.
     *   **Feature Importance Method**: Select the method for calculating feature importance.
-        *   `Impurity-based Feature Importance`: Calculated based on how much a split in the tree reduces the impurity (e.g., Gini impurity) of the outcome variable. It's fast but can be biased.
-        *   `Permutation-based Feature Importance`: Measures importance by shuffling the values of a specific feature and measuring how much the model's performance degrades. It's more reliable but computationally expensive.
+        *   `Impurity-based Feature Importance`: Uses the tree's internal split-based importance.
+        *   `Permutation-based Feature Importance`: Uses `sklearn.inspection.permutation_importance` on the model’s CATE predictions (measures prediction sensitivity). More reliable but computationally expensive.
 *   **Apply Button**
     *   Executes the Causal Tree analysis based on the set parameters. Becomes active when all required variables are selected.
 
@@ -114,7 +117,7 @@ This widget supports Orange's standard reporting functionality. By right-clickin
 
 *   Basic information about the input data (number of instances, number of attributes)
 *   Selected main variables (treatment variable, control group, outcome variable)
-*   Key model settings (maximum tree depth, feature importance calculation method)
+*   Key model settings (maximum depth, min samples per leaf, random state, evaluation method/folds, feature importance method)
 *   The number and list of selected covariates (up to the first 10)
 
 ## Usage Example
@@ -144,7 +147,8 @@ The following is a basic workflow for loading data from a file, performing Causa
 
 1.  **Data Conversion**: Converts the Orange Table format to the Numpy array format (X, y, treatment) required by the analysis library (`causalml`).
 2.  **Variable Selection**: Slices the data based on the covariates, outcome variable, and treatment variable specified in the UI.
-3.  **Control Group Encoding**: Ensures that the specified control group value is treated as the numerical value 0 in the model.
+3.  **Treatment Encoding**: The selected control value is encoded as 0; all other treatment categories are aggregated and encoded as 1.
+4.  **Categorical Encoding**: Discrete covariates are one-hot encoded with an explicit missing category (`=__MISSING__`) so that missingness can be modeled instead of collapsing to all-zeros.
 
 ### 2. Causal Tree Model Estimation (`CausalTreeLogic.run_analysis`)
 
@@ -154,7 +158,7 @@ The following is a basic workflow for loading data from a file, performing Causa
 
 ### 3. Model Evaluation and Metrics
 
-*   **AUUC Score (`_calculate_auuc`)**: Samples are sorted in descending order of their predicted CATE, an Uplift Curve is created (x-axis: number of subjects, y-axis: cumulative treatment effect), and the area under this curve is calculated. This evaluates the model's ranking performance.
+*   **AUUC Score (`_calculate_auuc`)**: Samples are sorted in descending order of predicted CATE and an uplift (Qini) curve is formed. The area under this curve is computed as AUUC. When Evaluation Method = CV, AUUC is based on out-of-fold predictions.
 *   **Feature Importance (`_calculate_feature_importance`)**:
     *   **Impurity-based**: Uses the importance scores (`feature_importances_`) that the `CausalTreeRegressor` model internally holds, based on how much each feature contributed to the splits.
     *   **Permutation-based**: Uses `sklearn.inspection.permutation_importance`. It measures the importance of a feature by randomly shuffling its values and measuring how much the model's performance (in this case, AUUC score, etc.) degrades.
@@ -164,7 +168,7 @@ The following is a basic workflow for loading data from a file, performing Causa
 *   **Causal Tree Plot**: Uses `causalml.inference.tree.plot.plot_causal_tree` to visualize the trained model.
 *   **Feature Importance Plot**: The calculated importances are plotted as a horizontal bar chart using `matplotlib`.
 *   **CATE Distribution Plot**: The predicted CATE values are plotted as a histogram using `matplotlib`.
-*   **Qini Curve Plot**: The Uplift Curve (referred to as Qini Curve here), obtained during the AUUC score calculation, is plotted using `matplotlib`.
+*   **Qini Curve Plot**: The uplift (Qini) curve used for AUUC is plotted using `matplotlib`.
 
 ### 5. Gemini Analysis Integration (`OWCausalTree.analyze_with_gemini`)
 
