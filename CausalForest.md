@@ -16,10 +16,10 @@ The input data is expected to contain the following information:
 
 *   **Treatment Variable**:
     *   A variable indicating which samples were assigned to the treatment group and which to the control group.
-    *   **Must be a binary (two-category) Discrete Variable.** Within the widget, you will select which value represents the control group (encoded as 0 for analysis).
+    *   Recommended to be a binary (two-category) Discrete Variable. In the widget you select the Control Group Value (encoded as 0). If the treatment has more than two categories, all non-control categories are aggregated and encoded as treated (1). Missing values in the treatment are dropped prior to training and evaluation.
 *   **Outcome Variable**:
     *   The variable for which you want to evaluate the effect of the intervention (e.g., sales, conversion rate, customer satisfaction).
-    *   Can be a numerical (Continuous Variable) or discrete (Discrete Variable).
+    *   Must be either numerical (Continuous Variable) or binary discrete (two categories). Multi-class discrete outcomes are not supported. For binary discrete outcomes you can select the Positive Outcome Class; it will be encoded as 1 (the other class as 0). Continuous outcomes are used as-is.
 *   **Covariates**:
     *   Variables that may affect the outcome variable and potentially explain the heterogeneity of the treatment effect (features).
     *   Can be a numerical (Continuous Variable) or discrete (Discrete Variable).
@@ -56,17 +56,19 @@ The input data is expected to contain the following information:
 ![causalforest_control_placeholder](./imgs/causalforest_control_placeholder.png)
 
 *   **Data Variables**
-    *   **Treatment Variable**: Select the binary treatment variable and specify the Control Group Value, which will be encoded as 0.　Other wise it will be encoded as 1.
-    *   **Outcome Variable**: Select the outcome variable.
+    *   **Treatment Variable**: Select the treatment variable and specify the Control Group Value (encoded as 0). If the treatment has more than two categories, all non-control categories are aggregated as treated (1) and a warning is shown.
+    *   **Outcome Variable**: Select the outcome variable. If it is binary discrete, a Positive Outcome Class selector appears. Multi-class discrete outcomes are not allowed.
     *   **Covariates**: Drag and drop variables to be used in the analysis into this list.
     *   **Meta Variables**: Move variables not used in the analysis but to be kept in the data to this list.
 *   **Forest Hyperparameters**
     *   **Max Depth**: Sets the maximum depth of each decision tree in the forest.
     *   **Number of Trees**: Sets the number of decision trees to build in the forest.
     *   **Sample Rate (%)**: Percentage of rows to subsample from the training set before fitting the forest. Note: The actual number of training records is capped at 50,000 for performance.
+    *   **Random State**: Controls reproducibility (affects data split, subsampling, model initialization, permutation importance, and propensity model). Use −1 to disable.
     *   **Feature Importance Method**: Select the method for calculating feature importance.
         *   `Impurity`: Impurity-based (fast, can be biased).
         *   `Permutation`: Permutation-based (more reliable but computationally expensive).
+    *   **Permutation Repeats**: The number of random permutations per feature for permutation importance. Enabled only when `Permutation` is selected. The widget warns when the estimated cost is high (rough heuristic based on features × repeats).
 *   **Evaluation Settings**
     *   **Test Set Size (%)**: The percentage of data (0–99) to be held out as a test set for model evaluation and feature importance calculation. If set to 0, the entire dataset is used for training. When `Test Set Size` > 0, metrics like AUUC Score and Transformed Outcome MSE are calculated on this held-out test set.
 *   **Apply Button**
@@ -130,8 +132,9 @@ This widget supports Orange's standard reporting functionality. By right-clickin
 
 1.  **Data Conversion**: Converts the Orange Table format to the Numpy array format (X, y, treatment) required by the analysis library.
 2.  **Variable Selection**: Slices the data based on the covariates, outcome variable, and treatment variable specified in the UI.
-3.  **Control Group Encoding**: Ensures that the specified control group value is treated as the numerical value 0 in the model; the other value is treated as 1.
-4.  **Categorical Handling**: Categorical covariates are one-hot encoded automatically (column names become `variable=value`).
+3.  **Control Group Encoding**: Ensures that the specified control group value is treated as the numerical value 0 in the model; all other values are treated as 1 (treated). Rows with missing treatment/outcome are dropped prior to training/evaluation.
+4.  **Outcome Mapping**: If the outcome is binary discrete, the selected Positive Outcome Class is mapped to 1 and the other class to 0. Multi-class discrete outcomes are not supported. Continuous outcomes are used as-is.
+5.  **Categorical Handling**: Categorical covariates are one-hot encoded automatically (column names become `variable=value`).
 
 ### 2. Causal Forest Model Estimation (`CausalForestLogic.run_analysis`)
 
@@ -143,13 +146,13 @@ This widget supports Orange's standard reporting functionality. By right-clickin
 ### 3. Model Evaluation and Metrics
 
 *   When `Test Set Size (%)` > 0, the widget performs evaluation on the held-out test set; otherwise, evaluation metrics dependent on a test set are omitted.
-*   **AUUC Score (`_calculate_auuc`)**: Samples are sorted in descending order of their predicted CATE on the test set, an Uplift/Qini curve is created, and the area under this curve is calculated. This evaluates the model's ranking performance.
+*   **AUUC Score (`_calculate_auuc`)**: Computed with `causalml.metrics.auuc_score` on the held-out test set. Requires a binary (0/1) outcome; otherwise the AUUC is omitted and shown as “–”.
 *   **Feature Importance (`_calculate_feature_importance`)**:
     *   **Impurity-based**: Mean decrease in impurity aggregated over all trees.
-    *   **Permutation-based**: Uses `sklearn.inspection.permutation_importance` on the model's own CATE predictions as the baseline target. Computed on the test set when available; otherwise on the training data.
+    *   **Permutation-based**: Uses `sklearn.inspection.permutation_importance` on the model's own CATE predictions as the baseline target. Computed on the test set when available; otherwise on the training data. The number of repeats is configurable.
 *   **Transformed Outcome MSE (`_calculate_transformed_outcome_mse`)**:
-    *   Calculates the Mean Squared Error (MSE) between the predicted CATE and a "Transformed Outcome," which is derived using a propensity score model (Logistic Regression), evaluated on the test set.
-*   **SHAP Values**: When the `shap` library is available, SHAP values are computed with `shap.TreeExplainer` on a random subsample of up to 1,000 training rows and visualized as a summary plot in the diagnostics.
+    *   Calculates the Mean Squared Error (MSE) between the predicted CATE and a "Transformed Outcome," which is derived using a propensity score model (Logistic Regression), evaluated on the test set. The random state is applied for reproducibility and propensity scores are clipped to [0.01, 0.99].
+*   **SHAP Values**: When the `shap` library is available, SHAP values are computed with `shap.TreeExplainer` on a random subsample of up to 1,000 rows taken from the test set if available, otherwise from the training data. The plot title indicates the slice used.
 
 ### 4. Visualization (`OWCausalForest.display_results`)
 
@@ -168,4 +171,9 @@ This widget supports Orange's standard reporting functionality. By right-clickin
 
 * Training rows used are limited by the configured `Sample Rate (%)` and are additionally capped at 50,000 rows for performance.
 * Each tree is fitted on at most 10,000 rows (`max_samples`), which can improve speed and memory usage on large datasets.
-* SHAP computation is performed on up to 1,000 randomly sampled training rows to keep runtime reasonable. If `shap` is not installed, the SHAP plot is skipped gracefully.
+* SHAP computation is performed on up to 1,000 randomly sampled rows from the test or training slice. If `shap` is not installed, the SHAP plot is skipped gracefully.
+* The `Random State` setting ensures reproducible splits, subsampling, model initialization, permutation importance, and propensity modeling. Use −1 to disable reproducibility.
+
+## Cancellation
+
+* The Cancel button stops processing at safe checkpoints (between major phases such as data split, subsampling, fit, SHAP, prediction, and evaluation). Ongoing fitting of the forest cannot be preempted mid-iteration; cancellation takes effect after the current phase completes.
