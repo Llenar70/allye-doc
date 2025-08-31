@@ -24,7 +24,7 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 * **Sample Weights (optional)**
   * Numeric weights applied throughout the estimation.
 * **Group Column (optional)**
-  * Group IDs for GroupKFold cross-fitting and cluster-robust bootstrap.
+  * Group IDs used for GroupKFold cross-fitting (prevents leakage across folds for repeated entities).
 
 ### Example Input Table
 
@@ -40,7 +40,13 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 
 * **Enhanced Data**
   * Type: `Orange.data.Table`
-  * Description: The original data with one meta column added: `CATE` (per-sample conditional average treatment effect). This enables downstream analysis using the estimated individual effects.
+  * Description: Original data with one meta column added: `CATE` (per-row conditional average treatment effect).
+* **Predictions**
+  * Type: `Orange.data.Table`
+  * Description: Row-aligned table (meta-only) containing diagnostics-ready columns: `CATE`, `Diag Y True`, `Diag T True`, `Diag Y Pred`, `Diag T Pred`, `Diag Propensity`. Non-diagnostic rows are NaN; when a test split is set, only the holdout subset is filled.
+* **Diagnostics**
+  * Type: `Orange.data.Table`
+  * Description: Key–value style table with two meta columns (`Metric`, `Value` as JSON). Includes settings snapshot, summary metrics (ATE/ATT/ATC/Overlap/AUUC), per-row mapping helpers (`row_mask`, `diag_indices`), histogram bin edges, calibration points, Qini curve arrays, effect coefficients, and SHAP array shapes.
 
 ---
 
@@ -84,11 +90,12 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 * **Effect Model (Final Stage)**
   * Regularization: `Ridge (L2)`, `Lasso (L1)`, or `None` with an α slider for Ridge/Lasso.
   * `Auto-generate T × Z interactions` (PolynomialFeatures degree=2, interaction-only).
-  * `Cluster-robust SE (by user_id)` and `Bootstrap (B)` for ATE confidence intervals.
+  * `Bootstrap (B)` for ATE confidence intervals (standard, non-clustered bootstrap).
 
 * **Evaluation Settings**
-  * `Test Set Size (%)`: Currently displayed for consistency; the present implementation computes diagnostics without a holdout split.
-  * `PS Trimming [α, 1−α]`: Propensity trimming threshold used for overlap coverage and IPS-based diagnostics.
+  * `Test Set Size (%)`: If > 0, a holdout split is used for diagnostics; otherwise, diagnostics use the full data.
+  * `PS Trimming [α, 1−α]`: Propensity trimming threshold used for overlap coverage and IPS-based diagnostics (binary treatment).
+  * `Histogram Bins`: Rule for propensity/CATE histograms — `Auto`, `Sturges`, `FD`, `Scott`, `Rice` (default), `Sqrt`, `Doane`, or `Manual` count (default 60). Propensity histograms for treated/control share common bin edges in [0,1] for fair overlays.
 
 * **Execute**
   * Runs the analysis. The button is enabled once the required fields are set.
@@ -109,6 +116,7 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
     * `Nuisance Fit`: R² for Y|X and T|X OOF predictions.
     * `AUUC`: Area under uplift curve (binary treatment only).
   * **Propensity Score Diagnostics**: Histograms for treated vs control propensities (binary).
+  * **Treatment Calibration (Binary)**: Calibration plot of predicted propensity vs. observed rate (binned).
   * **Nuisance Models — Predicted vs Actual**: Sample plot of Y-hat and T-hat series.
   * **SHAP Summaries**: SHAP summary plots for the outcome and treatment nuisance models.
   * **CATE Distribution**: Histogram of predicted CATE.
@@ -136,7 +144,10 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
    * Optionally adjust `PS Trimming` in `Evaluation Settings`.
    * Click `Execute`.
 4. Inspect metrics and plots in the main area.
-5. Connect the `Enhanced Data` output to a **Data Table** to view CATE as a meta column.
+5. Connect outputs:
+   * `Enhanced Data` → view CATE per row.
+   * `Predictions` → inspect per-row diagnostics (e.g., OOF predictions, propensities).
+   * `Diagnostics` → key–value table for arrays/curves/bin edges (JSON in `Value`).
 
 ---
 
@@ -161,13 +172,13 @@ The widget supports Orange’s standard reporting. The report contains:
    * Builds Y|X and T|X nuisance models and the final effect model.
    * Uses K-fold cross-fitting (GroupKFold when a group column is provided).
    * Computes per-sample CATE and summary effects (ATE, ATT/ATC for binary treatment).
-   * Optional bootstrap provides ATE confidence intervals; cluster-robust mode resamples groups.
+   * Optional bootstrap provides ATE confidence intervals (standard, non-clustered bootstrap).
 3. **Diagnostics**
-   * OOF predictions assess nuisance fits (R²).
-   * For binary treatments, propensities and IPS-based uplift diagnostics are computed (Qini curve and AUUC; overlap coverage uses PS trimming α).
-   * CATE is regressed on X to provide effect coefficients (with standardization).
+   * OOF predictions assess nuisance fits (R² or AUC/logistic fit proxy for T when binary).
+   * For binary treatments: compute propensities, overlay histograms with shared bin edges, overlap coverage via PS trimming α, and Qini/AUUC uplift diagnostics.
+   * CATE is regressed on standardized X to provide effect coefficients.
 4. **SHAP**
-   * SHAP summaries are computed for both nuisance models (Y and T). The implementation tries generic, linear, and tree explainers for robustness.
+   * SHAP summaries are computed for both nuisance models (Y and T) on a random subsample (up to ~2000 rows) for performance, falling back among generic/linear/tree explainers as needed.
 5. **Enhanced Data**
    * Adds `CATE` as a meta column to the input table for downstream use.
 
@@ -175,8 +186,7 @@ The widget supports Orange’s standard reporting. The report contains:
 
 ## Performance Notes
 
-* SHAP is computed on the full dataset and can be computationally heavy for large X. Consider simplifying models or reducing feature dimensionality.
+* SHAP is computed on a random subsample (up to ~2000 rows) to control cost on large datasets.
 * LightGBM is optional; if unavailable, the widget falls back to RandomForest.
 * Cross-validation and permutation-style operations use parallelism where available (`n_jobs=-1`).
-
 
