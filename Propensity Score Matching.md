@@ -37,6 +37,20 @@ The following is an example assuming a dataset for heart disease risk analysis.
 
 In this example, "Exercise Habit" is the treatment variable ("No" is the control group, "Yes" is the treatment group), "Age", "Gender", and "Smoking History" are covariates, "Heart Disease Risk Score" is the outcome variable, and "Patient ID" is a meta variable.
 
+## Widget Settings
+
+- **Model Type**: Logistic Regression (with optional L1/L2 regularization and strength α)
+- **Matching Method**: Nearest Neighbor or Caliper
+- **Matching Ratio**: 1:1, 1:2, 1:3
+- **Matching Target**: Align to Treated (ATT) or Align to Control (ATC)
+  - Align to Treated (ATT): For each treated unit, find similar controls.
+  - Align to Control (ATC): For each control unit, find similar treated units.
+- **Caliper Value**: Maximum allowed absolute difference in propensity scores (Caliper method)
+- **With Replacement**: Allow re-use of the same unit in multiple matches (Nearest Neighbor always uses replacement)
+- **Random Seed**: Seed for reproducibility
+- **Calculate IPW**: Estimate ATE via Inverse Propensity Weighting when an outcome is provided
+- **Positivity & Trimming**: Optional percentile/overlap/fixed bounds trimming and IPW trimming percentile
+
 ## Outputs
 
 *   **Matched Data**:
@@ -190,13 +204,16 @@ The following is a basic workflow for loading data from a file, performing prope
 
 ### Matching Algorithm
 
-Using the calculated propensity scores, control group samples with similar propensity scores are found for each sample in the treatment group.
+Using the calculated propensity scores, units are matched according to the selected Matching Target:
+
+- **Align to Treated (ATT)**: For each treated unit, find control units with similar propensity scores.
+- **Align to Control (ATC)**: For each control unit, find treated units with similar propensity scores.
 
 *   **Nearest Neighbor**:
-    *   For each treated sample, control samples with the closest propensity scores are selected according to the specified matching ratio (e.g., one for 1:1, two for 1:2).
-    *   Matching with replacement is always enabled, meaning the same control sample can be matched multiple times.
+    *   Select the closest units on propensity score based on the ratio.
+    *   Replacement is always enabled for this method, meaning the same counterpart can be matched multiple times.
 *   **Caliper**:
-    *   Similar to nearest neighbor, it finds samples with close propensity scores, but additionally, the absolute difference in propensity scores between the treated and control samples must be less than or equal to a pre-set "caliper value".
+    *   Similar to nearest neighbor, but additionally, the absolute difference in propensity scores between the matched units must be less than or equal to a pre-set caliper value.
     *   This prevents matching between samples with vastly different propensity scores, thereby improving the quality of the match.
     *   The user can choose whether to match with or without replacement.
 *   **Performance optimisation (FAISS)**: When the Caliper method is selected and Facebook’s FAISS library is available, the widget uses FAISS for fast nearest-neighbour search on the propensity scores. If FAISS is not installed the code transparently falls back to a highly-optimised Python/NumPy implementation. The matching logic and results are identical; only speed differs.
@@ -220,3 +237,7 @@ This widget automates these steps and presents the results in an easy-to-underst
 * **Pre-matching trimming**: Optional pre-matching trimming (Percentile/Overlap/Fixed bounds) can be applied to mitigate positivity violations and improve match quality. When enabled, all diagnostics and SMDs refer to the trimmed dataset.
 * **No-regularisation mode**: Selecting *None* for regularisation uses a logistic model with an extremely large `C` (≈ 1 e12) under L2 penalty to emulate an unregularised fit because recent scikit-learn versions deprecate the explicit `penalty='none'`, ensuring consistent behaviour.
 * **Large dataset sampling**: When the input table exceeds **300 000 rows**, the widget automatically draws a random sample of 300 000 rows before running the PSM pipeline to keep computation responsive. A status-bar warning indicates that sampling was applied and all reported statistics are approximate.
+* **Estimand mapping**: The matched sample aligns with the chosen target.
+  - Align to Treated → effect estimates on Matched Data correspond to ATT.
+  - Align to Control → effect estimates on Matched Data correspond to ATC.
+  - IPW with an outcome computes ATE.

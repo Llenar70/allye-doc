@@ -144,7 +144,7 @@ Let's use Allye to see what the true impact of the newsletter was.
   <img src="./imgs/course2_abtest_result.png" alt="AB Test for Matched Data" width="600">
 </p>
 
-  - **Causal Effect on Spending**: We set `future_spending` as the `Target Variable`. The result shows an **ATT (Average Treatment Effect on the Treated)** of +2.6%. This small effect, combined with a high p-value of 0.25, indicates there is **no statistically significant impact** on user spending. The newsletter does not cause users to spend more.
+  - **Causal Effect on Spending**: We set `future_spending` as the `Target Variable`. With Matching Target set to "Align to Treated (ATT)" (the default), the result is interpreted as **ATT (Average Treatment Effect on the Treated)**. In our example run, the effect is +2.6% with a high p-value of 0.25, indicating **no statistically significant impact** on user spending. The newsletter does not cause users to spend more.
   - **Causal Effect on Opt-Out Rate**: We also set `opted_out`. Here, the result is starkly different. The p-value far below 0.05. This is a statistically significant result, indicating that subscribing to the newsletter *increases* the probability of a user opting out.
 
 ## Making Decisions
@@ -172,6 +172,14 @@ PSM is a fantastic tool, but it's not magic. It has one major limitation:
 Our analysis of the *average* effect led us to pause the campaign. But what if the newsletter was actually very effective for a small segment of users, while being ineffective or annoying for the majority? If we could identify that successful segment, we could create a more targeted, valuable campaign. To answer this, we need to understand the **heterogeneous effect**—how the impact varies across different users. This is where we move beyond average impacts.
 
 In the next case study, we'll explore **Causal Forests**, a machine learning-based method that can uncover how treatment effects vary across different user segments.
+
+---
+
+### Tip: Choosing ATT vs ATC in PSM (Matching Target)
+
+- If your question is "What was the effect on those who actually received the newsletter?", set Matching Target to **Align to Treated (ATT)**. The effect on `Matched Data` corresponds to ATT.
+- If your question is "What would be the effect if non-subscribers had received the newsletter?", set Matching Target to **Align to Control (ATC)**. The effect corresponds to ATC.
+- If you need the **overall average effect (ATE)**, enable "Calculate IPW" in the PSM widget and provide an outcome variable. The IPW panel reports ATE.
 
 ---
 > [Next: Case Study 3: Understanding User Retention with Causal Forests](./case_study_3_causal_forests.md)
