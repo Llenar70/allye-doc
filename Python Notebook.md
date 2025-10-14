@@ -14,8 +14,8 @@ When Allye starts, a Jupyter Notebook server is also launched in the background.
 
 **Inputs**
 
-*   **Data**: `Orange.data.Table`
-    *   The dataset connected to the widget. This data automatically becomes available as a Pandas DataFrame `df` within the Notebook.
+*   **Data**: `Orange.data.Table`（複数入力対応）
+    *   上流ウィジェットから渡されたデータは到着順に取り込まれ、Notebook 内では `df`, `df2`, `df3`, ... として自動的に参照できます。
     *   **Specifications**: General tabular data that Orange can handle, including numerical, categorical, string, and datetime types.
     *   **Example Input Data**:
         ```
@@ -51,19 +51,28 @@ When Allye starts, a Jupyter Notebook server is also launched in the background.
 
     *Overall view of the Python Notebook widget*
 *   **Data Input/Output**:
-    *   **Input**: Data passed from upstream widgets is loaded into a Pandas DataFrame `df` by automatically generated code when the Notebook starts.
+    *   **Input**: Data passed from upstream widgets is loaded into a manifest-backed bundle by automatically generated code when the Notebook opens. The primary DataFrame is exposed as `df`, and additional inputs become `df2`, `df3`, ... .
         ```python
         # Example of auto-generated input data loading code in the Notebook
         import pandas as pd
-        from widget_data_handler import read_from_shared_memory, store_output_df # widget_data_handler.py is provided internally by Allye
+        from widget_data_handler import read_multiple_from_shared_memory, store_output_df  # provided internally by Allye
 
-        # ... (shared memory/Pickle path settings) ...
+        # ... (shared memory / manifest path settings are injected automatically) ...
 
-        df = read_from_shared_memory(
-            shname="nb_<widget_id>", # <widget_id> is a unique ID for each widget
-            len_bytes=<size>, # data size
-            pickle_path="/path/to/in_data_<widget_id>.pkl" # Path to the Pickle file
+        bundle = read_multiple_from_shared_memory(
+            manifest_name="nb_<widget_id>",
+            manifest_size=<manifest_size>,
+            manifest_path="/path/to/in_data_<widget_id>/manifest.json",
         )
+
+        datasets = bundle.get("datasets", [])
+        df = pd.DataFrame()
+
+        if len(datasets) >= 1:
+            df = datasets[0]["data"]
+        if len(datasets) >= 2:
+            df2 = datasets[1]["data"]
+        # Additional datasets (df3, df4, ...) are defined automatically when available.
         ```
     *   **Output**: To pass the processed DataFrame from the Notebook to the next widget, use the `send_data_to_next_widget()` function.
         ```python
@@ -140,6 +149,6 @@ When Allye starts, a Jupyter Notebook server is also launched in the background.
 
 **Notes/Caveats**
 
-*   **`widget_data_handler.py`**: This file is an internal component of Allye and provides helper functions (`read_from_shared_memory`, `store_output_df`) for the Python Notebook widget to smoothly exchange data with the Jupyter Notebook environment. Users do not need to edit this file directly.
+*   **`widget_data_handler.py`**: This internal helper supplies `read_multiple_from_shared_memory` and `store_output_df` so the Python Notebook widget can move data between Orange and Jupyter without manual setup. Users do not need to edit this file directly.
 *   **Jupyter Notebook Server**: For this widget to function, the Jupyter Notebook server must be running in the background. It is usually started automatically when Allye launches. If port conflicts occur, change the port number in "User Settings".
 *   **File Paths**: Temporary files for data transfer and Notebook files are typically saved in the user's home directory. These files are necessary for the widget's operation, and manually deleting them can cause problems. When a widget is deleted, related files are also cleaned up.
