@@ -21,6 +21,7 @@ The input data is expected to contain the following information:
 *   **Outcome Variable (Optional)**:
     *   The variable on which the effect of the treatment is to be evaluated. Examples include symptom improvement, test scores, etc.
     *   The widget can optionally estimate the Average Treatment Effect (ATE) using Inverse Propensity Weighting (IPW) when an outcome is provided and "Calculate IPW" is enabled. The outcome can be numerical or discrete (categorical outcomes are internally encoded).
+    *   For discrete outcomes, you must specify the outcome value to treat as 0 (baseline). All other categories are treated as 1 when calculating IPW/ATE.
 *   **Meta Variables (Optional)**:
     *   Identifiers or additional information not directly used in the analysis but to be retained in the data. Examples include patient ID.
 
@@ -49,6 +50,7 @@ In this example, "Exercise Habit" is the treatment variable ("No" is the control
 - **With Replacement**: Allow re-use of the same unit in multiple matches (Nearest Neighbor always uses replacement)
 - **Random Seed**: Seed for reproducibility
 - **Calculate IPW**: Estimate ATE via Inverse Propensity Weighting when an outcome is provided
+- **Outcome Baseline (0)**: For discrete outcomes, choose the category treated as 0 (all other levels are treated as 1 for ATE/IPW)
 - **Positivity & Trimming**: Optional percentile/overlap/fixed bounds trimming and IPW trimming percentile
 
 ## Outputs
@@ -159,6 +161,7 @@ The main area displays model diagnostic results, a matching preview, and covaria
 
 *   **Treatment Effect Estimation (IPW)**
     *   When "Calculate IPW" is enabled and an outcome is provided, the widget displays the estimated Average Treatment Effect (ATE) computed using IPW. The effect represents the population-level difference between treated and control.
+    *   For discrete outcomes, the baseline value specified in the control panel is coded as 0 and all other outcomes as 1 before computing the IPW estimates.
 
 *   **Status Bar Diagnostics**
     *   After execution, the status bar displays overlap diagnostics (e.g., fraction of treated/control outside the estimated common support). Use this as a quick quantitative check alongside the PS distributions.
@@ -173,7 +176,7 @@ The following is a basic workflow for loading data from a file, performing prope
 3.  Open the **Propensity Score Matching** widget and configure the following in the control panel:
     *   Select the `Treatment Variable` and specify the appropriate `Control group value`.
     *   Assign the necessary covariates to the `Covariates` list.
-    *   Set `Outcome Variable` or `Meta Variables` if needed.
+    *   Set `Outcome Variable` (and if it is discrete, specify the outcome value treated as 0) or configure `Meta Variables` if needed.
     *   Adjust `PSM Model Settings` and `Matching Settings` according to your objectives.
     *   Click the `Execute` button.
 4.  Review the results in the main area:
