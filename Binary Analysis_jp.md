@@ -30,11 +30,11 @@
 
 ## 出力 (Outputs)
 
+*   **予測 (Predictions)**: `Orange.data.Table`
+    *   元の入力データ（欠損値処理後）に、モデルによる予測クラス (`predicted_<target_name>`) と各クラスに属する予測確率 (例: `prob_ClassA`, `prob_ClassB`) が付加されたテーブル。
 *   **係数 (Coefficients)**: `Orange.data.Table`
     *   モデルの各特徴量（および切片）に関する詳細情報を含むテーブル。
     *   列: `variable` (メタ, 特徴量名), `coefficient` (係数値), `p_value` (p値、正則化なしの場合のみ), `odds_ratio` (オッズ比), `importance` (重要度、係数の絶対値), `VIF` (分散拡大係数、切片の場合はNaN)。
-*   **予測 (Predictions)**: `Orange.data.Table`
-    *   元の入力データ（欠損値処理後）に、モデルによる予測クラス (`predicted_<target_name>`) と各クラスに属する予測確率 (例: `prob_ClassA`, `prob_ClassB`) が付加されたテーブル。
 
 ## 機能の説明
 

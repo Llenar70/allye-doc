@@ -30,11 +30,11 @@ Below is a conceptual example of input data that can be used with this widget (e
 
 ## Outputs
 
+*   **Predictions**: `Orange.data.Table`
+    *   The original input data (after handling missing values) with added columns for the model's predicted class (`predicted_<target_name>`) and predicted probabilities for each class (e.g., `prob_ClassA`, `prob_ClassB`).
 *   **Coefficients**: `Orange.data.Table`
     *   A table containing detailed information about each feature (and intercept) of the model.
     *   Columns: `variable` (Meta, feature name), `coefficient` (coefficient value), `p_value` (p-value, only if no regularization), `odds_ratio` (odds ratio), `importance` (importance, absolute value of coefficient), `VIF` (Variance Inflation Factor, NaN for intercept).
-*   **Predictions**: `Orange.data.Table`
-    *   The original input data (after handling missing values) with added columns for the model's predicted class (`predicted_<target_name>`) and predicted probabilities for each class (e.g., `prob_ClassA`, `prob_ClassB`).
 
 ## Feature Description
 
