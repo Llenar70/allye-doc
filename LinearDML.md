@@ -1,6 +1,6 @@
 # LinearDML
 
-LinearDML is a Double Machine Learning (DML) widget powered by econML that estimates heterogeneous treatment effects (CATE). It supports both binary and continuous treatments, exposes the key building blocks (nuisance models Y|X and T|X, cross-fitting, final effect model), and provides rich diagnostics including SHAP summaries for nuisance models, propensity score analyses, and uplift (Qini/AUUC) curves for binary treatments.
+LinearDML is a Double Machine Learning (DML) widget powered by econML that estimates heterogeneous treatment effects (CATE). It supports binary treatments, exposes the key building blocks (nuisance models Y|X and T|X, cross-fitting, final effect model), and provides rich diagnostics including SHAP summaries for nuisance models, propensity score analyses, and uplift (Qini/AUUC) curves.
 
 ---
 
@@ -8,13 +8,12 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 
 * **Data**
   * Type: `Orange.data.Table`
-  * Description: The analysis dataset. It should contain a treatment variable (binary or continuous), an outcome variable (numeric), covariates (features), and optionally meta variables, sample weights, and group identifiers.
+  * Description: The analysis dataset. It should contain a binary treatment variable, an outcome variable (numeric), covariates (features), and optionally meta variables, sample weights, and group identifiers.
 
 ### Input Data Specifications
 
 * **Treatment Variable**
   * Binary: Use a Discrete Variable. Select the control group value in the UI; it will be encoded as 0 (the other value is encoded as 1).
-  * Continuous: Use a numeric (Continuous Variable).
 * **Outcome Variable**
   * Numeric variable to evaluate the effect (e.g., sales, conversion rate). Internally treated as float.
 * **Covariates**
@@ -67,7 +66,7 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
 
 
 * **Data Variables**
-  * **Treatment Type**: Choose `Binary` or `Continuous`.
+  * **Treatment Type**: Fixed to `Binary` (display-only indicator for legacy layouts).
   * **Treatment Variable**: Select the treatment column. For binary treatment, also select the `Control group value` (encoded as 0; the other value is 1).
   * **Outcome Variable**: Select the numeric outcome column.
   * **Covariates**: Drag and drop variables used as features.
@@ -80,8 +79,7 @@ LinearDML is a Double Machine Learning (DML) widget powered by econML that estim
   * For tree models: `n_estimators`, `max_depth` controls.
 
 * **Treatment Model (T | X)**
-  * Binary treatment: `Logistic (Binary)`, `RandomForest`, `LightGBM`.
-  * Continuous treatment: `Ridge (Continuous)`, `RandomForest`, `LightGBM`.
+  * Algorithms: `Logistic (Binary)`, `RandomForest`, `LightGBM`.
   * Regularization/Tree settings similar to the outcome model.
 
 * **Cross-Fitting**
@@ -165,7 +163,7 @@ The widget supports Orange’s standard reporting. The report contains:
 
 1. **Data Preparation**
    * Outcome is cast to float.
-   * Binary treatment is encoded with the chosen control value as 0 (other value as 1). Continuous treatment is used as-is.
+   * Binary treatment is encoded with the chosen control value as 0 (other value as 1).
    * Categorical covariates are one-hot encoded (`drop_first=True`) with readable names (e.g., `cat1_A`).
    * Optional sample weights and group IDs are passed through.
 2. **Estimation (econML DML)**
@@ -189,4 +187,3 @@ The widget supports Orange’s standard reporting. The report contains:
 * SHAP is computed on a random subsample (up to ~2000 rows) to control cost on large datasets.
 * LightGBM is optional; if unavailable, the widget falls back to RandomForest.
 * Cross-validation and permutation-style operations use parallelism where available (`n_jobs=-1`).
-
