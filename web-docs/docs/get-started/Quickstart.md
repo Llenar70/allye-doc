@@ -8,32 +8,36 @@ sidebar_position: 1
 
 # Quickstart
 
-Follow these steps as a minimal end-to-end path. 
-This quickstart uses the open data LendingClub Loan Data. Download the csv file from this link: [/Users/s-sekine/Documents/MyGitHub/allye-doc/web-docs/docs/get-started/data/loan.csv].
+
+This quickstart will walk you through a project using Allye's core features. By the end, you'll be familiar with simple visualization, data manipulation, modeling and Agent.
+
+In this project we will use open data LendingClub Loan Data. You can download from this [link](https://raw.githubusercontent.com/Llenar70/allye-doc/main/web-docs/docs/get-started/data/loan.csv).
+
+
 
 ### 1) Visualization
 
 <p>
   <img
-    src="./img/quickstart1_Visualization.png"
+    src={require('./img/quickstart1_Visualization.png').default}
     alt="Quick Start 1 - Visualization"
-    style={{ maxHeight: '60vh', width: '50%', objectFit: 'contain' }}
+    style={{ maxHeight: '60vh', width: '80%', objectFit: 'contain' }}
   />
 </p>
 
-1. Drag and drop csv file onto the canvas.
-2. From the left panel, create `Data Table` in the `Data` section and `Distribution` in the `Visualize` section, then connect them to the File widget.
-3. Open the widgets to verify.
-
+1. Drag and drop csv file onto the canvas. You can download from this [link](https://raw.githubusercontent.com/Llenar70/allye-doc/main/web-docs/docs/get-started/data/loan.csv)
+2. From the left panel, create `Data Table` in the `Data` section and `Distribution` in the `Visualize` section. 
+3. Connect edges to those widgets from `File` widget.
+4. Open the widgets and you should see Raw data as well as histogram.
 
 
 ### 2) Data Manipulation
 
 <p>
   <img
-    src="./img/quickstart2_DataManipulation.png"
+    src={require('./img/quickstart2_DataManipulation.png').default}
     alt="Quick Start 2 - Data Manipulation"
-    style={{ maxHeight: '60vh', width: '50%', objectFit: 'contain' }}
+    style={{ maxHeight: '60vh', width: '80%', objectFit: 'contain' }}
   />
 </p>
 
@@ -47,9 +51,9 @@ This quickstart uses the open data LendingClub Loan Data. Download the csv file 
 
 <p>
   <img
-    src="./img/quickstart3_AdvancedStats.png"
+    src={require('./img/quickstart3_AdvancedStats.png').default}
     alt="Quick Start 3 - Advanced Statistics"
-    style={{ maxHeight: '60vh', width: '50%', objectFit: 'contain' }}
+    style={{ maxHeight: '60vh', width: '80%', objectFit: 'contain' }}
   />
 </p>
 
@@ -61,9 +65,9 @@ This quickstart uses the open data LendingClub Loan Data. Download the csv file 
 
 <p>
   <img
-    src="./img/quickstart4_Agent.png"
+    src={require('./img/quickstart4_Agent.png').default}
     alt="Quick Start 4 - Agent"
-    style={{ maxHeight: '60vh', width: '50%', objectFit: 'contain' }}
+    style={{ maxHeight: '60vh', width: '80%', objectFit: 'contain' }}
   />
 </p>
 
@@ -71,4 +75,4 @@ This quickstart uses the open data LendingClub Loan Data. Download the csv file 
 2. Ask the Agent a question, for example: “I’ve loaded the loan data. Could you analyze and report on the determinants of interest rates?”
 3. The AI generates and analyzes a workflow and reports the results. Be specific in your questions to get better answers.
 
-The Agent can control only some widgets. See here for details on Agent capabilities and usage.
+The Agent can control only some widgets. See [here](../tutorial-advanced/Agent.md) for details on Agent capabilities and usage.

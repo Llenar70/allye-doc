@@ -11,7 +11,7 @@ sidebar_position: 2
 
 <p>
   <img
-    src="./img/connected_visualization.png"
+    src={require('./img/connected_visualization.png').default}
     alt="Connected visualization overview"
     style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
   />

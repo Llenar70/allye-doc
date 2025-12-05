@@ -12,7 +12,7 @@ Coloring works with most visualization widgets, such as scatter plot, distributi
 
 <p>
   <img
-    src="./img/changecolor_font.png"
+    src={require('./img/changecolor_font.png').default}
     alt="Change Color Widget"
     style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
   />
@@ -23,7 +23,7 @@ Coloring works with most visualization widgets, such as scatter plot, distributi
 
 <p>
   <img
-    src="./img/change_font_icon.png"
+    src={require('./img/change_font_icon.png').default}
     alt="Change Font Icon"
     style={{ maxHeight: '20vh', width: '50%', objectFit: 'contain' }}
   />

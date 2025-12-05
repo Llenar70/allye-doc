@@ -4,39 +4,57 @@ sidebar_position: 1
 
 # Allye Documentation
 
-Allye is an AI-powered analysis tool that understands your data and helps you analyze data faster through natural language. 
-Just describe what you want to analyze and Allye will generate the workflow for you.
+Allye is an AI-powered analysis tool that understands your data and helps you analyze data faster and deeper. 
 
-Acknowledgment: Allye is built by combining the open-source [Orange Data Mining](https://github.com/biolab/orange3) tool with our own product.
+<p>
+  <img
+    src={require('./get-started/img/connected_visualization.png').default}
+    alt="Connected visualization overview"
+    style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+  />
+</p>
 
-# Concept
-
-When someone feels the urge to analyze data, there are always two sequential desires: first an interest in the "what"—wanting to grasp the current state—and then an interest in the "why" behind it—wanting to understand structures and causal relationships.
-
-For the former, there are great BI tools such as Excel, Google Sheets, Looker, and Tableau, and they require little knowledge (just knowing terms like "mean" or "variance"), so anyone can now uncover the "what."
-
-Yet even though people naturally become curious about the "why" after the "what," the latter is much harder. Simple aggregation hides many traps (multicollinearity, confounding, selection bias, etc.).
-What pitfalls exist? How can they be avoided? Disciplines like statistics and causal inference systematize methodologies for approaching the "why," and many techniques have been researched and proposed. Many of them are practiced at the forefront of data science in technology companies and are delivering remarkable results.
-
-Allye is a tool created to elevate your desire to analyze data into that second stage and to embrace your sense of wonder.
-
-### Don't code, Analyze
-At the front lines of data science, programming languages like Python and R are used to wield advanced analytical methods.
-Their flexibility is powerful, but because of their complexity, your focus and time often get consumed by coding itself rather than by the analysis, and your analysis does not deepen.
-When your analytical thinking, critical thinking, and hypothesis thinking are in the zone, coding and syntax errors are just noise.
-In Allye, visualization, data processing, and modeling finish in a few clicks and seconds, reducing noise and powerfully accelerating your detective work.
-
-### Connected & Interactive
-Detective work is connecting the dots — your hypotheses, the facts, and the ideas they spark — into one coherent line of reasoning. That’s why your data and your charts must connect, too.
-We have further strengthened the interactive visualizations that Orange Data Mining offered.
-The Visualize Connector links every scatter plot, histogram, and data table, letting you grasp relationships in high-dimensional data at a glance and revealing structures that were previously hidden.
+**Powered by Open Source**: Allye is built upon the robust foundation of [Orange Data Mining](https://github.com/biolab/orange3), enhanced with our proprietary AI technologies.
 
 
-### Comprehensive
-
-In Allye, analysis is not just about building models; comprehensive reports are produced. For example, a typical pitfall in regression analysis is multicollinearity, but Allye not only performs modeling—it also calculates VIFs and p-values and highlights anomalies in red. This enables accurate analysis without missing details.
+# Concept: From "What" to "Why"
 
 
-### Agent
+Data analysis typically evolves in two stages: first, grasping the current state (the "What"), and second, understanding the underlying causes (the "Why").
 
-When data preparation or visualization becomes complex and Allye's existing widgets cannot handle it, you are unsure how to use them, or you do not know how to configure methods when you are not familiar with them, rely on AI. The Agent can generate and run code, automatically generate workflows, and interpret results and report findings to support you.
+For the former, BI tools like Spread Sheet, Looker, and Tableau are excellent. They allow anyone to visualize "what is happening" with minimal friction.
+
+However, moving to the "Why" is significantly harder. Simple aggregation can hide dangerous traps such as multicollinearity, confounding variables, and selection bias. Avoiding these pitfalls requires statistical methodologies that are often complex to implement.
+
+Allye is designed to bridge this gap. It elevates your analysis to the next level, enabling you to uncover causal relationships and deep structures without getting lost in technical complexity.
+
+
+### 1. Focus on Analysis, Not Code
+At the forefront of data science, Python and R are powerful but complex. Often, your time and focus are consumed by coding and debugging rather than the analysis itself.
+Allye removes this barrier. Visualization, data processing, and modeling are completed in seconds with a few clicks. This allows you to stay in the flow of critical thinking, turning "detective work" into a smooth, noise-free process.
+
+**[> Explore Quickstart](../get-started/Quickstart.md)**
+
+
+### 2. Interactive & Interconnected
+Insight comes from connecting the dots—linking your hypotheses to facts. Allye’s visualization engine reflects this by keeping your data fully connected.
+The interface links every scatter plot, histogram, and data table. Selecting a data point in one view instantly highlights it across all others, revealing high-dimensional relationships and hidden structures at a glance.
+
+**[> Explore Connected Visualization](../get-started/Connected_Visualization.md)**
+
+
+### 3. Automated Rigor
+
+Allye produces more than just models; it delivers comprehensive, statistically sound reports.
+For instance, to prevent common errors like multicollinearity in regression analysis, Allye automatically calculates VIFs and p-values, highlighting anomalies in red. This built-in safety net ensures your analysis is not only fast but accurate.
+
+**[> Explore EDA Tutorial](../tutorial-advanced/EDA.md)**
+
+
+### 4. AI Agent
+
+When data preparation becomes too complex for standard widgets, or when you need guidance on advanced methods, Allye’s AI Agent is there to help.
+The Agent can generate and execute code, automatically build workflows, and even interpret results for you. It serves as an intelligent partner, supporting you whenever you hit a roadblock.
+
+
+**[> Explore Agent](../tutorial-advanced/Agent.md)**
