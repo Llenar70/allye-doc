@@ -1,9 +1,8 @@
 ---
 id: allye-save
 title: Save
-slug: /allye/save
 description: A short path to set up Allye, run a first workflow, and confirm everything works.
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Save 

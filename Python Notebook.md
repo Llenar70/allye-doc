@@ -1,6 +1,6 @@
 # Python Notebook
 
-This widget provides a Jupyter Notebook environment within Allye, enabling Python code execution and data integration. You can integrate Python's powerful features for data manipulation, analysis, visualization, and more into your Allye workflows. Additionally, the Notebook Assistant feature allows AI to support your coding.
+This widget provides a Jupyter Notebook environment within Allye, enabling Python code execution and data integration. You can integrate Python's powerful features for data manipulation, analysis, visualization, and more into your Allye workflows. Notebook code editing/execution is done in your default browser (JupyterLab); the widget itself serves as the bridge for data exchange and quick browser launch.
 
 When Allye starts, a Jupyter Notebook server is also launched in the background. The default port number is `8887`, but it can be changed in the "User Settings" dialog (see figures below), accessible via the gear icon in the top-right corner of Allye.
 
@@ -80,34 +80,22 @@ When Allye starts, a Jupyter Notebook server is also launched in the background.
         # df_processed is the processed Pandas DataFrame
         send_data_to_next_widget(df_processed)
         ```
-*   **Notebook Assistant (Chat AI)**:
-    *   An AI chatbot located in the widget's left control area.
-    *   You can ask questions about the Notebook, request Python code generation, or consult on debugging.
-    *   **Setting Options**:
-        *   `Send column and attribute information`: If checked, sends metadata such as input data column names, types, and roles to the AI, helping to get more contextually relevant answers. Raw data is not sent.
-        *   `Send sample data (5 rows)`: If checked, sends 5 random rows of sample data from the input data to the AI. Note that raw data will be shared.
+*   **JupyterLab in the Browser (no in-widget assistant)**:
+    *   Double-click the Notebook node (or use the context menu) to open the target `.ipynb` in your default browser (JupyterLab) with the Notebook Agent extension auto-started.
+    *   The Orange widget does not embed a chat assistant; all coding, execution, and extension features live in the browser-based JupyterLab UI.
 *   **Automatic Notebook Generation and Management**:
     *   Each Python Notebook widget is assigned a unique ID (`widget_id`).
     *   Based on this ID, a Jupyter Notebook file (`notebook_<widget_id>.ipynb`) and temporary files for data transfer (Pickle format: `in_data_<widget_id>.pkl`, `out_data_<widget_id>.pkl`) are created.
     *   Boilerplate code for data input and output is automatically inserted and updated in the Notebook file.
 
-**UI Description** (Refer to the overall Python Notebook widget screenshot above)
+**UI Description**
 
 *   **Control Area (Left Side)**:
-    *   **Notebook Assistant**:
-        *   Title "Notebook Assistant" at the top.
-        *   Chat messages are displayed in the central area.
-        *   Text input box at the bottom (`Enter your question...`) and a send button (paper airplane icon).
-        *   Messages can also be sent with `Cmd+Enter` (Mac) or `Ctrl+Enter` (Windows/Linux).
-    *   **Action Settings**:
-        *   **Send column and attribute information**: Checkbox regarding data information to send to AI.
-        *   **Send sample data (5 rows)**: Checkbox regarding sample data to send to AI.
+    *   Minimal controls; no chat/assistant UI. Use the workflow context menu or double-click to open the notebook in the browser.
 *   **Main Area (Right Side)**:
-    *   Displays a standard Jupyter Notebook interface.
-    *   The filename (`notebook_<widget_id>.ipynb`) is shown in the tab.
-    *   Cell execution (▶︎ Run), saving (💾), kernel operations, etc., are available from the toolbar.
-    *   The first cell (Markdown format) contains a guide on data input/output.
-    *   The second cell (Code format) contains auto-generated basic Python code for data input/output.
+    *   Displays the notebook via an embedded view, but primary editing/running is expected in the browser JupyterLab tab opened from this widget.
+    *   The first cell (Markdown) contains a guide on data input/output.
+    *   The second cell (Code) contains auto-generated basic Python code for data input/output.
 
 **Usage Example**
 
@@ -135,11 +123,6 @@ When Allye starts, a Jupyter Notebook server is also launched in the background.
         ```
     *   Connect the `Notebook Data` output of the `Python Notebook` widget to a `Data Table` widget.
     *   The `Data Table` widget will display the filtered data with the new `sepal_area` column.
-
-2.  **Code Generation with Notebook Assistant**:
-    *   Connect data from a `File` widget to the `Python Notebook` widget as above.
-    *   In the Notebook Assistant in the control area, enter, for example: "Write Python code to extract rows from the input data `df` where `petal length` is greater than the median." and send.
-    *   Use the code generated by the AI as a reference, run it in the Notebook, and check the results.
 
 **Detailed Logic**
 

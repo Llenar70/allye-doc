@@ -1,9 +1,8 @@
 ---
 id: allye-changecolor
 title: Change Color & Font
-slug: /allye/changecolor
 description: A short path to set up Allye, run a first workflow, and confirm everything works.
-sidebar_position: 3
+sidebar_position: 4
 ---
 
 # Change Color & Font

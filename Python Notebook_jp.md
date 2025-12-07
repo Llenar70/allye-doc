@@ -1,6 +1,6 @@
 # Python Notebook
 
-Allye内でJupyter Notebook環境を提供し、Pythonコードの実行とデータ連携を可能にするウィジェットです。データの加工、分析、視覚化など、Pythonの強力な機能をAllyeのワークフローに統合できます。また、Notebook Assistant機能により、AIがコーディングをサポートします。
+Allye内でJupyter Notebook環境を提供し、Pythonコードの実行とデータ連携を可能にするウィジェットです。データの加工、分析、視覚化など、Pythonの強力な機能をAllyeのワークフローに統合できます。Notebookの編集・実行は既定ブラウザのJupyterLab上で行い、ウィジェットはデータ受け渡しとブラウザ起動のブリッジとして動作します。
 
 Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウンドで起動されます。デフォルトのポート番号は `8887` ですが、Allyeの右上にある歯車アイコン (下図参照) からアクセスできる「User Settings」ダイアログ (下図参照) で変更可能です。
 
@@ -71,34 +71,21 @@ Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウ�
         # df_processed は処理済みのPandas DataFrame
         send_data_to_next_widget(df_processed)
         ```
-*   **Notebook Assistant (チャットAI)**:
-    *   ウィジェット左側のコントロールエリアに搭載されたAIチャットボットです。
-    *   Notebookに関する質問、Pythonコードの生成依頼、デバッグの相談などが可能です。
-    *   **設定オプション**:
-        *   `Send column and attribute information`: チェックを入れると、入力データの列名、型、役割などのメタデータをAIに送信し、より文脈に沿った回答を得やすくします。生データは送信されません。
-        *   `Send sample data (5 rows)`: チェックを入れると、入力データからランダムに5行のサンプルデータをAIに送信します。生データが共有されることに注意してください。
+*   **ブラウザ上のJupyterLabで操作（ウィジェット内にチャットUIなし）**:
+    *   Notebookノードをダブルクリック（またはコンテキストメニュー）すると、対象の`.ipynb`が既定ブラウザのJupyterLabで開きます。Notebook Agent拡張はJupyterLab側で自動起動します。
+    *   チャットアシスタントはウィジェットには存在しません。コード編集・実行はJupyterLab上で行ってください。
 *   **自動Notebook生成と管理**:
     *   各Python Notebookウィジェットには、ユニークなID (`widget_id`) が割り当てられます。
     *   このIDに基づき、Jupyter Notebookファイル (`notebook_<widget_id>.ipynb`) およびデータ受け渡し用の一時ファイル (Pickle形式: `in_data_<widget_id>.pkl`, `out_data_<widget_id>.pkl`) が作成されます。
     *   Notebookファイルには、データ入出力のための定型コードが自動的に挿入・更新されます。
 
-**UIの説明** (上記のPython Notebookウィジェットの全体像スクリーンショット参照)
+**UIの説明**
 
 *   **コントロールエリア (左側)**:
-    *   **Notebook Assistant**:
-        *   上部にタイトル「Notebook Assistant」。
-        *   中央にチャットメッセージが表示されるエリア。
-        *   下部に入力用のテキストボックス（`質問を入力してください...`）と送信ボタン（紙飛行機アイコン）。
-        *   `Cmd+Enter` (Mac) または `Ctrl+Enter` (Windows/Linux) でもメッセージを送信できます。
-    *   **Action Settings**:
-        *   **Send column and attribute information**: AIに送信するデータ情報に関するチェックボックス。
-        *   **Send sample data (5 rows)**: AIに送信するサンプルデータに関するチェックボックス。
+    *   最小限の表示のみ。Notebookはブラウザで開いて操作します。
 *   **メインエリア (右側)**:
-    *   標準的なJupyter Notebookのインターフェースが表示されます。
-    *   ファイル名 (`notebook_<widget_id>.ipynb`) がタブに表示されます。
-    *   ツールバーからセルの実行 (▶︎ Run)、保存 (💾)、カーネル操作などが可能です。
-    *   最初のセル (Markdown形式) には、データ入出力に関するガイドが記述されています。
-    *   2番目のセル (Code形式) には、データ入出力のための基本的なPythonコードが自動生成されています。
+    *   Notebookを簡易的に表示しますが、主な編集・実行はブラウザのJupyterLabタブで行う想定です。
+    *   最初のセル (Markdown) はデータ入出力ガイド、2番目のセル (Code) は自動生成された入出力コードです。
 
 **使用例**
 
@@ -127,10 +114,10 @@ Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウ�
     *   `Python Notebook` ウィジェットの `Notebook Data` 出力を `Data Table` ウィジェットに接続します。
     *   `Data Table` ウィジェットには、フィルタリングされ、新しい列 `sepal_area` が追加されたデータが表示されます。
 
-2.  **Notebook Assistantによるコード生成**:
+2.  **ブラウザでコード編集・実行**:
     *   上記と同様に `File` ウィジェットからデータを `Python Notebook` ウィジェットに接続します。
-    *   コントロールエリアのNotebook Assistantに、例えば「入力データ `df` から、`petal length` が中央値より大きい行のみを抽出するコードを書いてください。」と入力し、送信します。
-    *   AIが生成したコードを参考に、Notebook上で実行し、結果を確認します。
+    *   NotebookノードをダブルクリックしてブラウザのJupyterLabで開き、必要なコードを編集・実行します。
+    *   処理結果を `send_data_to_next_widget(...)` で下流へ送り、Orange側の可視化・分析に接続します。
 
 **詳細なロジック**
 

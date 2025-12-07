@@ -1,7 +1,6 @@
 ---
 id: allye-quickstart
 title: Quickstart
-slug: /allye/quickstart
 description: A short path to set up Allye, run a first workflow, and confirm everything works.
 sidebar_position: 1
 ---
@@ -15,7 +14,7 @@ In this project we will use open data LendingClub Loan Data. You can download fr
 
 
 
-### 1) Visualization
+### 1.Visualization
 
 <p>
   <img
@@ -31,7 +30,7 @@ In this project we will use open data LendingClub Loan Data. You can download fr
 4. Open the widgets and you should see Raw data as well as histogram.
 
 
-### 2) Data Manipulation
+### 2.Data Manipulation
 
 <p>
   <img
@@ -47,7 +46,7 @@ In this project we will use open data LendingClub Loan Data. You can download fr
 3. Create `Bar Plot (Allye)` from the `Visualize` section and connect it to the `Group by (Allye)` widget.
 4. Select `grade` for the X-axis and `int_rate - Mean` for the Y-axis to see the average interest rate by grade.
 
-### 3) Advanced Statistics
+### 3.Advanced Statistics
 
 <p>
   <img
@@ -61,8 +60,12 @@ In this project we will use open data LendingClub Loan Data. You can download fr
 2. Choose `loan_amnt`, `term`, and `sub_grade` as Features; select `int_rate` as Target Variables; set Regularization to None, and choose the remaining options as shown in the image below.
 3. Click the Apply button and review the Full Report that appears in the Main Area.
 
-### 4) Agent
+### 4.Agent
 
+Allye provides two types of Agents. The first is the **`Canvas Agent`**, which can automatically generate workflows and perform analyses on the Allye canvas in response to your natural language requests. The second is the **`Notebook Agent`**, which can automatically generate and execute Python code.
+
+
+#### 4.1 Canvas Agent
 <p>
   <img
     src={require('./img/quickstart4_Agent.png').default}
@@ -72,7 +75,27 @@ In this project we will use open data LendingClub Loan Data. You can download fr
 </p>
 
 1. Load the data onto the canvas.
-2. Ask the Agent a question, for example: “I’ve loaded the loan data. Could you analyze and report on the determinants of interest rates?”
+2. Ask the Agent a question, for example: **_“I’ve loaded the loan data. Could you analyze and report on the determinants of interest rates?”_**
 3. The AI generates and analyzes a workflow and reports the results. Be specific in your questions to get better answers.
 
+
+#### 4.2 Notebook Agent
+<p>
+  <img
+    src={require('./img/quickstart4_2_AgentNotebook.png').default}
+    alt="Quick Start 4-2 - Agent Notebook"
+    style={{ maxHeight: '60vh', width: '80%', objectFit: 'contain' }}
+  />
+</p>
+
+
+1. From the left panel, create `Python Notebook` in the `Transform` section. 
+2. Connect to the `Python Notebook` widget and open. 
+3. A browser window will automatically open and launch `JupyterLab`. From the panel on the left, select "Notebook Agent" to start the `Notebook Agent`.
+4. Ask the Agent a question, for example: _“I’ve loaded the loan data. Could you analyze and report on the determinants of interest rates?”_
+5. The AI generate and execute python code. Be specific in your questions to get better answers.
+
+
 The Agent can control only some widgets. See [here](../tutorial-advanced/Agent.md) for details on Agent capabilities and usage.
+
+

@@ -3,7 +3,7 @@ sidebar_position: 4
 ---
 
 
-# Quasi-experimental analysis & Causal Inference
+# Causal Inference
 
 _Imagine you're a marketer who launched a newsletter. While it's a great tool for engagement, you're aware that sending it too frequently can bother users and harm the overall experience. You see that subscribers tend to buy more products, but you can't be sure if the newsletter is *causing* this increase. Is it driving sales, or just annoying your customers and leading to opt-outs? This is a classic problem that arises from using **observational data**._
 

@@ -1,7 +1,6 @@
 ---
 id: allye-connected-visualization
 title: Connected Visualization
-slug: /allye/connected-visualization
 description: A short path to set up Allye, run a first workflow, and confirm everything works.
 sidebar_position: 2
 ---

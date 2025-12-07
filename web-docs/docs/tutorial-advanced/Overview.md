@@ -60,7 +60,7 @@ _Your A/B test for the new product feature has concluded. Let’s evaluate the i
 
 
 
-### 3. Quasi-experimental analysis & Causal Inference
+### 3. Causal Inference & Quasi-experimental analysis
 
 _Imagine you're a marketer who launched a newsletter. While it's a great tool for engagement, you're aware that sending it too frequently can bother users and harm the overall experience. You see that subscribers tend to buy more products, but you can't be sure if the newsletter is *causing* this increase. Is it driving sales, or just annoying your customers and leading to opt-outs? This is a classic problem that arises from using **observational data**._
 
@@ -85,8 +85,4 @@ _Optimizing business processes through prediction is extremely powerful and can 
 
 _For your detective work, AI is an exceptionally capable partner. Whenever you get stuck in your analysis, let it assist you. Explore what AI can do._
 
- * Analytics Agent
- * Ask & AI Reporting
- * Notebook Assistant
-
- **[> Explore Tutorial](./Agent.md)**
+**[> Explore Agent](../agent/Agent_Overview.md)**
