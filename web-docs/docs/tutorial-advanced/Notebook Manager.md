@@ -3,6 +3,9 @@ sidebar_position: 6
 ---
 
 # Notebooks Manager
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Allye Advanced Feature</span>
+</div>
 
 You can save the notebooks you create to the Notebooks Manager and easily reuse them later.
 

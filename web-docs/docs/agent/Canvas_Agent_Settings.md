@@ -3,6 +3,10 @@ sidebar_position: 2
 ---
 
 # Canvas Agent Settings
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Allye Advanced Feature</span>
+</div>
+
 
 ### Tips & Configuration
 

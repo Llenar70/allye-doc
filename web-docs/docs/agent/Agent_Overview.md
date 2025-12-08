@@ -3,6 +3,9 @@ sidebar_position: 1
 ---
 
 # Overview & Quickstart
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Allye Advanced Feature</span>
+</div>
 
 _For your detective work, AI is an exceptionally capable partner. Whenever you get stuck in your analysis, let it assist you. Explore what AI can do._
 
