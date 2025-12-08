@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkweb_docs=globalThis.webpackChunkweb_docs||[]).push([[5842],{2505:e=>{e.exports=JSON.parse('{"tags":[{"label":"welcome","permalink":"/allye-doc/blog/tags/welcome","count":1}]}')}}]);

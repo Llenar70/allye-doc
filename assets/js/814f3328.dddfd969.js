@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkweb_docs=globalThis.webpackChunkweb_docs||[]).push([[7472],{5513:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"Welcome to Allye!","permalink":"/allye-doc/blog/first-post","unlisted":false,"date":"2025-12-08T00:00:00.000Z"}]}')}}]);
