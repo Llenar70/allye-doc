@@ -93,6 +93,7 @@ const config = {
         logo: {
           alt: 'Allye Logo',
           src: 'img/6852cb04a48fccea34beed5e_allye_logo.png',
+          href: 'https://www.ai-allye.com/',
         },
         items: [
           {
