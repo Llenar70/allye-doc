@@ -20,17 +20,18 @@ const config = {
   },
 
   // Set the production url of your site here
-  url: 'https://lichtlab.github.io',
+  url: 'https://llenar70.github.io',
 
   
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/allye_web.github.io/',
+  baseUrl: '/allye-doc/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'AI Allye', // Usually your GitHub org/user name.
-  projectName: 'allye_web.github.io', // Usually your repo name.
+  organizationName: 'Llenar70', // Usually your GitHub org/user name.
+  projectName: 'allye-doc', // Usually your repo name.
+  deploymentBranch: 'gh-pages',
   trailingSlash: false,
 
 
@@ -55,7 +56,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/Llenar70/allye-doc/tree/main/web-docs/',
         },
         blog: {
           showReadingTime: true,
@@ -66,7 +67,7 @@ const config = {
           // Please change this to your repo.
           // Remove this to remove the "edit this page" links.
           editUrl:
-            'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+            'https://github.com/Llenar70/allye-doc/tree/main/web-docs/',
           // Useful options to enforce blogging best practices
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',

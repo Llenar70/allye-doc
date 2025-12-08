@@ -1,0 +1,35 @@
+name: Deploy Docusaurus to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: web-docs/package-lock.json
+
+      - name: Install dependencies
+        working-directory: web-docs
+        run: npm ci
+
+      - name: Build
+        working-directory: web-docs
+        run: npm run build
+
+      - name: Deploy
+        working-directory: web-docs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GIT_USER: ${{ github.actor }}
+        run: npx docusaurus deploy
