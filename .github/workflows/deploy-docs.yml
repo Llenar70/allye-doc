@@ -8,6 +8,8 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -26,6 +28,23 @@ jobs:
       - name: Build
         working-directory: web-docs
         run: npm run build
+
+      - name: Ensure gh-pages branch exists
+        run: |
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
+          if ! git ls-remote --exit-code --heads origin gh-pages; then
+            echo "Initializing gh-pages branch"
+            git checkout --orphan gh-pages
+            git reset --hard
+            touch .placeholder
+            git add .placeholder
+            git commit -m "Initialize gh-pages branch"
+            git push origin gh-pages
+            git checkout -
+          else
+            echo "gh-pages branch already exists"
+          fi
 
       - name: Deploy
         working-directory: web-docs
