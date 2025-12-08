@@ -31,17 +31,9 @@ jobs:
 
       - name: Ensure gh-pages branch exists
         run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           if ! git ls-remote --exit-code --heads origin gh-pages; then
-            echo "Initializing gh-pages branch"
-            git checkout --orphan gh-pages
-            git reset --hard
-            touch .placeholder
-            git add .placeholder
-            git commit -m "Initialize gh-pages branch"
-            git push origin gh-pages
-            git checkout -
+            echo "Initializing gh-pages branch (one-time)"
+            git push origin HEAD:gh-pages
           else
             echo "gh-pages branch already exists"
           fi
