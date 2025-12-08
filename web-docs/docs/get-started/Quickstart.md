@@ -96,6 +96,5 @@ Allye provides two types of Agents. The first is the **`Canvas Agent`**, which c
 5. The AI generate and execute python code. Be specific in your questions to get better answers.
 
 
-The Agent can control only some widgets. See [here](../tutorial-advanced/Agent.md) for details on Agent capabilities and usage.
-
+The Agent can control only some widgets. See [here](../agent/Agent_Overview.md) for details on Agent capabilities and usage.
 
