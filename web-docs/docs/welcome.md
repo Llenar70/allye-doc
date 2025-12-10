@@ -31,7 +31,7 @@ Visualization, data processing, and modeling are completed in seconds with a few
 
 **[> Explore Quickstart](./get-started/Quickstart.md)**
 
-### 2. The Power of Code, The Simplicity of No-Code.
+### 2. The Power of Code, The Speed of No-Code.
 Analysts can build visual workflows and drop into a Notebook node, where **AI generates the necessary Python code** for complex transformations. Conversely, engineers can start in a **JupyterLab**, then seamlessly push data to the Canvas to generate comprehensive reports. It is a unified environment where flexibility meets efficiency.
 
 **[> Explore Unified Environment](./get-started/Unified_Environment.md)**
