@@ -9,7 +9,7 @@ sidebar_position: 2
 
 
 As a data scientist, you will frequently encounter requests of this nature. The challenge lies in the ambiguity: there is no pre-defined "justified interest rate."
-While you could ask stakeholders for a definition, non-technical stakeholders often struggle to articulate it, even if they have an intuitive understanding of the business logic. That is precisely why they hired you. It is your job to use data to construct a reasonable, simple logic to define "appropriate rates" and convince your stakeholders.
+While you could ask stakeholders for a definition, non-technical stakeholders often struggle to articulate it. It is your job to use data to construct a reasonable, simple logic to define "appropriate rates" and convince your stakeholders.
 Before proceeding with the tutorial, take a moment to consider: **How would you approach this analysis?**
 
 
@@ -87,13 +87,13 @@ The hypothesis we just formed can be modeled using Linear Regression, a practica
 2. Review model output to test your hypothesis.
  - **Check the P-values**: Confirm if the correlations are statistically significant.
      - `grade` shows a significant correlation; as the grade worsens, the rate increases.
-     - `loan_amnt` has a p-value > 0.05, indicating no significant correlation.
+     - `loan_amnt` has a `p-value` > 0.05, indicating no significant correlation.
      - `term` shows a negative correlation (contrary to expectation) but its impact is small compared to `grade`, which is the dominant factor.
- - Check R2 and Prediction vs Actual: Does your hypothesis explain the interest rates well?
-    - An R2 of 0.955 means that 95.5% of the variation in interest rates is explained by the current features. The remaining 4.5% is due to other factors, but `grade` and `term` explain the vast majority.
+ - Check `R2` and `Prediction vs Actual`: Does your hypothesis explain the interest rates well?
+    - An `R2` of 0.955 means that 95.5% of the variation in interest rates is explained by the current features. The remaining 4.5% is due to other factors, but `grade` and `term` explain the vast majority.
 3. **Update your diagram**. Since loan_amnt does not have a significant relationship with interest rates, remove it from your conceptual diagram.
 
-## 4. Residual Analysis & List customers likely affected
+## 4. Residual Analysis & List customers likely "unjustified"
 
 <p>
   <img
