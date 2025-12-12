@@ -9,7 +9,7 @@ sidebar_position: 2
 
 
 As a data scientist, you will frequently encounter requests of this nature. The challenge lies in the ambiguity: there is no pre-defined "justified interest rate."
-While you could ask stakeholders for a definition, non-technical stakeholders often struggle to articulate it, even if they have an intuitive understanding of the business logic. That is precisely why they hired you. This is where your creativity come into play: using data to craft a simple, compelling logic for appropriate rates, and turning that insight into a narrative that resonates with stakeholders.
+While you could ask stakeholders for a definition, non-technical stakeholders often struggle to articulate it. This is where your creativity come into play: using data to craft a simple, compelling logic for appropriate rates, and turning that insight into a narrative that resonates with stakeholders.
 Before proceeding with the tutorial, take a moment to consider: **How would you approach this analysis?**
 
 
