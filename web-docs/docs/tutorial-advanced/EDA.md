@@ -9,11 +9,11 @@ sidebar_position: 2
 
 
 As a data scientist, you will frequently encounter requests of this nature. The challenge lies in the ambiguity: there is no pre-defined "justified interest rate."
-While you could ask stakeholders for a definition, non-technical stakeholders often struggle to articulate it, even if they have an intuitive understanding of the business logic. That is precisely why they hired you. It is your job to use data to construct a reasonable, simple logic to define "appropriate rates" and convince your stakeholders.
+While you could ask stakeholders for a definition, non-technical stakeholders often struggle to articulate it, even if they have an intuitive understanding of the business logic. That is precisely why they hired you. This is where your creativity come into play: using data to craft a simple, compelling logic for appropriate rates, and turning that insight into a narrative that resonates with stakeholders.
 Before proceeding with the tutorial, take a moment to consider: **How would you approach this analysis?**
 
 
-This guide walks through a practical EDA workflow in Allye using the sample LendingClub loan data. Below is a table summarizing the key variables and their meanings:
+This guide walks through a practical EDA workflow in Allye using the sample [LendingClub loan data](https://raw.githubusercontent.com/Llenar70/allye-doc/main/web-docs/docs/get-started/data/loan.csv). Below is a table summarizing the key variables and their meanings:
 
 | Variable         | Description                                                                 |
 |------------------|-----------------------------------------------------------------------------|
@@ -28,6 +28,8 @@ This guide walks through a practical EDA workflow in Allye using the sample Lend
 
 
 ## 1. Understand the overall structure
+Let's start by using some simple visualizations to understand the basic structure of the data.
+A straightforward first step is to check for missing values or outliers—such as negative interest rates—which could signal unjustified rates.
 
 1. Connect `File → Feature Statistics` to summarize missing values, min/max, and outliers. Confirm there are no impossible values (negative amounts, rates above 100, etc.).  
 2. Add `Distributions` to view the shape of `int_rate` overall, split by `grade` and `term`; you should see lower rates for better grades. 
@@ -51,6 +53,7 @@ Since interest rates are clearly determined by multiple factors, their "appropri
 Let's organize our hypotheses about the drivers of interest rates before validating them with data.
 
 1. **Draft a diagram in your notes**. Connect nodes with green edges for positive correlations and red edges for negative correlations.
+単純に
 
 <p>
   <img
