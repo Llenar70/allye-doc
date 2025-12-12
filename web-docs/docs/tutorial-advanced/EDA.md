@@ -90,13 +90,13 @@ The hypothesis we just formed can be modeled using Linear Regression, a practica
 2. Review model output to test your hypothesis.
  - **Check the P-values**: Confirm if the correlations are statistically significant.
      - `grade` shows a significant correlation; as the grade worsens, the rate increases.
-     - `loan_amnt` has a p-value > 0.05, indicating no significant correlation.
+     - `loan_amnt` has a `p-value` > 0.05, indicating no significant correlation.
      - `term` shows a negative correlation (contrary to expectation) but its impact is small compared to `grade`, which is the dominant factor.
- - Check R2 and Prediction vs Actual: Does your hypothesis explain the interest rates well?
-    - An R2 of 0.955 means that 95.5% of the variation in interest rates is explained by the current features. The remaining 4.5% is due to other factors, but `grade` and `term` explain the vast majority.
+ - Check `R2` and `Prediction vs Actual`: Does your hypothesis explain the interest rates well?
+    - An `R2` of 0.955 means that 95.5% of the variation in interest rates is explained by the current features. The remaining 4.5% is due to other factors, but `grade` and `term` explain the vast majority.
 3. **Update your diagram**. Since loan_amnt does not have a significant relationship with interest rates, remove it from your conceptual diagram.
 
-## 4. Residual Analysis & List customers likely affected
+## 4. Residual Analysis & List customers likely "unjustified"
 
 <p>
   <img
