@@ -30,6 +30,17 @@ This tutorial walks through a full experiment analysis in Allye. You will:
 - Segment users via stratification and clustering to find heterogeneous effects.
 - Use causal inference (Causal Tree and Causal Forest) to predict individual treatment effects (ITE or CATE: conditional average treatment effect) and explore drivers.
 
+Note: You can find following workflow files in Template Workflows
+
+<p>
+  <img
+    src={require('./img/ABTest_templateworkflows.png').default}
+    alt="ABTest_templateworkflows"
+    style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+  />
+</p>
+
+
 
 ### 1. A/A Test (randomization check) & A/B Test (hypothesis testing)
 
@@ -97,7 +108,7 @@ _If the average effect is zero, but the p-value is dropping, it’s possible tha
   - Send **Unmatched Data → AB Test** for the inactive segment.
 3. Compare effect sizes and p-values across segments.
 
-#### Clustering
+#### Clustering (optional)
 _If you don't have a clear hypothesis, let Clustering find the segments._
 
 1. `File → Select Columns` to choose clustering features (e.g., past logins, purchases).
@@ -106,24 +117,25 @@ _If you don't have a clear hypothesis, let Clustering find the segments._
 4. `k-Means → Select Rows (Cluster#1) → AB Test` to estimate effects per cluster. Repeat for other clusters.
 5. Summarize which clusters respond positively and which do not.
 
-### 4. Causal inference for CATEs
+### 4. Causal inference for CATE estimate
 
 _We now know the effect varies by user. Instead of manually guessing segments, let's use Causal AI to predict the exact Treatment Effect (CATE) for every single user. Use these prediction results to gain a deeper understanding of your supporters’ personas._
 
 <p>
   <img
     src={require('./img/adv_tutorial_causalforest.png').default}
-    alt="Causal Forest for CATE"
+    alt="Causal Forest DML for CATE"
     style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
   />
 </p>
 
-1. **Causal Tree**: `File → Causal Tree`. The tree surfaces segments with high/low treatment effects automatically. Use splits to learn which attributes best separate responders and non-responders.
-2. **Causal Forest**: `File → Causal Forest`. This estimates an CATE for each user. Send **Enhanced Data → Distributions** to visualize the CATE distribution and to `Regression Analysis` to relate CATEs to covariates.
-3. Inspect:
-   - Distribution of CATEs (how many users benefit vs. are harmed).
-   - Top features associated with higher CATEs (personalization levers).
-4. Use these insights to target future rollouts (e.g., enable the feature only for high-CATE segments).
+1. **Causal Forest DML**: `File → Forest DML`. `Causal Forest Double Machine Learning` is designed to robustly estimate Conditional Average Treatment Effects (CATE) by combining orthogonalization with a causal forest for heterogeneous treatment effect modeling. _-- Susan Athey "Generalized Random Forests" (2019)_
+2. Inspect:
+   - `Effect Model Coefficient` in the `Forest DML` suggests that `past_14d_aov` is an important factors for the treatment effect. 
+   - Discretize `past_14d_aov` to 5 segments (very high ~ very low). to make comparisons easier. `Preprocess` widget comes in handy.
+3. Understand Personalization Strategy
+  - In the high-AOV segment, a relatively high CATE is observed, while in the low-AOV segment, the CATE is relatively lower. This suggests that our idea appears to be an effective intervention for users with high AOV.
+  - Use these insights to target future rollouts (e.g., enable the feature only for high-CATE segments).
 
 
 
@@ -131,9 +143,9 @@ _We now know the effect varies by user. Instead of manually guessing segments, l
 
 _By moving beyond simple averages, we turned a "failed" experiment into a strategic insight. Here is what we found and what we propose._
 
-#### 1. **The Discovery: A Tool for Activation, Not Efficiency**
-Initial A/B test results showed a flat trend overall. However, through Stratification and Causal Forest analysis, we uncovered a striking contrast:
-  - Inactive & Low-AOV Users: Showed a statistically significant uplift in engagement and conversion.
+#### 1. **The Discovery: Inactive - High AOV Users**
+Initial A/B test results showed a flat trend overall. However, through Stratification and Causal Forest DML analysis, we uncovered a striking contrast:
+  - Inactive & High-AOV Users: Showed a statistically significant uplift in engagement and conversion.
   - Interpretation: For users who are unfamiliar with our product catalog (New Users) or haven't visited in a while (Dormant Users), this feature successfully acts as a "activation engine".
 
 #### 2. **Strategic Proposal: Pivot to "Activation & Reactivation"**
