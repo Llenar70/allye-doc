@@ -59,8 +59,19 @@ _Your A/B test for the new product feature has concluded. Let’s evaluate the i
  **[> Explore Tutorial](./AB_Test_Result_Analysis.md)**
 
 
+### 3. Survey analysis
 
-### 3. Causal Inference & Quasi-experimental analysis
+_Your A/B test for the new product feature has concluded. Let’s evaluate the impact, dive into the results, and shape the next strategy._
+
+ * Understand the overall structure
+ * Identify the Dissatisfaction Factor
+ * Dissatisfaction - Common / Unique Factors
+ * Conclusion & Proposal
+
+ **[> Explore Tutorial](./AB_Test_Result_Analysis.md)**
+
+
+### 4. Causal Inference & Quasi-experimental analysis
 
 _Imagine you're a marketer who launched a newsletter. While it's a great tool for engagement, you're aware that sending it too frequently can bother users and harm the overall experience. You see that subscribers tend to buy more products, but you can't be sure if the newsletter is *causing* this increase. Is it driving sales, or just annoying your customers and leading to opt-outs? This is a classic problem that arises from using **observational data**._
 
@@ -70,7 +81,7 @@ _Imagine you're a marketer who launched a newsletter. While it's a great tool fo
  **[> Explore Tutorial](./Quasi_experimental_Analysis.md)**
 
 
-### 4. Machine learning predictive model prototyping
+### 5. Machine learning predictive model prototyping
 
 _Optimizing business processes through prediction is extremely powerful and can lead to dramatic gains in efficiency. The best way to build strong models is through rapid prototyping and iterative trial-and-error._
 
@@ -81,7 +92,7 @@ _Optimizing business processes through prediction is extremely powerful and can 
  **[> Explore Tutorial](./Machine_Learning_Prototyping.md)**
 
 
-### 5. AI-driven analytics
+### 6. AI-driven analytics
 
 _For your detective work, AI is an exceptionally capable partner. Whenever you get stuck in your analysis, let it assist you. Explore what AI can do._
 
