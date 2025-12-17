@@ -59,16 +59,16 @@ _Your A/B test for the new product feature has concluded. Let’s evaluate the i
  **[> Explore Tutorial](./AB_Test_Result_Analysis.md)**
 
 
-### 3. Survey analysis
+### 3. Survey Analysis
 
-_Your A/B test for the new product feature has concluded. Let’s evaluate the impact, dive into the results, and shape the next strategy._
+_An airline has conducted a comprehensive passenger satisfaction survey. The goal is to identify customer needs and pain points._
 
  * Understand the overall structure
  * Identify the Dissatisfaction Factor
  * Dissatisfaction - Common / Unique Factors
  * Conclusion & Proposal
 
- **[> Explore Tutorial](./AB_Test_Result_Analysis.md)**
+ **[> Explore Tutorial](./Survey_Analysis.md)**
 
 
 ### 4. Causal Inference & Quasi-experimental analysis
