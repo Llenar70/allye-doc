@@ -4,7 +4,7 @@
         <title>  Blog</title>
         <link>https://llenar70.github.io/allye-doc/blog</link>
         <description>  Blog</description>
-        <lastBuildDate>Mon, 08 Dec 2025 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 31 Dec 2025 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
@@ -12,9 +12,9 @@
             <title><![CDATA[Welcome to Allye!]]></title>
             <link>https://llenar70.github.io/allye-doc/blog/first-post</link>
             <guid>https://llenar70.github.io/allye-doc/blog/first-post</guid>
-            <pubDate>Mon, 08 Dec 2025 00:00:00 GMT</pubDate>
-            <description><![CDATA[This is the summary of a very long blog post,]]></description>
-            <content:encoded><![CDATA[<p>This is the summary of a very long blog post,</p>]]></content:encoded>
+            <pubDate>Wed, 31 Dec 2025 00:00:00 GMT</pubDate>
+            <description><![CDATA[Coming soon]]></description>
+            <content:encoded><![CDATA[<p>Coming soon</p>]]></content:encoded>
             <category>welcome</category>
         </item>
     </channel>
