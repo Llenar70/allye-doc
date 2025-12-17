@@ -23,6 +23,16 @@ Specifically, we will focus on three key analytical perspectives:
 These three perspectives are difficult to obtain through simple aggregation alone, but they are vital for strategic planning.
 Now, let’s analyze the data with Allye.
 
+Note: You can find following workflow files in Template Workflows
+
+<p>
+  <img
+    src={require('./img/ABTest_templateworkflows.png').default}
+    alt="ABTest_templateworkflows"
+    style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+  />
+</p>
+
 
 ### Data
 
@@ -344,4 +354,4 @@ As revealed by Correspondence Analysis, their biggest pain point is "Time and Mo
 How was it? I hope the analysis results showed you that each customer has unique issues, and that "satisfying all customers equally" carries the risk of resource dispersion, resulting in a service that resonates with no one.
 At the same time, I hope you experienced how stepping deeper from simple aggregation in survey analysis allows for a higher-resolution understanding of customers, which becomes the inspiration for actionable measures.
 
-This tutorial can also serve as a template for your survey analysis. Replace it with your survey data right now and perform an analysis that surprises management!
+This tutorial can also serve as a template for your survey analysis. Let's get started!
