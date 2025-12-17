@@ -36,7 +36,7 @@ Note: You can find following workflow files in Template Workflows
 
 ### Data
 
-This guide walks through a practical survey analysis workflow in Allye using the [Airline Passenger Satisfaction](https://www.kaggle.com/datasets/teejmahal20/airline-passenger-satisfaction/data) dataset. You can also download the CSV file from [here](YOUR_LINK_HERE).
+This guide walks through a practical survey analysis workflow in Allye using the [Airline Passenger Satisfaction](https://www.kaggle.com/datasets/teejmahal20/airline-passenger-satisfaction/data) dataset. You can also download the CSV file from [here](https://raw.githubusercontent.com/Llenar70/allye-doc/main/web-docs/docs/get-started/data/Airline_Passenger_Satisfaction.csv).
 
 Below is a summary of the key variables:
 
