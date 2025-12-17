@@ -3,7 +3,7 @@ id: allye-ab-test-result-analysis
 title: A/B Test Result Analysis
 slug: /allye/ab-test-analysis
 description: Step-by-step workflow in Allye for AA checks, AB test statistics, CUPED variance reduction, stratification, clustering, and causal inference with CATEs.
-sidebar_position: 3
+sidebar_position: 10
 ---
 
 # A/B Test Result Analysis
