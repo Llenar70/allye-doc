@@ -9,7 +9,7 @@ sidebar_position: 10
 # A/B Test Result Analysis
 
 <div className="doc-tag-row">
-  <span className="doc-tag doc-tag--green">Allye Advanced Feature</span>
+  <span className="doc-tag doc-tag--green">Product: Allye A/B Test Analysis</span>
 </div>
 
 > _Your A/B test for the new product feature has concluded. Let’s analyze the data to determine whether there was a statistically significant effect._

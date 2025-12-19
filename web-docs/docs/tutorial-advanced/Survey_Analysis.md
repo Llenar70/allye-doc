@@ -3,6 +3,9 @@ sidebar_position: 15
 ---
 
 # Survey Analysis
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye Survey Analysis</span>
+</div>
 
 > _An airline has conducted a comprehensive passenger satisfaction survey. The goal is to identify customer needs and pain points, and to share insights through clear, easy-to-understand visualizations—ultimately improving business performance. As an analyst, your task is to create a report that supports data-driven decision-making._
 

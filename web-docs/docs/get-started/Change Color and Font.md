@@ -2,7 +2,7 @@
 id: allye-changecolor
 title: Change Color & Font
 description: A short path to set up Allye, run a first workflow, and confirm everything works.
-sidebar_position: 4
+sidebar_position: 15
 ---
 
 # Change Color & Font

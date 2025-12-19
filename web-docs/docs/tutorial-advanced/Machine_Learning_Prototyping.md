@@ -4,6 +4,10 @@ sidebar_position: 25
 
 # Machine learning predictive model prototyping
 
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye Pro</span>
+</div>
+
 > _Optimizing business processes through prediction is extremely powerful and can lead to dramatic gains in efficiency. The best way to build strong models is through rapid prototyping and iterative trial-and-error._
 
 You can build predictive models by following a consistent framework. First, reshape the data so it is easy to analyze and split it into training and evaluation sets. Next, choose a learner suited to the objective, train and tune it, and validate its performance with cross-validation. Finally, run inference on test data to evaluate how well the model generalizes to unseen data.

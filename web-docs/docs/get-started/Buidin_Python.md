@@ -1,13 +1,11 @@
 ---
-id: allye-Unified_Environment
-title: Unified Environment
+id: allye-built-in-python
+title: Built-in Python
 description: A short path to set up Allye, run a first workflow, and confirm everything works.
-sidebar_position: 3
+sidebar_position: 25
 ---
 
-# Unified Environment
-
-_The Power of Code, The Simplicity of No-Code. It is a unified environment where flexibility meets efficiency._
+# Built-in Python
 
 
 Allye ships with a built-in Jupyter notebook, so you can create a Python Notebook from the Transform section.

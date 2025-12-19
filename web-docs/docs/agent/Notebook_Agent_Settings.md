@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Notebook Agent Settings
 <div className="doc-tag-row">
-  <span className="doc-tag doc-tag--green">Allye Advanced Feature</span>
+  <span className="doc-tag doc-tag--green">Product: Allye Pro</span>
 </div>
 
 

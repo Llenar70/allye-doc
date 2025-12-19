@@ -2,7 +2,7 @@
 id: allye-connected-visualization
 title: Connected Visualization
 description: A short path to set up Allye, run a first workflow, and confirm everything works.
-sidebar_position: 2
+sidebar_position: 5
 ---
 
 

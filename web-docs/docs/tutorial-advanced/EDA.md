@@ -3,6 +3,10 @@ sidebar_position: 5
 ---
 
 # Exploratory data analysis
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye Base</span>
+</div>
+
 
 
 > _Financial authorities and the audit department have raised concerns regarding potential unfair lending practices. Specifically, they questioned whether some customers are being assigned unjustified interest rates. We need to analyze the data and identify any customers who deviate significantly from this standard._

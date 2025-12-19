@@ -36,6 +36,9 @@ The data and workflows covered in this tutorial can be found in the "Template Wo
 
 
 ### 1. Exploratory data analysis
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye Base</span>
+</div>
 
 _Financial authorities and the audit department have raised concerns regarding potential unfair lending practices. Specifically, they questioned whether some customers are being assigned unjustified interest rates. We need to analyze the data and identify any customers who deviate significantly from this standard._
 
@@ -49,6 +52,11 @@ _Financial authorities and the audit department have raised concerns regarding p
 
 ### 2. A/B test result analysis
 
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye A/B Test Analysis</span>
+</div>
+
+
 _Your A/B test for the new product feature has concluded. Let’s evaluate the impact, dive into the results, and shape the next strategy._
 
  * Hypothesis Testing - A/A Test & A/B Test.
@@ -60,6 +68,10 @@ _Your A/B test for the new product feature has concluded. Let’s evaluate the i
 
 
 ### 3. Survey Analysis
+
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye Survey Analysis</span>
+</div>
 
 _An airline has conducted a comprehensive passenger satisfaction survey. The goal is to identify customer needs and pain points._
 
@@ -73,6 +85,11 @@ _An airline has conducted a comprehensive passenger satisfaction survey. The goa
 
 ### 4. Causal Inference & Quasi-experimental analysis
 
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye A/B Test Analysis</span>
+</div>
+
+
 _Imagine you're a marketer who launched a newsletter. While it's a great tool for engagement, you're aware that sending it too frequently can bother users and harm the overall experience. You see that subscribers tend to buy more products, but you can't be sure if the newsletter is *causing* this increase. Is it driving sales, or just annoying your customers and leading to opt-outs? This is a classic problem that arises from using **observational data**._
 
  * Propensity Score Matching
@@ -82,6 +99,10 @@ _Imagine you're a marketer who launched a newsletter. While it's a great tool fo
 
 
 ### 5. Machine learning predictive model prototyping
+
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye Pro</span>
+</div>
 
 _Optimizing business processes through prediction is extremely powerful and can lead to dramatic gains in efficiency. The best way to build strong models is through rapid prototyping and iterative trial-and-error._
 
@@ -93,6 +114,10 @@ _Optimizing business processes through prediction is extremely powerful and can 
 
 
 ### 6. AI-driven analytics
+
+<div className="doc-tag-row">
+  <span className="doc-tag doc-tag--green">Product: Allye Pro</span>
+</div>
 
 _For your detective work, AI is an exceptionally capable partner. Whenever you get stuck in your analysis, let it assist you. Explore what AI can do._
 

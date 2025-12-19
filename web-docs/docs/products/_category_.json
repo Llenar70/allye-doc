@@ -1,0 +1,9 @@
+{
+  "label": "Products",
+  "position": 10,
+  "collapsed": false,
+  "link": {
+    "type": "generated-index",
+    "description": "Product guides and feature overviews."
+  }
+}
