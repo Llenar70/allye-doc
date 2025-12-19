@@ -25,16 +25,14 @@ In the example above, a scatter plot, bar chart, histogram, and data table are a
 - This synchronized selection makes high‑dimensional data easy to
   understand at a glance.
 
-- In this case, the connected views reveal customers whose interest
-  rates are much lower than what would normally be expected in the
-  market.
-  - The scatter plot shows these customers as points that clearly
-    deviate from the main trend.
-  - The bar chart shows how those customers are distributed across
-    credit grades.
-  - The histogram shows where their loan amounts fall within the overall
-    distribution.
-  - The data table lists the exact records for closer inspection or
-    follow‑up actions.
+
+<p>
+  <img
+    src={require('./img/iris_interactive.png').default}
+    alt="Iris Interactive overview"
+    style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+  />
+</p>
+
 
 By linking selection across all visual widgets, connected visualization supports faster insight, more intuitive exploration, and better decision‑making when working with complex, high‑dimensional datasets.

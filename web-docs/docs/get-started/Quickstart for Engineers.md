@@ -40,8 +40,6 @@ allye_data_connector.send_dataframe(df, table_name='iris')
 </p>
 
 
-
-
 ### 4. Read it back:
 
 1. Use Allye's `Allye Data Transmitter` widget to send Allye data.

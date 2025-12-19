@@ -89,7 +89,7 @@ Before diving into details, let's grasp the current situation. We need to answer
 First, let's visualize the target variable `Satisfaction`.
 
  - Use `Bar Plot` to show the `Satisfaction Count`
-*   *Observation:* As seen in the chart, nearly X% of customers are "neutral or dissatisfied." This indicates a significant opportunity for improvement.
+*   *Observation:* As seen in the chart, nearly 60% of customers are "neutral or dissatisfied." This indicates a significant opportunity for improvement.
 
 #### 1-2. Service Performance Overview
 Next, let's compare the average scores of all 14 service metrics (e.g., Wifi, Food, Seat comfort) to identify obvious weaknesses.

@@ -1,6 +1,6 @@
 {
-  "label": "Products",
-  "position": 10,
+  "label": "Product Details",
+  "position": 15,
   "collapsed": false,
   "link": {
     "type": "generated-index",

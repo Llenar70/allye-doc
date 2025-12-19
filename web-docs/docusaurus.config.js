@@ -97,8 +97,8 @@ const config = {
         },
         items: [
           {to: '/docs/get-started/allye-quickstart', label: 'Quickstart', position: 'left'},
-          {to: '/docs/products/allye-base', label: 'Products', position: 'left'},
           {to: '/docs/allye/adv-tutorial-overview', label: 'Tutorial', position: 'left'},
+          {to: '/docs/products/allye-base', label: 'Products', position: 'left'},
           {to: '/blog', label: 'Blog', position: 'left'},
         ],
       },
