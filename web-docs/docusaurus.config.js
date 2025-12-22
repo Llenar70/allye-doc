@@ -96,9 +96,9 @@ const config = {
           href: 'https://www.ai-allye.com/',
         },
         items: [
-          {to: '/docs/get-started/allye-quickstart', label: 'Quickstart', position: 'left'},
+          {to: '/docs/get-started/allye-quickstart-for-engineers', label: 'Quickstart', position: 'left'},
           {to: '/docs/allye/adv-tutorial-overview', label: 'Tutorial', position: 'left'},
-          {to: '/docs/products/allye-base', label: 'Products', position: 'left'},
+          {to: '/docs/products/allye-base', label: 'Product Details', position: 'left'},
           {to: '/blog', label: 'Blog', position: 'left'},
         ],
       },
