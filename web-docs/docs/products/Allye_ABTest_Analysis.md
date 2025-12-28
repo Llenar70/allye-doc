@@ -43,7 +43,6 @@ To support these workflows, this package adds the widgets below on top of `Allye
 | :--- | :--- |
 | **k-Means** | Segments users/items into clusters for deeper analysis. Supports selecting a fixed number of clusters or searching a range and comparing silhouette scores; outputs annotated data with cluster labels and cluster centroids. |
 | **Hierarchical Clustering** | Creates a dendrogram-based segmentation from a distance matrix and lets you cut/select clusters interactively; outputs selected/annotated data for follow-up analysis. |
-| **Causal Forest** | Estimates Conditional Average Treatment Effects (CATE) using a causal forest model, helping you understand how effects vary across individuals and segments. Outputs an enhanced dataset with CATE and predicted outcomes under control/treatment, plus model diagnostics/visualizations. |
 | **LinearDML** | Double Machine Learning (econML) for estimating treatment effects with flexible nuisance models and cross-fitting. Produces CATE estimates with diagnostics and outputs an enhanced dataset for downstream segmentation and reporting. |
 | **ForestDML (Causal Forest DML)** | A DML variant that uses a causal forest as the final-stage effect model to capture non-linear, heterogeneous effects. Outputs an enhanced dataset with CATE and diagnostic tables. |
 
