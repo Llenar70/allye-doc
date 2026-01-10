@@ -4,17 +4,38 @@
         <title>  Blog</title>
         <link>https://llenar70.github.io/allye-doc/blog</link>
         <description>  Blog</description>
-        <lastBuildDate>Wed, 31 Dec 2025 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sat, 10 Jan 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
         <item>
-            <title><![CDATA[Welcome to Allye!]]></title>
+            <title><![CDATA[Hello! and Welcome]]></title>
             <link>https://llenar70.github.io/allye-doc/blog/first-post</link>
             <guid>https://llenar70.github.io/allye-doc/blog/first-post</guid>
-            <pubDate>Wed, 31 Dec 2025 00:00:00 GMT</pubDate>
-            <description><![CDATA[Coming soon]]></description>
-            <content:encoded><![CDATA[<p>Coming soon</p>]]></content:encoded>
+            <pubDate>Sat, 10 Jan 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Hello! We are Sho and Nao, the founders and developers of Allye. We are incredibly excited to announce the release of Allye.]]></description>
+            <content:encoded><![CDATA[<p>Hello! We are Sho and Nao, the founders and developers of Allye. We are incredibly excited to announce the release of Allye.
+Leveraging the power of Generative AI, we have finally been able to build the ideal product we've always envisioned.</p>
+<p>Together, we bring over 15 years of experience in Data Science and Data Product Engineering.
+Personally, my background includes anomaly detection for plan at Fujitsu, AI automated factory control for tire production at SAS Institute, data-driven store opening strategies and in-app product recommendations at Fast Retailing, and Personalized CRM at mercari. As a couple, we have even participated in international analytics competitions like the <a href="https://www.kaggle.com/code/lichtlab/evaluate-linemen-using-player-impact-distribution" target="_blank" rel="noopener noreferrer" class="">NFL Data Bowl</a>.</p>
+<p>Throughout our careers, we have collaborated with an incredibly diverse group of colleagues from all over the world—including China, India, Singapore, Australia, the US, Germany, Vietnam, and Thailand. We’ve worked with everyone from fresh graduates to seasoned experts, and with people from various backgrounds including statistics, machine learning, and engineering.</p>
+<p>During this time, we’ve seen the landscape of data science tools evolve rapidly. Tools have come and gone. We lived through the era of distributed middleware OSS like Hadoop, Spark, Apache Storm, Kafka, and ElasticSearch, the rapid rise of cloud platforms like AWS and GCP, and the popularity of BI tools like Tableau and Qlik.</p>
+<p>The role of the Data Scientist has also evolved. It is no longer just about analysis; it has become standard to wear multiple hats—Data Science + Engineering, or Data Science + Product Management.
+For example, during my time at Mercari, I juggled the roles of Data Scientist, Marketer, Product Manager, and Engineer. I conducted analyses, made product development decisions for Personalized CRM, implemented features, managed marketing budgets, and planned campaigns while calculating ROI.
+Similarly, data science knowledge is increasingly required in non-data roles, a trend accelerated by the advent of AI. "Data Democratization" has moved beyond a marketing buzzword to become a reality.</p>
+<p>As a result, the time available for pure analysis is shrinking.
+Yet, the pressure to make correct decisions remains. If a strategy isn't working, yield is low, business KPIs aren't met, A/B test results seem flat, or research hits a wall, we must immediately identify the causes from the data and decide on the next action.
+Deep down, we all constantly feel the need to "understand users more deeply," "know the true effect of a measure," "unravel the mechanism," "get inspiration for new ideas," or "find a strategy!"—all while being chased by the tasks right in front of us.</p>
+<p>Carrying these feelings myself, and thinking of others in the same boat, we developed Allye.
+Allye may look like just another no-code analysis tool, but it is unique in several ways:</p>
+<ol>
+<li class=""><strong>An Obsession with Speed.</strong> Allye is thoroughly optimized to process small-to-medium-sized data—the kind used in many practical analyses—in an instant. Speed is our UX promise to you.</li>
+<li class=""><strong>Deep Integration with Python.</strong> The speed of no-code tools is amazing, but built-in functions have their limits. When tool limitations become thinking limitations, that's a problem. You need the flexibility of code. Don't worry—the AI will write the code for you.</li>
+<li class=""><strong>Comprehensive Causal Inference.</strong> When people want to analyze data, they are almost always interested in causal relationships. That is why causal inference is Allye's core analytics engine.</li>
+</ol>
+<p>Allye Base is free. Check <a href="https://llenar70.github.io/allye-doc/docs/get-started/allye-quickstart-for-engineers" target="_blank" rel="noopener noreferrer" class="">Quick Start</a> and start your journey now.</p>
+<hr>
+<p>Learn More: <a href="https://llenar70.github.io/allye-doc/docs/allye/adv-tutorial-overview" target="_blank" rel="noopener noreferrer" class="">Hands-on Tutorial</a></p>]]></content:encoded>
             <category>welcome</category>
         </item>
     </channel>
