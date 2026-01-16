@@ -17,3 +17,13 @@ hola:
   label: Hola
   permalink: /hola
   description: Hola tag description
+
+welcome:
+  label: Welcome
+  permalink: /welcome
+  description: Welcome posts
+
+causal-inference:
+  label: Causal inference
+  permalink: /causal-inference
+  description: Causal inference posts

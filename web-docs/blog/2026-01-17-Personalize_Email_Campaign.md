@@ -1,8 +1,8 @@
 ---
 slug: causal-post
-title: Unlocking the "Why": Analyzing the MineThatData Challenge
+title: 'Unlocking the "Why": Analyzing the MineThatData Challenge'
 authors: [sho]
-tags: [causal inference]
+tags: [causal-inference]
 ---
 
 In the world of data science, few datasets are as classic—and instructive—as the **MineThatData E-Mail Analytics And Data Mining Challenge**.
@@ -144,7 +144,6 @@ The highest lift comes from users who:
 *   Made a recent purchase (short time since last purchase)
 *   Shop through **multiple channels** (Multichannel)
 
-
 <p>
   <img
     src={require('./imgs/segment_AB.png').default}
@@ -152,7 +151,6 @@ The highest lift comes from users who:
     style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
   />
 </p>
-
 
 When we isolate this segment and re-run the A/B test, the results are staggering. The lift jumps to **+$1.97** (a +584% increase!).
 
