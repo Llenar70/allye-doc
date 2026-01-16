@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkweb_docs=globalThis.webpackChunkweb_docs||[]).push([[5842],{2505:e=>{e.exports=JSON.parse('{"tags":[{"label":"Causal inference","permalink":"/allye-doc/blog/tags/causal-inference","description":"Causal inference posts","count":1},{"label":"Welcome","permalink":"/allye-doc/blog/tags/welcome","description":"Welcome posts","count":1}]}')}}]);
