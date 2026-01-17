@@ -5,9 +5,7 @@ authors: [sho]
 tags: [causal-inference]
 ---
 
-In the world of data science, few datasets are as classic—and instructive—as the **MineThatData E-Mail Analytics And Data Mining Challenge**.
-
-Originally published in [2008 from MineThatData](https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html), [this dataset](https://www.kaggle.com/datasets/bofulee/kevin-hillstrom-minethatdata-e-mailanalytics) invites us to solve a timeless marketing problem: **How do we optimize campaigns?**
+MineThatData E-Mail Analytics And Data Mining Challenge was originally published in [2008 from MineThatData](https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html), [this dataset](https://www.kaggle.com/datasets/bofulee/kevin-hillstrom-minethatdata-e-mailanalytics) invites us to solve a timeless marketing problem: **How do we personalize campaigns?**
 
 In this post, we'll dive into this dataset using **Causal Inference** to uncover not just *which* campaign worked best, but *why* and *for whom*.
 
@@ -48,9 +46,6 @@ Here is a summary of the dataset attributes:
 | **Conversion**  | Purchased merchandise post-campaign (1/0)                  | 1 = Yes, 0 = No           |
 | **Spend**       | Dollars spent in the two weeks after campaign              | 0.00, 24.99, 140.00       |
 
-These attributes form the basis for our analysis.
-
-
 
 ### The Goal
 The challenge poses several questions, but they essentially boil down to this:
@@ -62,9 +57,9 @@ Let's see how a causal approach can answer these better than simple averages.
 
 ---
 
-## 1. The Big Picture: A/B Testing
+## 1. A/B Testing
 
-We start with the basics. Using the **A/B Test widget** in Allye, we first run a sanity check (A/A Test) to confirm the randomization was valid. Then, we look at the main metrics: **Conversion**, **Visit**, and **Spend**.
+We start with the basics. Using the **A/B Test** node for statistical test, we first run a sanity check (A/A Test) to confirm the randomization was valid. Then, we look at the main metrics: **Conversion**, **Visit**, and **Spend**.
 
 <p>
   <img
@@ -74,13 +69,45 @@ We start with the basics. Using the **A/B Test widget** in Allye, we first run a
   />
 </p>
 
-### The Results
+#### Results
+
+#### Summary of A/B Test Results
+
+| Metric      | Group                | Sample Size | Mean / Rate (%) | 95% CI (Mean/Rate)   | Effect Δ    | Lift (%)   | p-value | Significant |
+|-------------|----------------------|-------------|-----------------|----------------------|-------------|------------|---------|-------------|
+| **Recency** | Mens E-Mail          | 21,307      | 5.77            | [5.73, 5.82]         | +0.02       | +0.4%      | 0.481   | No          |
+|             | No E-Mail (Control)  | 21,306      | 5.75            | [5.70, 5.80]         | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 5.77            | [5.72, 5.81]         | +0.02       | +0.3%      | 0.593   | No          |
+| **History** | Mens E-Mail          | 21,307      | 242.84          | [239.34, 246.33]     | +1.95       | +0.8%      | 0.432   | No          |
+|             | No E-Mail (Control)  | 21,306      | 240.88          | [237.49, 244.28]     | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 242.54          | [239.11, 245.96]     | +1.65       | +0.7%      | 0.501   | No          |
+| **Mens**    | Mens E-Mail          | 21,307      | 55.1%           | [54.4%, 55.8%]       | -0.2pp      | -0.4%      | 0.643   | No          |
+|             | No E-Mail (Control)  | 21,306      | 55.3%           | [54.7%, 56.0%]       | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 54.9%           | [54.2%, 55.6%]       | -0.4pp      | -0.8%      | 0.378   | No          |
+| **Womens**  | Mens E-Mail          | 21,307      | 55.1%           | [54.5%, 55.8%]       | +0.4pp      | +0.7%      | 0.439   | No          |
+|             | No E-Mail (Control)  | 21,306      | 54.8%           | [54.1%, 55.4%]       | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 55.0%           | [54.3%, 55.7%]       | +0.2pp      | +0.4%      | 0.616   | No          |
+| **Newbie**  | Mens E-Mail          | 21,307      | 50.2%           | [49.5%, 50.8%]       | -0.0pp      | -0.1%      | 0.934   | No          |
+|             | No E-Mail (Control)  | 21,306      | 50.2%           | [49.5%, 50.9%]       | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 50.3%           | [49.7%, 51.0%]       | +0.1pp      | +0.3%      | 0.799   | No          |
+| **Visit**   | Mens E-Mail          | 21,307      | 18.3%           | [17.8%, 18.8%]       | +7.7pp      | +72.1%     | 0.000   | Yes         |
+|             | No E-Mail (Control)  | 21,306      | 10.6%           | [10.2%, 11.0%]       | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 15.1%           | [14.7%, 15.6%]       | +4.5pp      | +42.6%     | 0.000   | Yes         |
+| **Conversion** | Mens E-Mail       | 21,307      | 1.3%            | [1.1%, 1.4%]         | +0.7pp      | +118.8%    | 0.000   | Yes         |
+|             | No E-Mail (Control)  | 21,306      | 0.6%            | [0.5%, 0.7%]         | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 0.9%            | [0.8%, 1.0%]         | +0.3pp      | +54.3%     | 0.000   | Yes         |
+| **Spend**   | Mens E-Mail          | 21,307      | 1.42            | [1.18, 1.66]         | +0.77       | +117.9%    | 0.000   | Yes         |
+|             | No E-Mail (Control)  | 21,306      | 0.65            | [0.50, 0.81]         | –           | –          | –       | No          |
+|             | Womens E-Mail        | 21,387      | 1.08            | [0.87, 1.28]         | +0.42       | +65.0%     | 0.001   | Yes         |
+
+> **Note**: "pp" means "percentage points" for difference in rates.
+
 No selection bias and both campaigns drove statistically significant lift across all metrics compared to the control group. However, the **Mens campaign** was the clear winner:
 
 *   **Mens Campaign**: +$0.77 spend per customer.
 *   **Womens Campaign**: +$0.42 spend per customer.
 
-At a high level, you might conclude: "Great, send the Men's email to everyone!" But as data scientists, we know averages can hide critical nuances.
+At a high level, you might conclude: "Great, send the Men's email to everyone!" But as professionals, let's optimize further.
 
 ---
 
@@ -89,16 +116,16 @@ At a high level, you might conclude: "Great, send the Men's email to everyone!" 
 The challenge asks an interesting question:
 > *If you could only send emails to the **best 10,000** customers, who would they be? Conversely, who would you **suppress**?*
 
-This is where the job of a data scientist splits into two equally important paths:
+This is where the job of an analyst splits into two equally important paths:
 1.  **The Algorithmic Path**: Accurately identifying the top/bottom 10k users to maximize ROI.
 2.  **The Insight Path**: Explaining *why* these users are the best/worst to stakeholders.
 
-**Pro Tip:** In my experience, mastering the *Algorithmic Path* gets you a bigger bonus. Mastering the *Insight Path* gets you promoted. The former powers the system; the latter powers the strategy.
+In my experience, mastering the *Algorithmic Path* gets you a bigger bonus. On the other hand, Mastering the *Insight Path* gets you trusted and promoted. The former powers the system; the latter powers the strategy.
 
 ### Step 1: Estimating CATE
-To solve the algorithmic part, we need to estimate the **Conditional Average Treatment Effect (CATE)** for each user. This tells us the expected lift (or loss) for a specific individual if they receive the email.
+To solve the algorithmic part, we can estimate the **Conditional Average Treatment Effect (CATE)** for each user. This tells us the expected lift (or loss) for a specific individual if they receive the email.
 
-We use the **Causal Forest widget** to predict CATE for `spend`.
+In Allye, we can use the **Causal Forest** to predict CATE for `spend`.
 
 <p>
   <img
