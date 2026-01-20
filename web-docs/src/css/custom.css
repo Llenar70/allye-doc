@@ -15,6 +15,14 @@
   --ifm-color-primary-lightest: #3cad6e;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  /* Layout: widen content area on large screens */
+  --ifm-container-width: 1200px;
+  --ifm-container-width-xl: 1600px;
+
+  /* Blog sidebars: keep fixed widths so main content can expand */
+  --allye-blog-sidebar-width: 240px;
+  --allye-blog-toc-width: 260px;
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -27,6 +35,23 @@
   --ifm-color-primary-lighter: #32d8b4;
   --ifm-color-primary-lightest: #4fddbf;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+@media (min-width: 997px) {
+  .blog-wrapper .row > aside.col--3 {
+    flex: 0 0 var(--allye-blog-sidebar-width);
+    max-width: var(--allye-blog-sidebar-width);
+  }
+
+  .blog-wrapper .row > main.col--7 {
+    flex: 1 1 auto;
+    max-width: none;
+  }
+
+  .blog-wrapper .row > .col.col--2 {
+    flex: 0 0 var(--allye-blog-toc-width);
+    max-width: var(--allye-blog-toc-width);
+  }
 }
 
 .doc-tag-row {
