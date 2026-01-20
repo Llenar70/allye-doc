@@ -1,5 +1,5 @@
 ---
-slug: causal-post
+slug: causal-post-nsw
 title: 'Does the NSW Vocational Training Program Really Work? A Causal Inference Case Study'
 authors: [sho]
 tags: [causal-inference]
