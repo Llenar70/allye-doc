@@ -7,7 +7,7 @@ tags: [causal-inference]
 
 MineThatData E-Mail Analytics And Data Mining Challenge was originally published in [2008 from MineThatData](https://blog.minethatdata.com/2008/03/minethatdata-e-mail-analytics-and-data.html), [this dataset](https://www.kaggle.com/datasets/bofulee/kevin-hillstrom-minethatdata-e-mailanalytics) invites us to solve a timeless marketing problem: **How do we personalize campaigns?**
 
-In this post, we'll dive into this dataset using **Causal Inference** to uncover not just *which* campaign worked best, but *why* and *for whom*.
+In this post, we'll dive into this dataset using **Causal Inference** to uncover not just *which* campaign worked best, but *why* and *how to improve*.
 
 <!-- truncate -->
 
@@ -244,4 +244,10 @@ So, to answer the challenge:
 
 By moving beyond simple A/B testing to **Causal Inference**, we transformed a simple "Winner vs Loser" report into a nuanced strategy that optimizes effect while uncovering deep customer insights and 
 
+
+### Data Science Is Fun! Getting It Right Is What Makes It Valuable.
+Achieve deeper understanding and higher-quality outputs in data science—beyond your peers.
 *If you want to explore the data yourself, grab the dataset and try reproducing these results in Allye!*
+
+You can try [Allye Base](https://www.ai-allye.com/) for free. 
+
