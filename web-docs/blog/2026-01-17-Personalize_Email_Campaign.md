@@ -1,6 +1,6 @@
 ---
 slug: causal-post
-title: 'Unlocking the "Why": Analyzing the MineThatData Challenge'
+title: 'Personalize Email Campaign-MineThatData Challenge'
 authors: [sho]
 tags: [causal-inference]
 ---

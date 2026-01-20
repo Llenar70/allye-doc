@@ -5,9 +5,13 @@ authors: [sho]
 tags: [causal-inference]
 ---
 
-The `nsw_mixtape` dataset, based on LaLonde's National Supported Work Demonstration (NSW) data, is a staple in causal inference textbooks (such as *Causal Inference: The Mixtape*). It represents a pure experimental dataset from a randomized vocational training program, where individuals were experimentally assigned to either a treatment group (received training) or a control group (did not receive training).
+"Does vocational training truly boost participants' future earnings?"
 
-This dataset is frequently used to benchmark observational study methods, such as propensity score matching. For instance, the `causaldata` package also includes `cps_mixtape`, a non-experimental observational dataset based on the Current Population Survey (CPS) from New York. A common textbook exercise involves estimating propensity scores using this observational control group and comparing the results against the experimental NSW benchmark.
+For policymakers and business leaders, measuring the real impact of such programs is a critical challenge. A simple comparison between participants and non-participants is often misleading—for instance, highly motivated individuals might be more likely to sign up, skewing the results.
+
+To solve this, we need **Causal Inference**.
+
+In this post, we revisit a classic case study based on LaLonde's National Supported Work Demonstration (NSW) data. We will move beyond the textbook theory and demonstrate how to strip away bias to uncover the true program effect.
 
 Today, let's analyze this data using **Allye Pro**.
 
@@ -56,7 +60,7 @@ df_mixed.head()
 
 Here is a breakdown of the variables in the dataset:
 
-<div style={{fontSize: '60%'}}>
+<div style={{fontSize: '70%'}}>
 
 | Variable | Definition | Role | Details |
 | :--- | :--- | :--- | :--- |
@@ -87,26 +91,26 @@ There are likely many underlying factors that motivate someone to seek vocationa
   />
 </p>
 
-<div style={{fontSize: '60%'}}>
+<div style={{fontSize: '70%'}}>
 
 | Variable | Group | Sample Size | Average | 95% CI | Effect Δ | Lift (%) | p-value | Significant |
 |---|---|---|---|---|---|---|---|---|
 | age | Control | 15992 | 33.23 | [33.05, 33.40] | - | - | - | No |
-| | Treated | 185 | 25.82 | [24.78, 26.85] | -7.41 | -22.3% | 0.000 | Yes |
+| | Treated | 185 | 25.82 | [24.78, 26.85] | -7.41 | -22.3% | 0.000 | **Yes** |
 | educ | Control | 15992 | 12.03 | [11.98, 12.07] | - | - | - | No |
-| | Treated | 185 | 10.35 | [10.05, 10.64] | -1.68 | -14.0% | 0.000 | Yes |
+| | Treated | 185 | 10.35 | [10.05, 10.64] | -1.68 | -14.0% | 0.000 | **Yes** |
 | black | Control | 15992 | 0.07 | [0.07, 0.08] | - | - | - | No |
-| | Treated | 185 | 0.84 | [0.79, 0.90] | +0.77 | +1046.7% | 0.000 | Yes |
+| | Treated | 185 | 0.84 | [0.79, 0.90] | +0.77 | +1046.7% | 0.000 | **Yes** |
 | marr | Control | 15992 | 0.71 | [0.70, 0.72] | - | - | - | No |
-| | Treated | 185 | 0.19 | [0.13, 0.25] | -0.52 | -73.4% | 0.000 | Yes |
+| | Treated | 185 | 0.19 | [0.13, 0.25] | -0.52 | -73.4% | 0.000 | **Yes** |
 | nodegree | Control | 15992 | 0.30 | [0.29, 0.30] | - | - | - | No |
-| | Treated | 185 | 0.71 | [0.64, 0.77] | +0.41 | +139.4% | 0.000 | Yes |
+| | Treated | 185 | 0.71 | [0.64, 0.77] | +0.41 | +139.4% | 0.000 | **Yes** |
 | re74 | Control | 15992 | 14016.80 | [13868.47, 14165.13] | - | - | - | No |
-| | Treated | 185 | 2095.57 | [1386.75, 2804.39] | -11921.23 | -85.0% | 0.000 | Yes |
+| | Treated | 185 | 2095.57 | [1386.75, 2804.39] | -11921.23 | -85.0% | 0.000 | **Yes** |
 | re75 | Control | 15992 | 13650.80 | [13507.11, 13794.49] | - | - | - | No |
-| | Treated | 185 | 1532.06 | [1065.09, 1999.02] | -12118.75 | -88.8% | 0.000 | Yes |
+| | Treated | 185 | 1532.06 | [1065.09, 1999.02] | -12118.75 | -88.8% | 0.000 | **Yes** |
 | **re78** | Control | 15992 | 14846.66 | [14697.13, 14996.19] | - | - | - | No |
-| | Treated | 185 | 6349.14 | [5207.95, 7490.34] | **-8497.52** | -57.2% | 0.000 | Yes |
+| | Treated | 185 | 6349.14 | [5207.95, 7490.34] | **-8497.52** | -57.2% | 0.000 | **Yes** |
 
 </div>
 
@@ -132,12 +136,12 @@ Looking at the Love Plot and the balance table, we can see that the discrepancie
 
 Now, let's run an A/B Test on this matched dataset:
 
-<div style={{fontSize: '60%'}}>
+<div style={{fontSize: '70%'}}>
 
 | Variable | Group | Sample Size | Average | 95% CI | Effect Δ | Lift (%) | p-value | Significant |
 |---|---|---|---|---|---|---|---|---|
 | **re78** | Control (0) | 164 | 4564.52 | [3736.96, 5392.07] | - | - | - | No |
-| | Treated (1) | 164 | 6429.95 | [5227.35, 7632.55] | +1865.43 | +40.9% | 0.012 | Yes |
+| | Treated (1) | 164 | 6429.95 | [5227.35, 7632.55] | +1865.43 | +40.9% | 0.012 | **Yes** |
 
 </div>
 
@@ -170,7 +174,7 @@ Since the original NSW dataset is from a Randomized Controlled Trial (RCT), we c
 - Confidence Level: 95%
 - Multiple Comparison Correction: None
 
-<div style={{fontSize: '60%'}}>
+<div style={{fontSize: '70%'}}>
 
 | Outcome     | Group      | Sample | Average   | Abs CI                | Effect Δ   | Lift (%) | Effect CI (Δ) | p-value | Significant |
 |-------------|------------|--------|-----------|-----------------------|------------|----------|---------------|---------|-------------|
@@ -185,13 +189,13 @@ Since the original NSW dataset is from a Randomized Controlled Trial (RCT), we c
 | **marr**    | Control| 260    | 0.15      | [0.11, 0.20]          | -          | -        | -             | -       | No          |
 |             | Treatment  | 185    | 0.19      | [0.13, 0.25]          | +0.04      | +23.0%   | -             | 0.334   | No          |
 | **nodegree**| Control| 260    | 0.83      | [0.79, 0.88]          | -          | -        | -             | -       | No          |
-|             | Treatment | 185    | 0.71      | [0.64, 0.77]          | -0.13      | -15.2%   | -             | 0.002   | Yes         |
+|             | Treatment | 185    | 0.71      | [0.64, 0.77]          | -0.13      | -15.2%   | -             | 0.002   | **Yes**         |
 | **re74**    | Control| 260    | 2107.03   | [1412.41, 2801.65]    | -          | -        | -             | -       | No          |
 |             | Treatment | 185    | 2095.57   | [1386.75, 2804.39]    | -11.45     | -0.5%    | -             | 0.982   | No          |
 | **re75**    | Control| 260    | 1266.91   | [887.97, 1645.85]     | -          | -        | -             | -       | No          |
 |             | Treatment | 185    | 1532.06   | [1065.09, 1999.02]    | +265.15    | +20.9%   | -             | 0.385   | No          |
 | **re78**    | Control| 260    | 4554.80   | [3885.10, 5224.50]    | -          | -        | -             | -       | No          |
-|             | Treatment | 185    | 6349.14   | [5207.95, 7490.34]    | **+1794.34**   | +39.4%   | -             | 0.008   | Yes         |
+|             | Treatment | 185    | 6349.14   | [5207.95, 7490.34]    | **+1794.34**   | +39.4%   | -             | 0.008   | **Yes**         |
 
 </div>
 
@@ -203,7 +207,7 @@ The true effect is **+$1794.34**. Our PSM estimate of **$1865.43** differs by le
   <img
     src={require('./imgs/nsw_cate_estimation.png').default}
     alt="CATE Estimation"
-    style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+    style={{ maxHeight: '80vh', width: '75%', objectFit: 'contain' }}
   />
 </p>
 
