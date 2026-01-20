@@ -28,7 +28,7 @@ Today, let's analyze this data using **Allye Pro**.
 
 The data is available in the `causaldata` package. We will use it to create a mixed dataset (`nsw_cps_mixed_data`) that combines the experimental treatment group with the observational control group.
 
-If you'd like to follow along, you can use the code below to generate the data.
+You can use the code below to generate the data. Or you can also download csv file from [here](https://raw.githubusercontent.com/Llenar70/allye-doc/main/web-docs/blog/data/nsw_cps_mixed.csv).
 
 ```python
 from causaldata import nsw_mixtape, cps_mixtape
