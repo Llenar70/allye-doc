@@ -1,6 +1,6 @@
 ---
 slug: causal-post-nsw
-title: 'Does the NSW Vocational Training Program Really Work? A Causal Inference Case Study'
+title: 'Vocational Training Program Really Work?'
 authors: [sho]
 tags: [causal-inference]
 ---
@@ -56,19 +56,22 @@ df_mixed.head()
 
 Here is a breakdown of the variables in the dataset:
 
+<div style={{fontSize: '60%'}}>
+
 | Variable | Definition | Role | Details |
 | :--- | :--- | :--- | :--- |
-| **treat** | Treatment Indicator | Treatment ($T$) | **1 = Received Job Training**, **0 = Did not receive**. This is the key variable for our analysis. |
-| **age** | Age | Covariate ($X$) | Age of the participant. |
-| **educ** | Education | Covariate ($X$) | Years of education completed (e.g., 12 = High School graduate). |
-| **black** | Black (Dummy) | Covariate ($X$) | 1 = Black, 0 = Otherwise. |
-| **hisp** | Hispanic (Dummy) | Covariate ($X$) | 1 = Hispanic, 0 = Otherwise. |
-| **marr** | Married (Dummy) | Covariate ($X$) | 1 = Married, 0 = Single/Other. |
-| **nodegree** | No Degree (Dummy) | Covariate ($X$) | 1 = No High School Degree, 0 = Has Degree. Used to identify dropouts. |
-| **re74** | Real Earnings 1974 | Covariate ($X$) | **Pre-treatment Income 1**. Indicates economic status before the program. Participants often have low values here. |
-| **re75** | Real Earnings 1975 | Covariate ($X$) | **Pre-treatment Income 2**. Immediate pre-program income. Often zero for participants in this dataset. |
-| **re78** | Real Earnings 1978 | Outcome ($Y$) | **Post-treatment Income**. The target variable. We want to see if `treat=1` leads to an increase here. |
+| **treat** | Treatment Indicator | Treatment| **1 = Received Job Training**, **0 = Did not receive**. This is the key variable for our analysis. |
+| **age** | Age | Covariate | Age of the participant. |
+| **educ** | Education | Covariate | Years of education completed (e.g., 12 = High School graduate). |
+| **black** | Black (Dummy) | Covariate| 1 = Black, 0 = Otherwise. |
+| **hisp** | Hispanic (Dummy) | Covariate| 1 = Hispanic, 0 = Otherwise. |
+| **marr** | Married (Dummy) | Covariate | 1 = Married, 0 = Single/Other. |
+| **nodegree** | No Degree (Dummy) | Covariate | 1 = No High School Degree, 0 = Has Degree. Used to identify dropouts. |
+| **re74** | Real Earnings 1974 | Covariate | **Pre-treatment Income 1**. Indicates economic status before the program. Participants often have low values here. |
+| **re75** | Real Earnings 1975 | Covariate  | **Pre-treatment Income 2**. Immediate pre-program income. Often zero for participants in this dataset. |
+| **re78** | Real Earnings 1978 | Outcome | **Post-treatment Income**. The target variable. We want to see if `treat=1` leads to an increase here. |
 | **source** | Data Source | Metadata | Origin of the record ('NSW' for experimental treated, 'CPS' for observational control). |
+</div>
 
 ### 2. A/A Test and Checking Bias in Treatment Effects
 
@@ -84,24 +87,28 @@ There are likely many underlying factors that motivate someone to seek vocationa
   />
 </p>
 
+<div style={{fontSize: '60%'}}>
+
 | Variable | Group | Sample Size | Average | 95% CI | Effect Δ | Lift (%) | p-value | Significant |
 |---|---|---|---|---|---|---|---|---|
-| age | Control (0) | 15992 | 33.23 | [33.05, 33.40] | - | - | - | No |
-| | Treated (1) | 185 | 25.82 | [24.78, 26.85] | -7.41 | -22.3% | 0.000 | Yes |
-| educ | Control (0) | 15992 | 12.03 | [11.98, 12.07] | - | - | - | No |
-| | Treated (1) | 185 | 10.35 | [10.05, 10.64] | -1.68 | -14.0% | 0.000 | Yes |
-| black | Control (0) | 15992 | 0.07 | [0.07, 0.08] | - | - | - | No |
-| | Treated (1) | 185 | 0.84 | [0.79, 0.90] | +0.77 | +1046.7% | 0.000 | Yes |
-| marr | Control (0) | 15992 | 0.71 | [0.70, 0.72] | - | - | - | No |
-| | Treated (1) | 185 | 0.19 | [0.13, 0.25] | -0.52 | -73.4% | 0.000 | Yes |
-| nodegree | Control (0) | 15992 | 0.30 | [0.29, 0.30] | - | - | - | No |
-| | Treated (1) | 185 | 0.71 | [0.64, 0.77] | +0.41 | +139.4% | 0.000 | Yes |
-| re74 | Control (0) | 15992 | 14016.80 | [13868.47, 14165.13] | - | - | - | No |
-| | Treated (1) | 185 | 2095.57 | [1386.75, 2804.39] | -11921.23 | -85.0% | 0.000 | Yes |
-| re75 | Control (0) | 15992 | 13650.80 | [13507.11, 13794.49] | - | - | - | No |
-| | Treated (1) | 185 | 1532.06 | [1065.09, 1999.02] | -12118.75 | -88.8% | 0.000 | Yes |
-| **re78** | Control (0) | 15992 | 14846.66 | [14697.13, 14996.19] | - | - | - | No |
-| | Treated (1) | 185 | 6349.14 | [5207.95, 7490.34] | **-8497.52** | -57.2% | 0.000 | Yes |
+| age | Control | 15992 | 33.23 | [33.05, 33.40] | - | - | - | No |
+| | Treated | 185 | 25.82 | [24.78, 26.85] | -7.41 | -22.3% | 0.000 | Yes |
+| educ | Control | 15992 | 12.03 | [11.98, 12.07] | - | - | - | No |
+| | Treated | 185 | 10.35 | [10.05, 10.64] | -1.68 | -14.0% | 0.000 | Yes |
+| black | Control | 15992 | 0.07 | [0.07, 0.08] | - | - | - | No |
+| | Treated | 185 | 0.84 | [0.79, 0.90] | +0.77 | +1046.7% | 0.000 | Yes |
+| marr | Control | 15992 | 0.71 | [0.70, 0.72] | - | - | - | No |
+| | Treated | 185 | 0.19 | [0.13, 0.25] | -0.52 | -73.4% | 0.000 | Yes |
+| nodegree | Control | 15992 | 0.30 | [0.29, 0.30] | - | - | - | No |
+| | Treated | 185 | 0.71 | [0.64, 0.77] | +0.41 | +139.4% | 0.000 | Yes |
+| re74 | Control | 15992 | 14016.80 | [13868.47, 14165.13] | - | - | - | No |
+| | Treated | 185 | 2095.57 | [1386.75, 2804.39] | -11921.23 | -85.0% | 0.000 | Yes |
+| re75 | Control | 15992 | 13650.80 | [13507.11, 13794.49] | - | - | - | No |
+| | Treated | 185 | 1532.06 | [1065.09, 1999.02] | -12118.75 | -88.8% | 0.000 | Yes |
+| **re78** | Control | 15992 | 14846.66 | [14697.13, 14996.19] | - | - | - | No |
+| | Treated | 185 | 6349.14 | [5207.95, 7490.34] | **-8497.52** | -57.2% | 0.000 | Yes |
+
+</div>
 
 Those who received vocational training are generally younger, have lower education levels, and significantly lower pre-training earnings (`re74`, `re75`).
 
@@ -117,42 +124,22 @@ We select covariates for balancing (e.g., demographics, prior earnings) and choo
   <img
     src={require('./imgs/nsw_psm_full_report.png').default}
     alt="PSM Report"
-    style={{ width: '60%', objectFit: 'contain' }}
+    style={{ width: '75%', objectFit: 'contain' }}
   />
 </p>
-
-```text
-Propensity Score Matching Analysis
-Model Settings
-PSM Model: Logistic Regression
-Regularization: L1 (Lasso)
-Matching Method: Caliper (0.20)
-Matching Ratio: 1:1
-Matching Target: Align to Treated (ATT)
-
-Model Performance
-AUC: 0.971
-Accuracy: 0.989
-
-Covariate Balance (Standardized Mean Differences):
-Variable    SMD Before  SMD After   Improvement %
-age         -0.780      0.123       84.3%
-educ        -0.682      0.044       93.5%
-black       2.405       0.016       99.3%
-marr        -1.219      0.000       100.0%
-nodegree    0.887       0.000       100.0%
-re74        -1.561      -0.001      99.9%
-re75        -1.741      0.108       93.8%
-```
 
 Looking at the Love Plot and the balance table, we can see that the discrepancies identified in the A/A test have been successfully mitigated. The matching process has created a control group that is statistically very similar to the treated group.
 
 Now, let's run an A/B Test on this matched dataset:
 
+<div style={{fontSize: '60%'}}>
+
 | Variable | Group | Sample Size | Average | 95% CI | Effect Δ | Lift (%) | p-value | Significant |
 |---|---|---|---|---|---|---|---|---|
 | **re78** | Control (0) | 164 | 4564.52 | [3736.96, 5392.07] | - | - | - | No |
 | | Treated (1) | 164 | 6429.95 | [5227.35, 7632.55] | +1865.43 | +40.9% | 0.012 | Yes |
+
+</div>
 
 <p>
   <img
@@ -183,28 +170,30 @@ Since the original NSW dataset is from a Randomized Controlled Trial (RCT), we c
 - Confidence Level: 95%
 - Multiple Comparison Correction: None
 
+<div style={{fontSize: '60%'}}>
+
 | Outcome     | Group      | Sample | Average   | Abs CI                | Effect Δ   | Lift (%) | Effect CI (Δ) | p-value | Significant |
 |-------------|------------|--------|-----------|-----------------------|------------|----------|---------------|---------|-------------|
-| **age**     | 0 (Control)| 260    | 25.05     | [24.19, 25.92]        | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 25.82     | [24.78, 26.85]        | +0.76      | +3.0%    | -             | 0.266   | No          |
-| **educ**    | 0 (Control)| 260    | 10.09     | [9.89, 10.29]         | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 10.35     | [10.05, 10.64]        | +0.26      | +2.6%    | -             | 0.150   | No          |
-| **black**   | 0 (Control)| 260    | 0.83      | [0.78, 0.87]          | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 0.84      | [0.79, 0.90]          | +0.02      | +2.0%    | -             | 0.647   | No          |
-| **hisp**    | 0 (Control)| 260    | 0.11      | [0.07, 0.15]          | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 0.06      | [0.03, 0.09]          | -0.05      | -44.8%   | -             | 0.064   | No          |
-| **marr**    | 0 (Control)| 260    | 0.15      | [0.11, 0.20]          | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 0.19      | [0.13, 0.25]          | +0.04      | +23.0%   | -             | 0.334   | No          |
-| **nodegree**| 0 (Control)| 260    | 0.83      | [0.79, 0.88]          | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 0.71      | [0.64, 0.77]          | -0.13      | -15.2%   | -             | 0.002   | Yes         |
-| **re74**    | 0 (Control)| 260    | 2107.03   | [1412.41, 2801.65]    | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 2095.57   | [1386.75, 2804.39]    | -11.45     | -0.5%    | -             | 0.982   | No          |
-| **re75**    | 0 (Control)| 260    | 1266.91   | [887.97, 1645.85]     | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 1532.06   | [1065.09, 1999.02]    | +265.15    | +20.9%   | -             | 0.385   | No          |
-| **re78**    | 0 (Control)| 260    | 4554.80   | [3885.10, 5224.50]    | -          | -        | -             | -       | No          |
-|             | 1          | 185    | 6349.14   | [5207.95, 7490.34]    | **+1794.34**   | +39.4%   | -             | 0.008   | Yes         |
+| **age**     | Control| 260    | 25.05     | [24.19, 25.92]        | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 25.82     | [24.78, 26.85]        | +0.76      | +3.0%    | -             | 0.266   | No          |
+| **educ**    | Control| 260    | 10.09     | [9.89, 10.29]         | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 10.35     | [10.05, 10.64]        | +0.26      | +2.6%    | -             | 0.150   | No          |
+| **black**   | Control| 260    | 0.83      | [0.78, 0.87]          | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 0.84      | [0.79, 0.90]          | +0.02      | +2.0%    | -             | 0.647   | No          |
+| **hisp**    | Control| 260    | 0.11      | [0.07, 0.15]          | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 0.06      | [0.03, 0.09]          | -0.05      | -44.8%   | -             | 0.064   | No          |
+| **marr**    | Control| 260    | 0.15      | [0.11, 0.20]          | -          | -        | -             | -       | No          |
+|             | Treatment  | 185    | 0.19      | [0.13, 0.25]          | +0.04      | +23.0%   | -             | 0.334   | No          |
+| **nodegree**| Control| 260    | 0.83      | [0.79, 0.88]          | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 0.71      | [0.64, 0.77]          | -0.13      | -15.2%   | -             | 0.002   | Yes         |
+| **re74**    | Control| 260    | 2107.03   | [1412.41, 2801.65]    | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 2095.57   | [1386.75, 2804.39]    | -11.45     | -0.5%    | -             | 0.982   | No          |
+| **re75**    | Control| 260    | 1266.91   | [887.97, 1645.85]     | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 1532.06   | [1065.09, 1999.02]    | +265.15    | +20.9%   | -             | 0.385   | No          |
+| **re78**    | Control| 260    | 4554.80   | [3885.10, 5224.50]    | -          | -        | -             | -       | No          |
+|             | Treatment | 185    | 6349.14   | [5207.95, 7490.34]    | **+1794.34**   | +39.4%   | -             | 0.008   | Yes         |
 
-
+</div>
 
 The true effect is **+$1794.34**. Our PSM estimate of **$1865.43** differs by less than 4%, demonstrating that PSM was able to recover the causal effect with high accuracy from the observational data.
 
@@ -240,7 +229,7 @@ By averaging the predicted CATE for the treated individuals (`treat = 1`), we ca
 
 The calculated result is **$1495**. While there is a ~16.7% deviation from the true $1794, it is a massive improvement over the naive observational comparison (-$8497) and provides a directional estimate good enough for decision-making.
 
-#### Obsession with accurate understanding
+#### One more tip for the accurate understanding
 
 In the LinearDML report, the factors contributing to CATE showed that both `re74` and `re75` had negative coefficients, with `re74` showing a particularly strong negative correlation.
 
@@ -248,7 +237,7 @@ In the LinearDML report, the factors contributing to CATE showed that both `re74
   <img
     src={require('./imgs/nsw_effect_model_coef.png').default}
     alt="Effect Model Coefficients"
-    style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+    style={{ maxHeight: '80vh', width: '75%', objectFit: 'contain' }}
   />
 </p>
 
@@ -256,7 +245,7 @@ It makes intuitive sense that people with higher prior earnings might benefit le
 
 Before jumping to conclusions, we should check for **multicollinearity**, as LinearDML (being a linear model) is sensitive to it.
 
-Checking the scatter plot and correlation between `re74` and `re75`, we find a high correlation coefficient ($r=0.87$). The plot also suggests a ceiling effect.
+Checking the scatter plot and correlation between `re74` and `re75`, we find a high correlation coefficient (r=0.87). The plot also suggests a ceiling effect.
 
 <p>
   <img
@@ -276,7 +265,7 @@ Re-running LinearDML with PC1 and PC2 instead of the raw variables yields the fo
   <img
     src={require('./imgs/nsw_pca_linearDML_effect_model.png').default}
     alt="PCA LinearDML"
-    style={{ maxHeight: '80vh', width: '100%', objectFit: 'contain' }}
+    style={{ maxHeight: '80vh', width: '75%', objectFit: 'contain' }}
   />
 </p>
 
