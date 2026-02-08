@@ -27,3 +27,13 @@ causal-inference:
   label: Causal inference
   permalink: /causal-inference
   description: Causal inference posts
+
+allye:
+  label: Allye
+  permalink: /allye
+  description: Allye posts
+
+data-science:
+  label: Data science
+  permalink: /data-science
+  description: Data science posts
