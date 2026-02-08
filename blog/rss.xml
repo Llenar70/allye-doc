@@ -4,10 +4,358 @@
         <title>  Blog</title>
         <link>https://llenar70.github.io/allye-doc/blog</link>
         <description>  Blog</description>
-        <lastBuildDate>Wed, 21 Jan 2026 00:00:00 GMT</lastBuildDate>
+        <lastBuildDate>Sun, 08 Feb 2026 00:00:00 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
+        <item>
+            <title><![CDATA[Beyond "Just fit()": Rethinking PSM for Robust Causal Inference in Production]]></title>
+            <link>https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive</link>
+            <guid>https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive</guid>
+            <pubDate>Sun, 08 Feb 2026 00:00:00 GMT</pubDate>
+            <description><![CDATA[Welcome to the world of Causal Inference.]]></description>
+            <content:encoded><![CDATA[<p>Welcome to the world of Causal Inference.</p>
+<p>If you work with data in a production environment, you've likely heard of <strong>Propensity Score Matching (PSM)</strong>. You may have even implemented it using libraries like <code>causalinference</code> or <code>DoWhy</code>.</p>
+<p>Writing the code isn't difficult. With the modern Python ecosystem, you can calculate propensity scores, perform matching, and estimate effects (ATE/ATT) with just a few lines of code.</p>
+<p>But when asked, <strong>"Can we really trust these results?"</strong> can you confidently say "Yes"? If not, you lose credibility.
+Or, could you answer immediately without breaking a cold sweat if a Staff Data Scientist fired these sharp questions at you?</p>
+<ul>
+<li class="">"If you change the random seed, does the result flip from positive to negative?"</li>
+<li class="">"Are these matches actually similar? Are you forcing pairs?"</li>
+<li class="">"How does the conclusion change if you tighten the caliper slightly?"</li>
+<li class="">"What are the characteristics of the data that was excluded (trimmed)?"</li>
+</ul>
+<p>In this blog, we will thoroughly rethink the "classical" method of PSM from the perspective of modern production data science. We will also dig deep into the philosophy and specifications of why Allye's PSM Widget is designed not just as a calculation tool, but as a <strong>"cockpit for protecting analysis quality."</strong></p>
+<p>This should serve as a "map of the field" for beginners and an "implementation answer key" for experts.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-the-data-scientists-dilemma-diagnostic-cost--computational-cost">1. The Data Scientist's Dilemma: Diagnostic Cost &gt; Computational Cost<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#1-the-data-scientists-dilemma-diagnostic-cost--computational-cost" class="hash-link" aria-label="Direct link to 1. The Data Scientist's Dilemma: Diagnostic Cost > Computational Cost" title="Direct link to 1. The Data Scientist's Dilemma: Diagnostic Cost > Computational Cost" translate="no">​</a></h2>
+<p>The difficulty of causal inference in practice lies not in the computational cost, but in the <strong>"diagnostic cost."</strong></p>
+<p>The moment you decide to use PSM because "we can't do an A/B test (RCT), so let's analyze observational data," a Data Scientist wanders into a "labyrinth of questions":</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-never-ending-checklist">The Never-Ending Checklist<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#the-never-ending-checklist" class="hash-link" aria-label="Direct link to The Never-Ending Checklist" title="Direct link to The Never-Ending Checklist" translate="no">​</a></h3>
+<ol>
+<li class=""><strong>Covariate Balance Check:</strong>
+"Is the Love Plot (ASAM) clean? Did all variables fall below the threshold (SMD &lt; 0.1)? If not, should I change the model or drop variables?"</li>
+<li class=""><strong>Common Support Verification:</strong>
+"Do the propensity score distributions overlap? Are samples with extreme scores (0.99 or 0.01) distorting the results?"</li>
+<li class=""><strong>Robustness Guarantee:</strong>
+"Does the result depend on the random seed? Did we get significance with seed=42 but lose it with seed=123?"
+"What about the influence of unobserved confounders?"</li>
+<li class=""><strong>Sensitivity Analysis:</strong>
+"If I change the caliper from 0.1 to 0.05, how does the number of matches decrease and how does the effect size change? How strict do I need to be to get closer to the 'truth'?"</li>
+</ol>
+<p>If you try to verify these seriously in Python, even though the core analysis <code>model.fit()</code> is just one line, the <strong>"boilerplate code for verification, visualization, preprocessing, exception handling, and result formatting"</strong> balloons to hundreds of lines.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-friday-night-temptation">The "Friday Night" Temptation<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#the-friday-night-temptation" class="hash-link" aria-label="Direct link to The &quot;Friday Night&quot; Temptation" title="Direct link to The &quot;Friday Night&quot; Temptation" translate="no">​</a></h3>
+<p>On a Friday night with a deadline looming, looking at massive warning logs (like ConvergenceWarning), a devil whispers:
+"Just <code>fit()</code> it, and if no errors pop up, let's call it OK. Let's pretend... we didn't see the fine-tuning of the balance."</p>
+<p>If you want to remain a top-tier data scientist, you shouldn't run from this "gritty rigor." However, writing hundreds of lines of verification code by hand every time is also unrealistic.
+Allye's PSM Widget was designed to solve this dilemma and execute <strong>"gritty rigor" with "overwhelming speed."</strong></p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="2-intuitive-understanding-matching-as-finding-twins">2. Intuitive Understanding: Matching as "Finding Twins"<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#2-intuitive-understanding-matching-as-finding-twins" class="hash-link" aria-label="Direct link to 2. Intuitive Understanding: Matching as &quot;Finding Twins&quot;" title="Direct link to 2. Intuitive Understanding: Matching as &quot;Finding Twins&quot;" translate="no">​</a></h2>
+<p>Before getting into the details of the specifications, let's intuitively review how PSM works. Without using formulas, it is <strong>"searching for destined twins."</strong></p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="why-simple-comparison-doesnt-work">Why Simple Comparison Doesn't Work<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#why-simple-comparison-doesnt-work" class="hash-link" aria-label="Direct link to Why Simple Comparison Doesn't Work" title="Direct link to Why Simple Comparison Doesn't Work" translate="no">​</a></h3>
+<p>Suppose you want to know the effect of a "discount coupon" on an EC site.
+Comparing the average purchase amount of those who received the coupon (Treated) and those who didn't (Control) is meaningless.</p>
+<p>Because coupons weren't distributed randomly.
+They might have been given preferentially to "people who have shopped often in the past (loyal users)." In that case, they would have shopped a lot whether they had a coupon or not. This is <strong>Selection Bias</strong>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="approach-to-counterfactuals">Approach to Counterfactuals<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#approach-to-counterfactuals" class="hash-link" aria-label="Direct link to Approach to Counterfactuals" title="Direct link to Approach to Counterfactuals" translate="no">​</a></h3>
+<p>What we really want to know is the difference:
+"If Mr. A, who received a coupon, <strong>had not received a coupon (counterfactual)</strong>, how much would he have spent?"</p>
+<p>However, unless we have a time machine, the real Mr. A has already received the coupon, so we cannot observe "Mr. A in the world line where he didn't receive it."</p>
+<p>This is where PSM comes in.
+From the entire data, we find Mr. B who <strong>"is exactly like Mr. A in age, gender, past purchase history, residence, etc., but happened not to receive a coupon,"</strong> and pair them up.</p>
+<p>This Mr. B is effectively "Mr. A's twin (proxy)."
+If we compare this pair, the difference is likely due to the "effect of the coupon" rather than "personal qualities." Doing this for the entire data is PSM.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="hidden-pitfalls">Hidden Pitfalls<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#hidden-pitfalls" class="hash-link" aria-label="Direct link to Hidden Pitfalls" title="Direct link to Hidden Pitfalls" translate="no">​</a></h3>
+<p>However, reality is not that simple.</p>
+<ul>
+<li class=""><strong>Forced Pairing:</strong>
+What if there is no one like Mr. A in the control group? If you forcibly bring in "Mr. C who is somewhat similar (but actually not very similar)," the results will be distorted. Checking "Common Support" prevents this.</li>
+<li class=""><strong>Just Happened to be Similar:</strong>
+What if you chose the most similar person, but that Mr. B's data happened to be a measurement error (noise) or an outlier? 1-to-1 matching is weak against such noise.</li>
+</ul>
+<p>That is why <strong>"the courage not to match if they are not similar (Caliper)"</strong> and <strong>"checking if we rely too much on specific partners (Robustness Check)"</strong> are essential.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-deep-dive-into-allye-psm-widget-specifications">3. Deep Dive into Allye PSM Widget Specifications<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#3-deep-dive-into-allye-psm-widget-specifications" class="hash-link" aria-label="Direct link to 3. Deep Dive into Allye PSM Widget Specifications" title="Direct link to 3. Deep Dive into Allye PSM Widget Specifications" translate="no">​</a></h2>
+<p>From here, I will explain the specific specifications of Allye's PSM Widget and the philosophy behind them. I will unravel why so many setting items are necessary from a practical perspective.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-1-consistency-of-preprocessing-and-model-estimation">3-1. Consistency of Preprocessing and Model Estimation<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#3-1-consistency-of-preprocessing-and-model-estimation" class="hash-link" aria-label="Direct link to 3-1. Consistency of Preprocessing and Model Estimation" title="Direct link to 3-1. Consistency of Preprocessing and Model Estimation" translate="no">​</a></h3>
+<p>The quality of PSM is more than half determined by the stage before matching, that is, "Propensity Score Estimation."
+Allye's Widget strictly manages this process internally, which tends to become a black box.</p>
+<ul>
+<li class=""><strong>Missing Value Handling (Listwise Deletion):</strong>
+Automatically detects missing values (NaN) in the selected covariates and excludes them row by row. This maintains consistency between score estimation and matching.</li>
+<li class=""><strong>Categorical Variable Encoding:</strong>
+Automatically performs One-hot encoding. Real-world data contains a lot of categorical variables like "Gender," "Prefecture," and "Membership Rank," but this saves the trouble of manually creating dummy variables.</li>
+<li class=""><strong>Model Estimation (Logistic Regression):</strong>
+Logistic regression (L1/L2 regularization supported) is used to calculate propensity scores.<!-- -->
+<ul>
+<li class=""><em>Why Logistic Regression?</em>
+Recently, there are methods to output propensity scores with Random Forest or LightGBM, but Allye emphasizes interpretability and uses logistic regression as the default. This is because you can check "which variables are effective for the treatment (coupon grant)" with coefficients, making it easy to audit <strong>"whether the model is capturing confounding correctly in the first place."</strong>
+Metrics like AUC and LogLoss are also automatically calculated, and if the model fit itself is poor (e.g., AUC around 0.5), you can immediately judge that it is a problem before matching.</li>
+</ul>
+</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-2-matching-target-the-direction-of-att-and-atc">3-2. Matching Target: The "Direction" of ATT and ATC<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#3-2-matching-target-the-direction-of-att-and-atc" class="hash-link" aria-label="Direct link to 3-2. Matching Target: The &quot;Direction&quot; of ATT and ATC" title="Direct link to 3-2. Matching Target: The &quot;Direction&quot; of ATT and ATC" translate="no">​</a></h3>
+<p>Even if we say "treatment effect," there is actually a direction. Many beginners stumble here. In Allye, you can clearly switch the <code>Matching Target</code> as follows:</p>
+<ul>
+<li class="">
+<p><strong>ATT (Average Treatment Effect on the Treated):</strong></p>
+<ul>
+<li class=""><strong>Definition:</strong> Makes "people who actually received the treatment (Treated)" the main characters (anchors) and looks for "people who did not receive the treatment (Control)" who are similar to them.</li>
+<li class=""><strong>Business Question:</strong> "How much did people who used the coupon gain compared to if they hadn't used it?"</li>
+<li class=""><strong>Frequency in Practice:</strong> Highest. Usually used for verifying the effect of measures.</li>
+</ul>
+</li>
+<li class="">
+<p><strong>ATC (Average Treatment Effect on the Controls):</strong></p>
+<ul>
+<li class=""><strong>Definition:</strong> Makes "people who did not receive the treatment (Control)" the main characters and looks for "people who received the treatment (Treated)" who are similar to them.</li>
+<li class=""><strong>Business Question:</strong> "If people who didn't use the coupon had used it, what would have happened?"</li>
+<li class=""><strong>Significance in Practice:</strong> Can be used for "discovering potential demand." For example, finding a segment that is currently outside the target of the measure but would show effects if targeted.</li>
+</ul>
+</li>
+</ul>
+<p>This is not just a difference in labels. It fundamentally changes the behavior of the algorithm: <strong>"Which group to keep in full, and which group to sample from."</strong>
+If you analyze without being conscious of this, you will end up giving an answer that deviates from the business question (Estimand mismatch).</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-3-the-courage-to-give-up-if-not-similar-caliper">3-3. The Courage to "Give Up If Not Similar": Caliper<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#3-3-the-courage-to-give-up-if-not-similar-caliper" class="hash-link" aria-label="Direct link to 3-3. The Courage to &quot;Give Up If Not Similar&quot;: Caliper" title="Direct link to 3-3. The Courage to &quot;Give Up If Not Similar&quot;: Caliper" translate="no">​</a></h3>
+<p>The default of many libraries (Nearest Neighbor) tries to find "the closest partner anyway."
+However, matching a person with a propensity score of <code>0.9</code> and a person with <code>0.4</code> cannot be called "twins." They are just "strangers."</p>
+<p>In Allye, you can intuitively set the <strong>Caliper</strong>.
+By imposing a constraint such as "only accept partners within a score difference of <code>0.05</code> (set in standard deviation units, etc.)," the quality of matching (Balance) is guaranteed.</p>
+<ul>
+<li class="">
+<p><strong>Visualization of Trade-off:</strong></p>
+<ul>
+<li class="">Tighten Caliper (smaller value) -&gt; Matching quality increases (Bias decreases), but partners are not found and sample size decreases (Variance increases).</li>
+<li class="">Loosen Caliper (larger value) -&gt; Sample size can be secured, but dissimilar partners are mixed in, distorting the estimation result (Bias increases).</li>
+</ul>
+<p>Allye's strength is that you can check this trade-off in real-time while moving the slider. It supports the decision: "Should we prioritize quality even if the sample size is halved?"</p>
+</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-4-obsession-with-robustness-randomize-from-top-n-caliper">3-4. Obsession with Robustness: Randomize from Top-N (Caliper)<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#3-4-obsession-with-robustness-randomize-from-top-n-caliper" class="hash-link" aria-label="Direct link to 3-4. Obsession with Robustness: Randomize from Top-N (Caliper)" title="Direct link to 3-4. Obsession with Robustness: Randomize from Top-N (Caliper)" translate="no">​</a></h3>
+<p>This function is not a "convenience feature," but <strong>a specification for Sensitivity Analysis</strong>.
+The aim is not to swallow the result of a single matching whole, but to verify <strong>"whether the conclusion holds even if the way neighbors are taken changes slightly."</strong></p>
+<p>Usually, within the Caliper, the "closest one person" is selected.
+However, in practice, it is not uncommon for there to be multiple candidates who are similarly close.
+If you proceed with one fixed person in this case, there is a risk that the estimation result will rely too much on a specific partner.</p>
+<p>Allye has an option called <strong><code>Randomize from Top-N (Caliper)</code></strong>.</p>
+<ul>
+<li class=""><strong>Behavior:</strong> Instead of fixing the closest one, it <strong>"creates a list of Top-N candidates (e.g., top 5) in the neighborhood and randomly selects one (or ratio amount) from them."</strong></li>
+</ul>
+<h4 class="anchor anchorTargetStickyNavbar_Vzrq" id="implementation-image-by-pseudo-code">Implementation Image by Pseudo Code<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#implementation-image-by-pseudo-code" class="hash-link" aria-label="Direct link to Implementation Image by Pseudo Code" title="Direct link to Implementation Image by Pseudo Code" translate="no">​</a></h4>
+<div class="language-python codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-python codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token comment" style="color:#999988;font-style:italic"># Processing image for each anchor (one person in the treatment group)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">for</span><span class="token plain"> anchor </span><span class="token keyword" style="color:#00009f">in</span><span class="token plain"> anchor_units</span><span class="token punctuation" style="color:#393A34">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token comment" style="color:#999988;font-style:italic"># 1. Find candidates within Caliper range</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    candidates </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> find_candidates_within_caliper</span><span class="token punctuation" style="color:#393A34">(</span><span class="token plain">anchor</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> caliper_value</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token keyword" style="color:#00009f">if</span><span class="token plain"> </span><span class="token builtin">len</span><span class="token punctuation" style="color:#393A34">(</span><span class="token plain">candidates</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">==</span><span class="token plain"> </span><span class="token number" style="color:#36acaa">0</span><span class="token punctuation" style="color:#393A34">:</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">        discard</span><span class="token punctuation" style="color:#393A34">(</span><span class="token plain">anchor</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"> </span><span class="token comment" style="color:#999988;font-style:italic"># Exclude because no match partner</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">        </span><span class="token keyword" style="color:#00009f">continue</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain" style="display:inline-block"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token comment" style="color:#999988;font-style:italic"># 2. Sort by distance</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    sorted_candidates </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> sort_by_distance</span><span class="token punctuation" style="color:#393A34">(</span><span class="token plain">candidates</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> anchor</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token comment" style="color:#999988;font-style:italic"># 3. Get Top-N (e.g., top 5)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token comment" style="color:#999988;font-style:italic"># These are all "sufficiently similar (within Caliper)" and "top class close" people</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    top_n_pool </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> sorted_candidates</span><span class="token punctuation" style="color:#393A34">[</span><span class="token punctuation" style="color:#393A34">:</span><span class="token plain">Top_N</span><span class="token punctuation" style="color:#393A34">]</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token comment" style="color:#999988;font-style:italic"># 4. Randomly choose one from them (This is important!)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    </span><span class="token keyword" style="color:#00009f">match</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> random</span><span class="token punctuation" style="color:#393A34">.</span><span class="token plain">choice</span><span class="token punctuation" style="color:#393A34">(</span><span class="token plain">top_n_pool</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> seed</span><span class="token operator" style="color:#393A34">=</span><span class="token plain">current_seed</span><span class="token punctuation" style="color:#393A34">)</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain">    register_match</span><span class="token punctuation" style="color:#393A34">(</span><span class="token plain">anchor</span><span class="token punctuation" style="color:#393A34">,</span><span class="token plain"> </span><span class="token keyword" style="color:#00009f">match</span><span class="token punctuation" style="color:#393A34">)</span><br></span></code></pre></div></div>
+<ul>
+<li class="">
+<p><strong>Why is this necessary:</strong>
+This allows you to <strong>change the random seed (Seed) and run it many times to see the result distribution</strong>.
+This is not just a stability check, but a test to see "if it is a problem setting that PSM can handle."</p>
+<ul>
+<li class=""><strong>Case A:</strong> When the Seed was changed, the effect (ATT) changed from <code>+1000 yen</code> to <code>-500 yen</code>.<!-- -->
+<ul>
+<li class="">-&gt; <strong>Judgment:</strong> The PSM approach to this question is a red flag.
+The conclusion is unstable against the fluctuation of matching partners, and it is highly likely that it is strongly influenced by unobserved confounding or specification dependence.</li>
+</ul>
+</li>
+<li class=""><strong>Case B:</strong> Even if the Seed was changed 10 times, the effect always stayed between <code>+900 yen ~ +1100 yen</code>.<!-- -->
+<ul>
+<li class="">-&gt; <strong>Judgment:</strong> It can be said that it is at least robust to "fluctuation of neighbor selection."
+Then, you can take the order of evaluating the residual risk of unobserved confounding in a separate layer.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Implementing and managing this with hand-written code and running loops to see the distribution is quite bone-breaking, but with Allye, you can check it immediately with one checkbox and Seed change.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-5-matching-ratio-and-replacement">3-5. Matching Ratio and Replacement<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#3-5-matching-ratio-and-replacement" class="hash-link" aria-label="Direct link to 3-5. Matching Ratio and Replacement" title="Direct link to 3-5. Matching Ratio and Replacement" translate="no">​</a></h3>
+<ul>
+<li class=""><strong>Matching Ratio (1:1, 1:2...):</strong>
+How many "twins" to assign to one anchor.<!-- -->
+<ul>
+<li class=""><code>1:1</code> has the smallest bias, but much data is discarded.</li>
+<li class="">Increasing to <code>1:3</code> etc. increases the sample size and decreases variance (increases power). However, the second and third persons are likely "less similar than the first person," increasing the risk of increased bias.</li>
+</ul>
+</li>
+<li class=""><strong>With Replacement:</strong>
+Whether to match a partner who has been matched once with other anchors.<!-- -->
+<ul>
+<li class="">If <code>True</code>, matching is easy to establish even if the control group is small, but since specific data is used many times, dependence on that data increases.</li>
+<li class="">If <code>False</code> (without replacement), one control person is used only once. Data independence is high, but if the number of control groups is not sufficient, the number of matches decreases drastically.</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="4-the-hierarchy-of-robustness-and-unobserved-confounding">4. The Hierarchy of Robustness and Unobserved Confounding<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#4-the-hierarchy-of-robustness-and-unobserved-confounding" class="hash-link" aria-label="Direct link to 4. The Hierarchy of Robustness and Unobserved Confounding" title="Direct link to 4. The Hierarchy of Robustness and Unobserved Confounding" translate="no">​</a></h2>
+<p>Here lies the most important conceptual foundation for understanding Allye's Widget specifications.
+"Reliability of analysis" in practice must be considered in the following three hierarchies. Allye is designed with this hierarchy in mind.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="level-1-stochastic-robustness">Level 1: Stochastic Robustness<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#level-1-stochastic-robustness" class="hash-link" aria-label="Direct link to Level 1: Stochastic Robustness" title="Direct link to Level 1: Stochastic Robustness" translate="no">​</a></h3>
+<p>The level of "Does the result change every time I calculate?"
+PSM includes random elements (handling ties when distances are exactly the same, sampling, Top-N randomization, etc.).
+If the result turns from positive to negative just by changing the Seed, it is a problem before analysis. To clear this, we perform a stress test using the aforementioned <code>Randomize from Top-N</code>.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="level-2-design-robustness">Level 2: Design Robustness<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#level-2-design-robustness" class="hash-link" aria-label="Direct link to Level 2: Design Robustness" title="Direct link to Level 2: Design Robustness" translate="no">​</a></h3>
+<p>The level of "Does it depend on the arbitrariness of parameters?"
+"The effect appeared because I set the Caliper to <code>0.05</code>, but it disappeared when I set it to <code>0.01</code>."
+"There is an effect with 1:1 matching, but no effect with 1:2."
+In such cases, the result is likely an "artifact of parameter settings."
+It is necessary to confirm that the conclusion (direction of effect and trend of magnitude) does not change even if parameters are moved (being insensitive). Allye's UI is for performing this parameter sweep at high speed.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="level-3-unobserved-confounding">Level 3: Unobserved Confounding<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#level-3-unobserved-confounding" class="hash-link" aria-label="Direct link to Level 3: Unobserved Confounding" title="Direct link to Level 3: Unobserved Confounding" translate="no">​</a></h3>
+<p>And what remains at the end is the influence of factors that do not exist in the data.
+For example, when you want to see the "effect of a coupon," what if the data only has "gender/age" and does not include "personal saving orientation" or "influence of TVCM seen by chance"?
+<strong>This cannot be erased no matter how much you calculate.</strong> PSM can only balance "observed variables (covariates)."</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="purifying-risk-and-determining-business-resolve">"Purifying" Risk and Determining Business "Resolve"<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#purifying-risk-and-determining-business-resolve" class="hash-link" aria-label="Direct link to &quot;Purifying&quot; Risk and Determining Business &quot;Resolve&quot;" title="Direct link to &quot;Purifying&quot; Risk and Determining Business &quot;Resolve&quot;" translate="no">​</a></h3>
+<p>So, why are we so obsessed with Level 1 and Level 2? Isn't it useless if Level 3 (unobserved confounding) cannot be erased?</p>
+<p>No, absolutely not.
+<strong>By thoroughly eliminating "noise that can be excluded (Level 1, 2: observation bias and calculation instability)," the outline of the "pure business risk (Level 3)" that remains at the end becomes clear for the first time.</strong></p>
+<p>Making decisions without even adjusting for "known biases" like age and gender, and with unstable calculation results, is just reckless and negligence of a Data Scientist.
+However, the uncertainty that remains after clearing Level 1 and Level 2 to the limit with Allye is no longer a defect of analysis, but a <strong>"strategic risk (bet)"</strong> that executives and leaders should bear.</p>
+<p>What Allye provides is not a "100% guarantee." It is to draw a <strong>boundary line</strong> saying "This is what we can say from the data. Beyond this (the unobserved world) is your challenge."
+Clear the fog of uncertainty, face the remaining risk, and step on the gas. Strict and fast PSM is necessary precisely to determine that "resolve."</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="5-reverse-lookup-guide-reading-settings-by-intent">5. Reverse Lookup Guide: Reading Settings by Intent<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#5-reverse-lookup-guide-reading-settings-by-intent" class="hash-link" aria-label="Direct link to 5. Reverse Lookup Guide: Reading Settings by Intent" title="Direct link to 5. Reverse Lookup Guide: Reading Settings by Intent" translate="no">​</a></h2>
+<p>In practice, parameters should be chosen not by "which one to raise or lower," but by <strong>"which bias to suppress and what to sacrifice."</strong> I organized the main settings based on intent.</p>
+<table><thead><tr><th style="text-align:left">Setting Item</th><th style="text-align:left">What it Controls</th><th style="text-align:left">Trend when Raised/ON</th><th style="text-align:left">What is Sacrificed (Trade-off)</th></tr></thead><tbody><tr><td style="text-align:left"><strong>Matching Method</strong> (Caliper)</td><td style="text-align:left">Selection of candidates</td><td style="text-align:left">Strongly suppresses outlier matches (Bias down)</td><td style="text-align:left">Matches decrease, estimation variance may increase</td></tr><tr><td style="text-align:left"><strong>Matching Ratio</strong> (1:1 -&gt; 1:3)</td><td style="text-align:left">Partners per anchor</td><td style="text-align:left">Variance decrease due to sample increase (Stabilization)</td><td style="text-align:left">Easier to include distant partners, Bias up</td></tr><tr><td style="text-align:left"><strong>Caliper Value</strong> (0.2 -&gt; 0.05)</td><td style="text-align:left">Allowed PS difference</td><td style="text-align:left">Stricter matching as it gets smaller</td><td style="text-align:left">Significant decrease in sample size</td></tr><tr><td style="text-align:left"><strong>Randomize from Top-N</strong></td><td style="text-align:left">Randomness in neighborhood</td><td style="text-align:left">Robustness (stability) of results can be confirmed</td><td style="text-align:left">Analyst needs evaluation design (Seed Loop etc.)</td></tr><tr><td style="text-align:left"><strong>With Replacement</strong></td><td style="text-align:left">Reuse of partners</td><td style="text-align:left">Match possible even with small control group</td><td style="text-align:left">Excessive dependence on specific data, damage to independence</td></tr><tr><td style="text-align:left"><strong>Random Seed</strong></td><td style="text-align:left">Reproducibility and Explorability</td><td style="text-align:left">Complete reproduction with same seed, sensitivity check with change</td><td style="text-align:left">Interpretation of seed dependence required</td></tr><tr><td style="text-align:left"><strong>Trimming</strong></td><td style="text-align:left">Common Support</td><td style="text-align:left">Reduction of Extrapolation risk</td><td style="text-align:left">Reduction of Target Population</td></tr></tbody></table>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="6-proposed-workflow-a-rebuttal-to-i-can-just-code-this">6. Proposed Workflow: A Rebuttal to "I Can Just Code This"<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#6-proposed-workflow-a-rebuttal-to-i-can-just-code-this" class="hash-link" aria-label="Direct link to 6. Proposed Workflow: A Rebuttal to &quot;I Can Just Code This&quot;" title="Direct link to 6. Proposed Workflow: A Rebuttal to &quot;I Can Just Code This&quot;" translate="no">​</a></h2>
+<p>You might think, "I can just write this in Python." True, it is technically possible. However, the following problems occur in the field.</p>
+<ol>
+<li class=""><strong>Bloating of Boilerplate:</strong> Preprocessing, matching, visualization, aggregation... if you write these properly, it will be on the scale of 1000 lines.</li>
+<li class=""><strong>Breeding Ground for Bugs:</strong> Complex code breeds bugs. Mistakes like "logic of replacement was wrong," "sort order was reversed," or "rows shifted in handling missing values" are extremely difficult to discover.</li>
+<li class=""><strong>Personalization:</strong> A situation where Person A's implementation and Person B's implementation behave slightly differently is an organizational nightmare.</li>
+</ol>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="recommended-allye-workflow">Recommended Allye Workflow<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#recommended-allye-workflow" class="hash-link" aria-label="Direct link to Recommended Allye Workflow" title="Direct link to Recommended Allye Workflow" translate="no">​</a></h3>
+<p>With Allye, the following "advanced analysis flow" becomes standard.</p>
+<ol>
+<li class=""><strong>Step 1: Create Baseline (Rough Sketch)</strong>
+First, grasp the overall picture with default settings (or looser Caliper). Check "Can we separate by propensity score in the first place?"</li>
+<li class=""><strong>Step 2: Improve Quality (Balancing)</strong>
+While looking at the Love Plot, tighten the Caliper and secure the balance of variables (SMD &lt; 0.1). Trim areas where distributions do not overlap.</li>
+<li class=""><strong>Step 3: Robustness Check (Stress Test - Stochastic)</strong>
+Turn on <code>Randomize from Top-N</code> and run with several different Seeds. Confirm that the result (ATT/ATC) does not fluctuate significantly. If it fluctuates here, it is insufficient data volume or model failure.</li>
+<li class=""><strong>Step 4: Sensitivity Check (Stress Test - Design)</strong>
+Confirm that the conclusion does not change even if Caliper or Ratio is changed slightly. If "the effect remains even if tightened," the effect is real.</li>
+<li class=""><strong>Step 5: Decision Making</strong>
+Only after doing this far, report as "what can be said from the data." Note the possibility of unobserved confounding.</li>
+</ol>
+<p>Being able to run this loop in a few minutes to tens of minutes is the greatest benefit of using the tool. You can verify at a speed different from the manual loop of correcting code, re-running, and outputting plots.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="conclusion-a-cockpit-for-protecting-analysis-quality">Conclusion: A Cockpit for Protecting Analysis Quality<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#conclusion-a-cockpit-for-protecting-analysis-quality" class="hash-link" aria-label="Direct link to Conclusion: A Cockpit for Protecting Analysis Quality" title="Direct link to Conclusion: A Cockpit for Protecting Analysis Quality" translate="no">​</a></h2>
+<p>PSM is not a magic wand. If the data is bad (if important confounding variables are not taken), no matter how advanced the matching is, it is meaningless. The principle of Garbage In, Garbage Out does not change.</p>
+<p>However, Data Scientists have an obligation to do <strong>"the best within the observable range."</strong></p>
+<ul>
+<li class="">Did you adjust the balance to the limit?</li>
+<li class="">Did you eliminate unreasonable matching?</li>
+<li class="">Did you confirm the robustness of the result?</li>
+<li class="">Is the result reproducible?</li>
+</ul>
+<p>Allye's PSM Widget is a tool to fill these checklists quickly and surely. By changing "time to write code" into "time to think and verify," your analysis will have more persuasive power and become a solid basis for supporting business decisions.</p>
+<p>Remove the anxiety of Level 1 (Calculation) and Level 2 (Design), and face Level 3 (Business Risk) dignifiedly.
+Please experience <strong>"fast, strict, and empathetic"</strong> causal inference using Allye.</p>
+<hr>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="appendix-allye-psm-widget-detailed-specifications-implementation-base">Appendix: Allye PSM Widget Detailed Specifications (Implementation Base)<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#appendix-allye-psm-widget-detailed-specifications-implementation-base" class="hash-link" aria-label="Direct link to Appendix: Allye PSM Widget Detailed Specifications (Implementation Base)" title="Direct link to Appendix: Allye PSM Widget Detailed Specifications (Implementation Base)" translate="no">​</a></h2>
+<p>From here, I will summarize the behavior of the Widget like a specification document so that it can be used for review and operation design.
+It is the "concrete" on implementation against the thought part of the main text.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-1-input-and-output">A-1. Input and Output<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-1-input-and-output" class="hash-link" aria-label="Direct link to A-1. Input and Output" title="Direct link to A-1. Input and Output" translate="no">​</a></h3>
+<p><strong>Input</strong></p>
+<ul>
+<li class=""><code>Data</code> (Orange Table)</li>
+</ul>
+<p><strong>Main Output</strong></p>
+<ul>
+<li class=""><code>Matched Data</code></li>
+<li class=""><code>Propensity Scores</code></li>
+<li class=""><code>Balance Report</code></li>
+<li class="">On-screen Model Diagnosis (AUC/Accuracy/LogLoss)</li>
+<li class="">On-screen Balance Diagnosis (Love Plot / SMD Table)</li>
+<li class="">On-screen Sample Size (Before/After)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-2-calculation-pipeline-internal-order">A-2. Calculation Pipeline (Internal Order)<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-2-calculation-pipeline-internal-order" class="hash-link" aria-label="Direct link to A-2. Calculation Pipeline (Internal Order)" title="Direct link to A-2. Calculation Pipeline (Internal Order)" translate="no">​</a></h3>
+<ol>
+<li class="">Pre-sampling (if necessary)</li>
+<li class="">Missing exclusion and variable formatting</li>
+<li class="">Propensity score model estimation (Logistic Regression)</li>
+<li class="">Overlap/Positivity diagnosis</li>
+<li class="">Apply trimming if necessary</li>
+<li class="">Execute matching (Nearest/Caliper, ATT/ATC, ratio, replacement)</li>
+<li class="">Calculate balance index (SMD)</li>
+<li class="">Calculate IPW if necessary</li>
+<li class="">Generate output table and report data</li>
+</ol>
+<p>This order is fixed, so it is reproducible with the same settings, same data, and same seed.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-3-specifications-of-major-parameters">A-3. Specifications of Major Parameters<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-3-specifications-of-major-parameters" class="hash-link" aria-label="Direct link to A-3. Specifications of Major Parameters" title="Direct link to A-3. Specifications of Major Parameters" translate="no">​</a></h3>
+<table><thead><tr><th style="text-align:left">Parameter</th><th style="text-align:left">Representative Value/Range</th><th style="text-align:left">Meaning in Specification</th></tr></thead><tbody><tr><td style="text-align:left">Matching Method</td><td style="text-align:left"><code>Nearest Neighbor</code> / <code>Caliper</code></td><td style="text-align:left">Rule for selecting match candidates</td></tr><tr><td style="text-align:left">Matching Ratio</td><td style="text-align:left"><code>1:1</code> / <code>1:2</code> / <code>1:3</code></td><td style="text-align:left">Number of partners per anchor <code>M</code></td></tr><tr><td style="text-align:left">Matching Target</td><td style="text-align:left"><code>ATT</code> / <code>ATC</code></td><td style="text-align:left">Definition of anchor side (reference side)</td></tr><tr><td style="text-align:left">Caliper Value</td><td style="text-align:left"><code>0.01 - 1.0</code></td><td style="text-align:left">Allowed PS difference</td></tr><tr><td style="text-align:left">With Replacement</td><td style="text-align:left"><code>True/False</code></td><td style="text-align:left">Reusability of partners</td></tr><tr><td style="text-align:left">Random Seed</td><td style="text-align:left"><code>1 - 99999</code></td><td style="text-align:left">Reproducibility / Randomization control</td></tr><tr><td style="text-align:left">Randomize from Top-N (Caliper)</td><td style="text-align:left"><code>True/False</code></td><td style="text-align:left">Enable random selection within Caliper candidates</td></tr><tr><td style="text-align:left">Top-N Candidates</td><td style="text-align:left"><code>1 - 1000</code></td><td style="text-align:left">Size of random sampling population <code>N</code></td></tr><tr><td style="text-align:left">Sampling Mode</td><td style="text-align:left"><code>Manual</code> / <code>All</code></td><td style="text-align:left">Presence of pre-sampling</td></tr><tr><td style="text-align:left">Manual Max Rows</td><td style="text-align:left"><code>1000 - 10,000,000</code></td><td style="text-align:left">Max rows for Manual</td></tr><tr><td style="text-align:left">Trimming Mode</td><td style="text-align:left"><code>None/Percentile/Overlap/Fixed</code></td><td style="text-align:left">Overlap guarantee strategy</td></tr><tr><td style="text-align:left">Trim Percentile</td><td style="text-align:left"><code>0.0 - 0.1</code></td><td style="text-align:left">Percentile threshold</td></tr><tr><td style="text-align:left">Fixed PS Min/Max</td><td style="text-align:left"><code>0.0 - 1.0</code></td><td style="text-align:left">Fixed trimming boundary</td></tr><tr><td style="text-align:left">IPW Trim Percentile</td><td style="text-align:left"><code>0.0 - 0.1</code></td><td style="text-align:left">Trimming for IPW stabilization</td></tr></tbody></table>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-4-strict-behavior-of-randomize-from-top-n-caliper">A-4. Strict Behavior of Randomize from Top-N (Caliper)<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-4-strict-behavior-of-randomize-from-top-n-caliper" class="hash-link" aria-label="Direct link to A-4. Strict Behavior of Randomize from Top-N (Caliper)" title="Direct link to A-4. Strict Behavior of Randomize from Top-N (Caliper)" translate="no">​</a></h3>
+<p>This option is <strong>valid only during Caliper</strong>.
+The behavior is as follows:</p>
+<ol>
+<li class="">caliper内候補を抽出 (Extract candidates within caliper)</li>
+<li class="">PS距離で近い順にソート (Sort by PS distance)</li>
+<li class="">上位 <code>top-N</code> を候補プール化 (Pool top <code>top-N</code>)</li>
+<li class="">その中から <code>M</code> 件をランダム選択（<code>M</code> は ratio 由来） (Randomly select <code>M</code> items from them)</li>
+</ol>
+<p>Supplement:</p>
+<ul>
+<li class="">Works even with <code>replacement=False</code> (Respects reuse prohibition)</li>
+<li class="">When candidates are insufficient, it behaves like "take as many as possible"</li>
+<li class="">Inconsistencies like <code>top-N &lt; M</code> are absorbed internally (Actual extraction population is treated to satisfy at least <code>M</code>)</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-5-design-memo-per-matching-method">A-5. Design Memo per Matching Method<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-5-design-memo-per-matching-method" class="hash-link" aria-label="Direct link to A-5. Design Memo per Matching Method" title="Direct link to A-5. Design Memo per Matching Method" translate="no">​</a></h3>
+<p><strong>Nearest Neighbor</strong></p>
+<ul>
+<li class="">Operation where <code>With Replacement</code> is practically forced as UI specification</li>
+<li class="">Easy to match in order of closeness, calculation is fast</li>
+<li class="">Outlier match suppression is weaker than Caliper</li>
+</ul>
+<p><strong>Caliper</strong></p>
+<ul>
+<li class="">Can explicitly state "Do not match if not similar"</li>
+<li class="">Basically recommended for quality-oriented practice</li>
+<li class="">Easy to verify robustness with <code>Randomize from Top-N</code></li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-6-diagnosiswarning-design">A-6. Diagnosis/Warning Design<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-6-diagnosiswarning-design" class="hash-link" aria-label="Direct link to A-6. Diagnosis/Warning Design" title="Direct link to A-6. Diagnosis/Warning Design" translate="no">​</a></h3>
+<p>The Widget returns not only results but also diagnostic information.</p>
+<ul>
+<li class="">Sample size before/after Matching</li>
+<li class="">SMD Before/After</li>
+<li class="">Love Plot</li>
+<li class="">Overlap diagnosis (How much is outside common support)</li>
+<li class="">Warning at low match rate (e.g., consider replacement)</li>
+<li class="">Model convergence warning (if necessary)</li>
+</ul>
+<p>Please be sure to check these as a set, not just the "effect size" alone when making decisions.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-7-note-on-reproducibility">A-7. Note on Reproducibility<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-7-note-on-reproducibility" class="hash-link" aria-label="Direct link to A-7. Note on Reproducibility" title="Direct link to A-7. Note on Reproducibility" translate="no">​</a></h3>
+<p><code>Random Seed</code> mainly affects:</p>
+<ul>
+<li class="">Pre-sampling</li>
+<li class="">Anchor processing order</li>
+<li class="">Top-N random selection</li>
+</ul>
+<p>In other words, changing the seed is not just a "visual random number change" but a <strong>stress test for matching design</strong>.
+Conversely, when reporting, it is mandatory to fix the seed and leave reproducible settings.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-8-estimand-and-display-value-organization">A-8. Estimand and Display Value Organization<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-8-estimand-and-display-value-organization" class="hash-link" aria-label="Direct link to A-8. Estimand and Display Value Organization" title="Direct link to A-8. Estimand and Display Value Organization" translate="no">​</a></h3>
+<p>In practice, the following confusion must be avoided:</p>
+<ul>
+<li class=""><code>ATT/ATC</code> is the setting of "Matching Direction"</li>
+<li class=""><code>ATE</code> is the "Aggregation Definition of Effect Estimation"</li>
+</ul>
+<p>In review materials, please always declare "which estimand was the main target this time" at the beginning.
+Without this declaration, discussions will almost certainly not mesh.</p>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="a-9-scale-of-implementation-reference">A-9. Scale of Implementation (Reference)<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#a-9-scale-of-implementation-reference" class="hash-link" aria-label="Direct link to A-9. Scale of Implementation (Reference)" title="Direct link to A-9. Scale of Implementation (Reference)" translate="no">​</a></h3>
+<p>If you implement equivalent specifications by hand, realistically the following will be required:</p>
+<ul>
+<li class="">Preprocessing and type-safe conversion</li>
+<li class="">Matching algorithm branching</li>
+<li class="">Random number management</li>
+<li class="">Diagnostic visualization</li>
+<li class="">Exception handling</li>
+<li class="">Output formatting</li>
+<li class="">Testing</li>
+</ul>
+<p>Including operational quality, the actual feeling is that it tends to be on the scale of <code>1,000 to 3,000 lines</code> (more including tests).
+What determines quality here is not the amount of code itself, but the <strong>analyst's design ability (assumptions, diagnosis, robustness design)</strong>.</p>
+<hr>
+<p><em>You can try <a href="https://www.ai-allye.com/" target="_blank" rel="noopener noreferrer" class="">Allye Base</a> for free.</em></p>]]></content:encoded>
+            <category>Causal inference</category>
+            <category>Allye</category>
+            <category>Data science</category>
+        </item>
         <item>
             <title><![CDATA[Vocational Training Program Really Work?]]></title>
             <link>https://llenar70.github.io/allye-doc/blog/causal-post-nsw</link>
