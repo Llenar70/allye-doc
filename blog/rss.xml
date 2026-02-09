@@ -9,7 +9,7 @@
         <generator>https://github.com/jpmonette/feed</generator>
         <language>en</language>
         <item>
-            <title><![CDATA[Beyond "Just fit()": Rethinking PSM for Robust Causal Inference in Production]]></title>
+            <title><![CDATA[Rethinking PSM design in Production]]></title>
             <link>https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive</link>
             <guid>https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive</guid>
             <pubDate>Sun, 08 Feb 2026 00:00:00 GMT</pubDate>
@@ -18,7 +18,7 @@
 <p>If you work with data in a production environment, you've likely heard of <strong>Propensity Score Matching (PSM)</strong>. You may have even implemented it using libraries like <code>causalinference</code> or <code>DoWhy</code>.</p>
 <p>Writing the code isn't difficult. With the modern Python ecosystem, you can calculate propensity scores, perform matching, and estimate effects (ATE/ATT) with just a few lines of code.</p>
 <p>But when asked, <strong>"Can we really trust these results?"</strong> can you confidently say "Yes"? If not, you lose credibility.
-Or, could you answer immediately without breaking a cold sweat if a Staff Data Scientist fired these sharp questions at you?</p>
+Or, could you answer immediately without breaking a cold sweat if a <code>Staff Data Scientist</code> fired these sharp questions at you?</p>
 <ul>
 <li class="">"If you change the random seed, does the result flip from positive to negative?"</li>
 <li class="">"Are these matches actually similar? Are you forcing pairs?"</li>
@@ -31,15 +31,15 @@ Or, could you answer immediately without breaking a cold sweat if a Staff Data S
 <h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="1-the-data-scientists-dilemma-diagnostic-cost--computational-cost">1. The Data Scientist's Dilemma: Diagnostic Cost &gt; Computational Cost<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#1-the-data-scientists-dilemma-diagnostic-cost--computational-cost" class="hash-link" aria-label="Direct link to 1. The Data Scientist's Dilemma: Diagnostic Cost > Computational Cost" title="Direct link to 1. The Data Scientist's Dilemma: Diagnostic Cost > Computational Cost" translate="no">​</a></h2>
 <p>The difficulty of causal inference in practice lies not in the computational cost, but in the <strong>"diagnostic cost."</strong></p>
 <p>The moment you decide to use PSM because "we can't do an A/B test (RCT), so let's analyze observational data," a Data Scientist wanders into a "labyrinth of questions":</p>
-<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-never-ending-checklist">The Never-Ending Checklist<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#the-never-ending-checklist" class="hash-link" aria-label="Direct link to The Never-Ending Checklist" title="Direct link to The Never-Ending Checklist" translate="no">​</a></h3>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="the-checklist">The Checklist<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#the-checklist" class="hash-link" aria-label="Direct link to The Checklist" title="Direct link to The Checklist" translate="no">​</a></h3>
 <ol>
 <li class=""><strong>Covariate Balance Check:</strong>
-"Is the Love Plot (ASAM) clean? Did all variables fall below the threshold (SMD &lt; 0.1)? If not, should I change the model or drop variables?"</li>
+"Is the Love Plot clean? Did all variables fall below the threshold (SMD &lt; 0.1)? If not, should I change the model or drop variables?"</li>
 <li class=""><strong>Common Support Verification:</strong>
 "Do the propensity score distributions overlap? Are samples with extreme scores (0.99 or 0.01) distorting the results?"</li>
 <li class=""><strong>Robustness Guarantee:</strong>
-"Does the result depend on the random seed? Did we get significance with seed=42 but lose it with seed=123?"
-"What about the influence of unobserved confounders?"</li>
+"What about the influence of unobserved confounders?"
+"Does the result depend on the random seed? Did we get significance with seed=42 but lose it with seed=123?"</li>
 <li class=""><strong>Sensitivity Analysis:</strong>
 "If I change the caliper from 0.1 to 0.05, how does the number of matches decrease and how does the effect size change? How strict do I need to be to get closer to the 'truth'?"</li>
 </ol>
@@ -86,13 +86,7 @@ Automatically detects missing values (NaN) in the selected covariates and exclud
 <li class=""><strong>Categorical Variable Encoding:</strong>
 Automatically performs One-hot encoding. Real-world data contains a lot of categorical variables like "Gender," "Prefecture," and "Membership Rank," but this saves the trouble of manually creating dummy variables.</li>
 <li class=""><strong>Model Estimation (Logistic Regression):</strong>
-Logistic regression (L1/L2 regularization supported) is used to calculate propensity scores.<!-- -->
-<ul>
-<li class=""><em>Why Logistic Regression?</em>
-Recently, there are methods to output propensity scores with Random Forest or LightGBM, but Allye emphasizes interpretability and uses logistic regression as the default. This is because you can check "which variables are effective for the treatment (coupon grant)" with coefficients, making it easy to audit <strong>"whether the model is capturing confounding correctly in the first place."</strong>
-Metrics like AUC and LogLoss are also automatically calculated, and if the model fit itself is poor (e.g., AUC around 0.5), you can immediately judge that it is a problem before matching.</li>
-</ul>
-</li>
+Logistic regression (L1/L2 regularization supported) is used to calculate propensity scores.</li>
 </ul>
 <h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="3-2-matching-target-the-direction-of-att-and-atc">3-2. Matching Target: The "Direction" of ATT and ATC<a href="https://llenar70.github.io/allye-doc/blog/causal-post-psm_deepdive#3-2-matching-target-the-direction-of-att-and-atc" class="hash-link" aria-label="Direct link to 3-2. Matching Target: The &quot;Direction&quot; of ATT and ATC" title="Direct link to 3-2. Matching Target: The &quot;Direction&quot; of ATT and ATC" translate="no">​</a></h3>
 <p>Even if we say "treatment effect," there is actually a direction. Many beginners stumble here. In Allye, you can clearly switch the <code>Matching Target</code> as follows:</p>
