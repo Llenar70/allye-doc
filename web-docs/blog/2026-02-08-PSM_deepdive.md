@@ -1,6 +1,6 @@
 ---
 slug: causal-post-psm_deepdive
-title: 'Beyond "Just fit()": Rethinking PSM for Robust Causal Inference in Production'
+title: 'Rethinking PSM design in Production'
 authors: [sho]
 tags: [causal-inference, allye, data-science]
 ---
@@ -12,7 +12,7 @@ If you work with data in a production environment, you've likely heard of **Prop
 Writing the code isn't difficult. With the modern Python ecosystem, you can calculate propensity scores, perform matching, and estimate effects (ATE/ATT) with just a few lines of code.
 
 But when asked, **"Can we really trust these results?"** can you confidently say "Yes"? If not, you lose credibility.
-Or, could you answer immediately without breaking a cold sweat if a Staff Data Scientist fired these sharp questions at you?
+Or, could you answer immediately without breaking a cold sweat if a `Staff Data Scientist` fired these sharp questions at you?
 
 *   "If you change the random seed, does the result flip from positive to negative?"
 *   "Are these matches actually similar? Are you forcing pairs?"
@@ -33,15 +33,15 @@ The difficulty of causal inference in practice lies not in the computational cos
 
 The moment you decide to use PSM because "we can't do an A/B test (RCT), so let's analyze observational data," a Data Scientist wanders into a "labyrinth of questions":
 
-### The Never-Ending Checklist
+### The Checklist
 
 1.  **Covariate Balance Check:**
-    "Is the Love Plot (ASAM) clean? Did all variables fall below the threshold (SMD < 0.1)? If not, should I change the model or drop variables?"
+    "Is the Love Plot clean? Did all variables fall below the threshold (SMD < 0.1)? If not, should I change the model or drop variables?"
 2.  **Common Support Verification:**
     "Do the propensity score distributions overlap? Are samples with extreme scores (0.99 or 0.01) distorting the results?"
 3.  **Robustness Guarantee:**
-    "Does the result depend on the random seed? Did we get significance with seed=42 but lose it with seed=123?"
     "What about the influence of unobserved confounders?"
+    "Does the result depend on the random seed? Did we get significance with seed=42 but lose it with seed=123?"
 4.  **Sensitivity Analysis:**
     "If I change the caliper from 0.1 to 0.05, how does the number of matches decrease and how does the effect size change? How strict do I need to be to get closer to the 'truth'?"
 
@@ -110,9 +110,6 @@ Allye's Widget strictly manages this process internally, which tends to become a
     Automatically performs One-hot encoding. Real-world data contains a lot of categorical variables like "Gender," "Prefecture," and "Membership Rank," but this saves the trouble of manually creating dummy variables.
 *   **Model Estimation (Logistic Regression):**
     Logistic regression (L1/L2 regularization supported) is used to calculate propensity scores.
-    *   *Why Logistic Regression?*
-        Recently, there are methods to output propensity scores with Random Forest or LightGBM, but Allye emphasizes interpretability and uses logistic regression as the default. This is because you can check "which variables are effective for the treatment (coupon grant)" with coefficients, making it easy to audit **"whether the model is capturing confounding correctly in the first place."**
-        Metrics like AUC and LogLoss are also automatically calculated, and if the model fit itself is poor (e.g., AUC around 0.5), you can immediately judge that it is a problem before matching.
 
 ### 3-2. Matching Target: The "Direction" of ATT and ATC
 
