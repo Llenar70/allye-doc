@@ -2,7 +2,7 @@
 
 This widget provides a Jupyter Notebook environment within Allye, enabling Python code execution and data integration. You can integrate Python's powerful features for data manipulation, analysis, visualization, and more into your Allye workflows. Notebook code editing/execution is done in your default browser (JupyterLab); the widget itself serves as the bridge for data exchange and quick browser launch.
 
-When Allye starts, a Jupyter Notebook server is also launched in the background. The default port number is `8887`, but it can be changed in the "User Settings" dialog (see figures below), accessible via the gear icon in the top-right corner of Allye.
+When Allye starts, a Jupyter Notebook server is also launched in the background. The default port number is `8988`, but it can be changed in the "User Settings" dialog (see figures below), accessible via the gear icon in the top-right corner of Allye.
 
 ![user_setting_icon](./imgs/user_setting_icon.png)
 

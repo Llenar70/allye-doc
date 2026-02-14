@@ -2,7 +2,7 @@
 
 Allye内でJupyter Notebook環境を提供し、Pythonコードの実行とデータ連携を可能にするウィジェットです。データの加工、分析、視覚化など、Pythonの強力な機能をAllyeのワークフローに統合できます。Notebookの編集・実行は既定ブラウザのJupyterLab上で行い、ウィジェットはデータ受け渡しとブラウザ起動のブリッジとして動作します。
 
-Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウンドで起動されます。デフォルトのポート番号は `8887` ですが、Allyeの右上にある歯車アイコン (下図参照) からアクセスできる「User Settings」ダイアログ (下図参照) で変更可能です。
+Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウンドで起動されます。デフォルトのポート番号は `8988` ですが、Allyeの右上にある歯車アイコン (下図参照) からアクセスできる「User Settings」ダイアログ (下図参照) で変更可能です。
 
 ![user_setting_icon](./imgs/user_setting_icon.png)
 
