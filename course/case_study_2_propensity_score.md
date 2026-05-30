@@ -117,7 +117,6 @@ Let's use Allye to see what the true impact of the newsletter was.
 
   - Select `Logistic Regression` and `L1 (Lasso)` in both `Model Type` and `Regularization`.
   - You can proceed with the default settings in the `Matching Settings` area.
-  - (optional) If you are unsure about the meaning of any option, click the "Ask" button at the bottom right of the widget to ask AI Allye. She not only understands the widget's spec but also has deep expertise in statistical analysis.
 <p align="center">
   <img src="./imgs/course2_configure_psm_widget.png" alt="PSM Widget Setup2" width="700">
 </p>

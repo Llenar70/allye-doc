@@ -78,7 +78,7 @@ Hit **Execute**. Allye trains the Causal Tree and instantly delivers:
 2. **Feature Importance** — bar chart ranking which attributes drive the splits  
 3. **CATE Distribution** — histogram of unit-level treatment effects that uncovers outliers and tail risk  
 4. **Causal Tree Visualization** — interactive tree where you can zoom, pan, and click nodes to inspect segment-level lift  
-5. **Gemini Summary** — plain-English insights highlighting the highest-positive and most at-risk segments
+5. **Segment Review** — inspect the highest-positive and most at-risk segments directly in the tree
 
 <p align="center">
   <img src="./imgs/feature_ab_test_tree_result.png" alt="feature_ab_test_tree_result" width="1000">
@@ -88,7 +88,7 @@ Hit **Execute**. Allye trains the Causal Tree and instantly delivers:
 
 ## Sample Insights — Turning Zero Lift into Actionable Wins
 
-Gemini might summarize findings like:
+The segment-level view can reveal findings like:
 
 > **Segments with a strong *positive* lift**  
 > • Existing users aged 25-34 on mobile, 3+ sessions/week: CTR +11.2%  
@@ -121,6 +121,6 @@ In five minutes, Allye transforms a “failed” test into a roadmap for growth.
 
 * Flat KPIs can mask pockets of big wins or losses.
 * Causal Trees uncover heterogeneous treatment effects without tedious manual slicing.
-* Allye makes it one-click, and Gemini explains the ‘why’ in seconds.
+* Allye makes it one-click to move from flat KPIs to segment-level decisions.
 
 **Stop running A/B tests that teach you nothing. Use Allye to turn data into direction.** 

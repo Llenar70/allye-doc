@@ -103,10 +103,6 @@ The main area displays model diagnostics, the visualized Causal Tree, and AI-pow
 *   **Causal Tree Visualization**
     *   The constructed Causal Tree is displayed graphically. Each node shows the splitting condition, the treatment effect (Effect) for the samples in that node, and the number of samples.
     *   **Zoom Controls**: The `+`, `-`, and `Reset` buttons allow you to zoom in, zoom out, and reset the tree view.
-*   **Gemini Analysis**
-    *   **Prompt**: Enter a prompt (instruction) to request an analysis of the Causal Tree image. A default prompt is provided.
-    *   **Analyze with Gemini**: Uses the entered prompt and the Causal Tree image to request an analysis from Google's generative AI model, "Gemini".
-    *   **Result Browser**: The analysis results (summary, insights, etc.) from Gemini are displayed in Markdown format.
 
 ## Reporting Feature
 
@@ -135,7 +131,6 @@ The following is a basic workflow for loading data from a file, performing Causa
 4.  Examine the results in the main area:
     *   Check the AUUC score and feature importance in `Model Diagnostics`.
     *   Visually understand which segments have a high (or low) treatment effect in `Causal Tree Visualization`.
-    *   Optionally, get AI-driven insights using the `Gemini Analysis` feature.
 5.  Connect the `Enhanced Data` output of the **Causal Tree** widget to a **Data Table** widget to view the data with added CATE and Leaf ID.
 
 ## Detailed Logic
@@ -165,8 +160,3 @@ The following is a basic workflow for loading data from a file, performing Causa
 *   **Feature Importance Plot**: The calculated importances are plotted as a horizontal bar chart using `matplotlib`.
 *   **CATE Distribution Plot**: The predicted CATE values are plotted as a histogram using `matplotlib`.
 *   **Qini Curve Plot**: The Uplift Curve (referred to as Qini Curve here), obtained during the AUUC score calculation, is plotted using `matplotlib`.
-
-### 5. Gemini Analysis Integration (`OWCausalTree.analyze_with_gemini`)
-
-*   **API Integration**: The visualized Causal Tree image is converted into image data in memory using the `PIL` library and sent to Google's Gemini API along with the prompt entered by the user.
-*   **Result Display**: The Markdown-formatted text returned from the API is displayed in the UI's text browser. This allows users to receive AI assistance in interpreting the model results. 

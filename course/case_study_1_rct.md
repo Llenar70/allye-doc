@@ -144,25 +144,13 @@ Now, let's use Allye to analyze if there is a statistically significant differen
   <img src="./imgs/course1_abresult.png" alt="A/B Test widget in Allye" width="500">
 </p>
 
-5. (optional) Add **AI Report**: 
-If you are uncertain about interpreting the statistical analysis or need to share the results with non-technical people, the AI Report feature can help. It uses AI to analyze the findings and generate a report with clear explanations. You can export this report as a PDF, HTML, or Markdown file for easy sharing.
-  - Click the `AI Reporting` button and edit the `Request to AI Allye` prompt in the `Report` widget.
-<p align="center">
-  <img src="./imgs/course1_aireport.png" alt="course1_aireport" width="700">
-</p>
-
-  - Check `AI Allye's Report`. Click `Save` button if necessary.
-<p align="center">
-  <img src="./imgs/course1_aireport_result.png" alt="A/B Test widget in Allye" width="600">
-</p>
-
 ## Making Decisions
 
 With the analysis complete, we have several key findings that lead to a clear decision:
 
 1.  **Randomization was Successful**: Our exploratory data analysis (EDA) confirmed that users were correctly assigned to each group at random, ensuring a fair comparison.
 2.  **The New Design Won**: The A/B test showed a clear, statistically significant increase in the conversion rate for the new button design. This lift was not a result of random chance.
-3.  **AI Confirms the Decision**: The AI Allye report interpreted these results and also recommended rolling out the feature, giving us a final layer of confidence.
+3.  **The Decision Is Clear**: The statistically significant lift supports rolling out the feature.
 
 From these results, you can conclude:
 

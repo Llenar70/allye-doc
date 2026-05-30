@@ -19,7 +19,7 @@ Specifically, you will practice the following steps:
 -   Understand the intuition behind **Causal Forest** and how it estimates the *Individual Treatment Effect (ITE)*.
 -   Design an analysis to discover if a spontaneous user action has a causal impact on retention, and for which user segments.
 -   Use the discovered insights to create a data-driven, personalized CRM strategy for different user segments.
--   Implement the analysis in Allye and share the results with stakeholders using the AI Report feature.
+-   Implement the analysis in Allye and share the results with stakeholders using exported reports.
 
 <br>
 
