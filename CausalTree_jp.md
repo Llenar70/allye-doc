@@ -107,10 +107,6 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 *   **Causal Tree Visualization**
     *   構築されたCausal Treeがグラフィカルに表示されます。各ノードには、分岐条件、そのノードに属するサンプルの処置効果（Effect）、サンプル数が表示されます。
     *   **Zoom Controls**: `+`, `-`, `Reset`ボタンで、ツリー表示の拡大・縮小・リセットが可能です。
-*   **Gemini Analysis**
-    *   **Prompt**: Causal Treeの画像分析を依頼するためのプロンプト（指示文）を入力します。デフォルトのプロンプトが用意されています。
-    *   **Analyze with Gemini**: 入力されたプロンプトとCausal Treeの画像を使って、Googleの生成AIモデル「Gemini」に分析を依頼します。
-    *   **Result Browser**: Geminiからの分析結果（サマリー、示唆など）がマークダウン形式で表示されます。
 
 ## レポート機能
 
@@ -139,7 +135,6 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 4.  メインエリアで結果を確認します:
     *   `Model Diagnostics`でAUUCスコアや特徴量の重要度を確認します。
     *   `Causal Tree Visualization`で、どのようなセグメントに処置効果が高いか（または低いか）を視覚的に理解します。
-    *   必要に応じて`Gemini Analysis`機能で、AIによる洞察を得ます。
 5.  **Causal Tree**ウィジェットの`Enhanced Data`出力を**Data Table**ウィジェットに接続し、CATEやLeaf IDが追加されたデータを確認します。
 
 ## 詳細ロジック
@@ -170,8 +165,3 @@ Causal Tree（因果木）は、処置（介入）が個々のサンプルに対
 *   **特徴量重要度プロット**: 計算された重要度を`matplotlib`を用いて水平棒グラフとして描画します。
 *   **CATE分布プロット**: 予測されたCATEの値を`matplotlib`を用いてヒストグラムとして描画します。
 *   **Qini Curveプロット**: AUUCで用いるUplift（Qini）曲線を`matplotlib`でプロットします。
-
-### 5. Gemini Analysis連携 (`OWCausalTree.analyze_with_gemini`)
-
-*   **API連携**: 可視化されたCausal Treeの画像を`PIL`ライブラリを使ってメモリ上で画像データに変換し、ユーザーが入力したプロンプトと共にGoogleのGemini APIに送信します。
-*   **結果表示**: APIから返されたマークダウン形式のテキストを、UI上のテキストブラウザに表示します。これにより、ユーザーはモデルの結果解釈に関するAIの支援を受けることができます。 
