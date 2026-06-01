@@ -127,7 +127,7 @@ When Allye starts, a Jupyter Notebook server is also launched in the background.
 **Detailed Logic**
 
 *   **Jupyter Notebook Server**:
-    *   It is assumed that a Jupyter Notebook server is started as part of the Allye application's launch process, likely using Python's `subprocess` module. The `jupyter: port` and `jupyter: host` settings from the configuration file (`config_allye.yaml`) would be used for this launch command.
+    *   It is assumed that a Jupyter Notebook server is started as part of the Allye application's launch process, likely using Python's `subprocess` module. The `jupyter_custom_server.port` and `jupyter_custom_server.host` settings from the configuration file (`config_allye.yaml`) would be used for this launch command.
     *   The widget displays a specific Notebook page from this externally running Jupyter server using `QWebEngineView`.
 
 **Notes/Caveats**

@@ -122,7 +122,7 @@ Allyeの起動と同時に、Jupyter Notebookサーバーもバックグラウ�
 **詳細なロジック**
 
 *   **Jupyter Notebookサーバー**:
-    *   Allyeアプリケーションの起動プロセスの一部として、Pythonの `subprocess` モジュールなどを利用してJupyter Notebookサーバーが起動されると想定されます。設定ファイル (`config_allye.yaml`) の `jupyter: port` および `jupyter: host` がこの起動コマンドに使用されます。
+    *   Allyeアプリケーションの起動プロセスの一部として、Pythonの `subprocess` モジュールなどを利用してJupyter Notebookサーバーが起動されると想定されます。設定ファイル (`config_allye.yaml`) の `jupyter_custom_server.port` および `jupyter_custom_server.host` がこの起動コマンドに使用されます。
     *   ウィジェットは、この外部で起動されているJupyterサーバーの特定のNotebookページを `QWebEngineView` で表示します。
 
 **注意点・補足**
